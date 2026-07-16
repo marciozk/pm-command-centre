@@ -1,0 +1,10 @@
+{
+  "name": "PM Command Centre",
+  "short_name": "PM Centre",
+  "description": "A private product-management command centre for strategy, delivery, governance, controls and decisions.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#181818",
+  "theme_color": "#181818"
+}
