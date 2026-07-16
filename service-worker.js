@@ -1,4 +1,4 @@
-const CACHE = 'pm-command-centre-v3';
+const CACHE = 'pm-command-centre-v4';
 const APP_SHELL = ['./manifest.webmanifest'];
 
 self.addEventListener('install', event => {
@@ -33,13 +33,15 @@ self.addEventListener('fetch', event => {
 
   event.respondWith(
     caches.match(event.request).then(cached => {
-      const fresh = fetch(event.request, { cache: 'no-store' }).then(response => {
-        if (response.ok) {
-          const copy = response.clone();
-          caches.open(CACHE).then(cache => cache.put(event.request, copy));
-        }
-        return response;
-      });
+      const fresh = fetch(event.request, { cache: 'no-store' })
+        .then(response => {
+          if (response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE).then(cache => cache.put(event.request, copy));
+          }
+          return response;
+        })
+        .catch(() => cached || new Response('', { status: 404, statusText: 'Not Found' }));
       return cached || fresh;
     })
   );
