@@ -1,4 +1,4 @@
-const CACHE = 'pm-command-centre-v1';
+const CACHE = 'pm-command-centre-v2';
 const ASSETS = ['./', './index.html', './manifest.webmanifest'];
 
 self.addEventListener('install', event => {

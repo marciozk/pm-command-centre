@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#181818">
 <meta name="description" content="A private product-management command centre for strategy, delivery, governance, controls and decisions.">
 <link rel="manifest" href="manifest.webmanifest">
-<style>:root{color-scheme:light dark;background:light-dark(rgb(255 255 255), rgb(24 24 24))}html,body{margin:0}body{box-sizing:border-box;padding:1rem;background:inherit}iframe{display:block;width:100%;max-width:736px;height:calc(100vh - 2rem);margin:0 auto;border:0}</style>
+<style>:root{color-scheme:light dark;background:light-dark(rgb(255 255 255), rgb(24 24 24))}html,body{margin:0;width:100%;height:100%}body{box-sizing:border-box;padding:0;background:inherit}iframe{display:block;width:100%;max-width:none;height:100vh;margin:0;border:0}</style>
 </head>
 <body>
 <iframe sandbox="allow-scripts allow-same-origin" referrerpolicy="no-referrer" title="PM Command Centre" srcdoc="&lt;!doctype html&gt;
@@ -753,7 +753,7 @@ html&gt;body{padding:0}&lt;/style&gt;
 &lt;body&gt;
 &lt;div id=&quot;pm-command-centre&quot;&gt;
   &lt;style&gt;
-    #pm-command-centre { color: var(--foreground); font-family: inherit; }
+    #pm-command-centre { color: var(--foreground); background:var(--background); font-family: inherit; width:100%; min-height:100%; }
     #pm-command-centre .shell { display: grid; gap: 18px; }
     #pm-command-centre .hero { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; }
     #pm-command-centre .eyebrow { color:var(--muted-foreground); text-transform:uppercase; letter-spacing:.08em; font-size:12px; }
@@ -829,7 +829,7 @@ html&gt;body{padding:0}&lt;/style&gt;
   &lt;div class=&quot;shell&quot;&gt;
     &lt;div class=&quot;hero&quot;&gt;
       &lt;div&gt;&lt;div class=&quot;eyebrow&quot;&gt;Voice &amp;amp; Archive&lt;/div&gt;&lt;h2&gt;Product command centre&lt;/h2&gt;&lt;p class=&quot;text-muted&quot;&gt;Business outcomes, regulatory control and delivery in one operating view.&lt;/p&gt;&lt;/div&gt;
-      &lt;div class=&quot;viz-row&quot;&gt;&lt;span class=&quot;viz-badge&quot;&gt;Operating model&lt;/span&gt;&lt;button class=&quot;btn btn-primary&quot; id=&quot;add-action&quot;&gt;&lt;i data-lucide=&quot;plus&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Add item&lt;/button&gt;&lt;/div&gt;
+      &lt;div class=&quot;viz-row&quot;&gt;&lt;span class=&quot;viz-badge&quot;&gt;Operating model&lt;/span&gt;&lt;button class=&quot;btn&quot; id=&quot;theme-toggle&quot; type=&quot;button&quot; aria-pressed=&quot;false&quot;&gt;&lt;i data-lucide=&quot;moon&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; &lt;span&gt;Dark mode&lt;/span&gt;&lt;/button&gt;&lt;button class=&quot;btn btn-primary&quot; id=&quot;add-action&quot;&gt;&lt;i data-lucide=&quot;plus&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Add item&lt;/button&gt;&lt;/div&gt;
     &lt;/div&gt;
     &lt;nav class=&quot;nav&quot; aria-label=&quot;Command centre sections&quot;&gt;
       &lt;button class=&quot;btn btn-primary&quot; data-view=&quot;overview&quot;&gt;Overview&lt;/button&gt;
@@ -976,6 +976,19 @@ html&gt;body{padding:0}&lt;/style&gt;
   &lt;script&gt;
   (() =&gt; {
     const root = document.getElementById(&#x27;pm-command-centre&#x27;);
+    const themeButton = root.querySelector(&#x27;#theme-toggle&#x27;);
+    function savedTheme(){try{return localStorage.getItem(&#x27;pmcc-theme&#x27;);}catch(e){return null;}}
+    function applyTheme(theme){
+      const dark=theme===&#x27;dark&#x27;;
+      root.style.colorScheme=dark?&#x27;dark&#x27;:&#x27;light&#x27;;
+      root.dataset.theme=theme;
+      themeButton.setAttribute(&#x27;aria-pressed&#x27;,String(dark));
+      themeButton.innerHTML=`&lt;i data-lucide=&quot;${dark?&#x27;sun&#x27;:&#x27;moon&#x27;}&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; &lt;span&gt;${dark?&#x27;Light mode&#x27;:&#x27;Dark mode&#x27;}&lt;/span&gt;`;
+      try{localStorage.setItem(&#x27;pmcc-theme&#x27;,theme);}catch(e){}
+      if(window.lucide)lucide.createIcons({attrs:{width:16,height:16}});
+    }
+    applyTheme(savedTheme() || (matchMedia(&#x27;(prefers-color-scheme: dark)&#x27;).matches?&#x27;dark&#x27;:&#x27;light&#x27;));
+    themeButton.addEventListener(&#x27;click&#x27;,()=&gt;applyTheme(root.dataset.theme===&#x27;dark&#x27;?&#x27;light&#x27;:&#x27;dark&#x27;));
     const initiatives = [
       {q:&#x27;Now&#x27;,title:&#x27;Regulatory population controls&#x27;,theme:&#x27;Regulatory&#x27;,progress:72,outcome:&#x27;Prove every in-scope user and channel is recorded.&#x27;,evidence:&#x27;Daily reconciliation, exception ageing, attestation coverage&#x27;,owner:&#x27;Compliance Product&#x27;},
       {q:&#x27;Now&#x27;,title:&#x27;Recording platform uplift&#x27;,theme:&#x27;Reliability&#x27;,progress:46,outcome:&#x27;Remove end-of-support and security exposure.&#x27;,evidence:&#x27;Supported version, zero critical findings, recovery tested&#x27;,owner:&#x27;Platform Engineering&#x27;},
