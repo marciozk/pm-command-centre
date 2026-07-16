@@ -754,7 +754,7 @@ html&gt;body{padding:0}&lt;/style&gt;
 &lt;body&gt;
 &lt;div id=&quot;pm-command-centre&quot;&gt;
   &lt;style&gt;
-    #pm-command-centre { color: var(--foreground); background:var(--background); font-family: inherit; width:100%; min-height:100%; }
+    #pm-command-centre { color: var(--foreground); background:var(--background); font-family: inherit; width:100%; min-height:100%; box-sizing:border-box; padding:clamp(16px,1.5vw,28px); }
     #pm-command-centre .shell { display: grid; gap: 18px; }
     #pm-command-centre .hero { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; }
     #pm-command-centre .eyebrow { color:var(--muted-foreground); text-transform:uppercase; letter-spacing:.08em; font-size:12px; }
@@ -819,6 +819,7 @@ html&gt;body{padding:0}&lt;/style&gt;
       #pm-command-centre .heat{grid-template-columns:100px repeat(4,1fr); font-size:12px}
     }
     @media (max-width:430px){
+      #pm-command-centre{padding:12px}
       #pm-command-centre .stats,#pm-command-centre .roadmap,#pm-command-centre .form-grid,#pm-command-centre .detail-grid{grid-template-columns:1fr}
       #pm-command-centre .template-grid{grid-template-columns:1fr}
       #pm-command-centre .gate{grid-template-columns:1fr}

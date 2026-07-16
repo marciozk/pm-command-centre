@@ -1,4 +1,4 @@
-const CACHE = 'pm-command-centre-v4';
+const CACHE = 'pm-command-centre-v5';
 const APP_SHELL = ['./manifest.webmanifest'];
 
 self.addEventListener('install', event => {
