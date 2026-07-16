@@ -1,8 +1,8 @@
-const CACHE = 'pm-command-centre-v2';
-const ASSETS = ['./', './index.html', './manifest.webmanifest'];
+const CACHE = 'pm-command-centre-v3';
+const APP_SHELL = ['./manifest.webmanifest'];
 
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)));
+  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(APP_SHELL)));
   self.skipWaiting();
 });
 
@@ -15,5 +15,32 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
-  event.respondWith(caches.match(event.request).then(cached => cached || fetch(event.request)));
+
+  if (event.request.mode === 'navigate' || event.request.destination === 'document') {
+    event.respondWith(
+      fetch(event.request, { cache: 'no-store' })
+        .then(response => {
+          const copy = response.clone();
+          caches.open(CACHE).then(cache => cache.put(event.request, copy));
+          return response;
+        })
+        .catch(() => caches.match(event.request).then(cached => cached || caches.match('./index.html')))
+    );
+    return;
+  }
+
+  if (new URL(event.request.url).origin !== self.location.origin) return;
+
+  event.respondWith(
+    caches.match(event.request).then(cached => {
+      const fresh = fetch(event.request, { cache: 'no-store' }).then(response => {
+        if (response.ok) {
+          const copy = response.clone();
+          caches.open(CACHE).then(cache => cache.put(event.request, copy));
+        }
+        return response;
+      });
+      return cached || fresh;
+    })
+  );
 });

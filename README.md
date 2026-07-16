@@ -12,6 +12,10 @@ python3 -m http.server 8080
 
 Then open `http://localhost:8080`.
 
+## Updating the installed app
+
+The service worker uses network-first navigation, so the latest page is loaded whenever a connection is available. If an older installed version remains open, close every app window and open it again once; the new service worker activates automatically.
+
 ## Data handling
 
 - The current application stores checklist and decision changes in the browser's local storage.
