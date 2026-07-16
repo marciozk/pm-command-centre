@@ -799,6 +799,8 @@ html&gt;body{padding:0}&lt;/style&gt;
     #pm-command-centre .template-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
     #pm-command-centre .template-card { display:grid; gap:10px; align-content:start; }
     #pm-command-centre .template-card .btn { justify-self:start; }
+    #pm-command-centre .template-card .viz-row { align-self:end; }
+    #pm-command-centre .template-editor { margin-top:18px; }
     #pm-command-centre .gate { display:grid; grid-template-columns:120px 1fr auto; gap:12px; align-items:center; padding:11px 0; border-bottom:1px solid var(--border); }
     #pm-command-centre .gate:last-child { border-bottom:0; }
     #pm-command-centre .guideline { padding:11px 0; border-bottom:1px solid var(--border); }
@@ -943,8 +945,20 @@ html&gt;body{padding:0}&lt;/style&gt;
 
     &lt;section class=&quot;view&quot; data-panel=&quot;templates&quot;&gt;
       &lt;details class=&quot;tab-guide&quot;&gt;&lt;summary&gt;How to use Templates · examples&lt;/summary&gt;&lt;div class=&quot;tab-guide-grid&quot;&gt;&lt;div&gt;&lt;strong&gt;New idea&lt;/strong&gt;&lt;span&gt;Start with the product one-pager; do not write delivery requirements until the problem is evidenced.&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;strong&gt;Funding request&lt;/strong&gt;&lt;span&gt;Use the business case to compare options, action versus inaction cost and measurable benefits.&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;strong&gt;Production release&lt;/strong&gt;&lt;span&gt;Use product requirements, controlled stories and go-live readiness as a linked evidence chain.&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/details&gt;
-      &lt;div class=&quot;section-head&quot;&gt;&lt;div&gt;&lt;h3&gt;Bank-grade template library&lt;/h3&gt;&lt;p class=&quot;text-muted&quot;&gt;Copy a structure, then replace assumptions with evidence.&lt;/p&gt;&lt;/div&gt;&lt;span id=&quot;copy-status&quot; class=&quot;copy-status text-small&quot; aria-live=&quot;polite&quot;&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;section-head&quot;&gt;&lt;div&gt;&lt;h3&gt;Bank-grade template library&lt;/h3&gt;&lt;p class=&quot;text-muted&quot;&gt;Open a template, complete it in the app and keep the draft in this browser.&lt;/p&gt;&lt;/div&gt;&lt;span id=&quot;copy-status&quot; class=&quot;copy-status text-small&quot; aria-live=&quot;polite&quot;&gt;&lt;/span&gt;&lt;/div&gt;
       &lt;div class=&quot;template-grid&quot; id=&quot;template-grid&quot;&gt;&lt;/div&gt;
+      &lt;section class=&quot;card template-editor&quot; id=&quot;template-editor&quot; aria-labelledby=&quot;template-editor-title&quot; hidden&gt;
+        &lt;div class=&quot;section-head&quot; style=&quot;margin-top:0&quot;&gt;&lt;div&gt;&lt;h3 id=&quot;template-editor-title&quot;&gt;&lt;/h3&gt;&lt;p class=&quot;text-muted&quot; id=&quot;template-editor-use&quot;&gt;&lt;/p&gt;&lt;/div&gt;&lt;button class=&quot;btn btn-ghost&quot; type=&quot;button&quot; id=&quot;close-template&quot;&gt;Close&lt;/button&gt;&lt;/div&gt;
+        &lt;form id=&quot;template-form&quot;&gt;
+          &lt;div class=&quot;form-grid&quot; id=&quot;template-fields&quot;&gt;&lt;/div&gt;
+          &lt;div class=&quot;viz-row&quot; style=&quot;margin-top:14px&quot;&gt;
+            &lt;button class=&quot;btn btn-primary&quot; type=&quot;submit&quot;&gt;&lt;i data-lucide=&quot;save&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Save draft&lt;/button&gt;
+            &lt;button class=&quot;btn&quot; type=&quot;button&quot; id=&quot;copy-completed-template&quot;&gt;&lt;i data-lucide=&quot;copy&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Copy completed template&lt;/button&gt;
+            &lt;button class=&quot;btn btn-ghost&quot; type=&quot;button&quot; id=&quot;clear-template&quot;&gt;Clear&lt;/button&gt;
+            &lt;span class=&quot;text-small text-muted&quot; id=&quot;template-save-status&quot; aria-live=&quot;polite&quot;&gt;&lt;/span&gt;
+          &lt;/div&gt;
+        &lt;/form&gt;
+      &lt;/section&gt;
       &lt;div class=&quot;section-head&quot;&gt;&lt;div&gt;&lt;h3&gt;Writing guidelines&lt;/h3&gt;&lt;p class=&quot;text-muted&quot;&gt;Clear enough for executives; precise enough for audit.&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;
       &lt;div class=&quot;columns&quot;&gt;
         &lt;div id=&quot;writing-guidelines&quot;&gt;&lt;/div&gt;
@@ -1072,13 +1086,52 @@ html&gt;body{padding:0}&lt;/style&gt;
       root.querySelectorAll(&#x27;[data-mandatory]&#x27;).forEach(x=&gt;x.addEventListener(&#x27;change&#x27;,()=&gt;{const v=[...root.querySelectorAll(&#x27;[data-mandatory]:checked&#x27;)].map(e=&gt;+e.dataset.mandatory);localStorage.setItem(&#x27;pmcc-mandatory&#x27;,JSON.stringify(v));}));
     }
     function renderTemplates(){
-      root.querySelector(&#x27;#template-grid&#x27;).innerHTML=templateLibrary.map((t,i)=&gt;`&lt;div class=&quot;card template-card&quot;&gt;&lt;h3&gt;${t.name}&lt;/h3&gt;&lt;p&gt;${t.use}&lt;/p&gt;&lt;button class=&quot;btn&quot; data-copy-template=&quot;${i}&quot;&gt;&lt;i data-lucide=&quot;copy&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Copy template&lt;/button&gt;&lt;/div&gt;`).join(&#x27;&#x27;);
+      root.querySelector(&#x27;#template-grid&#x27;).innerHTML=templateLibrary.map((t,i)=&gt;`&lt;div class=&quot;card template-card&quot;&gt;&lt;h3&gt;${t.name}&lt;/h3&gt;&lt;p&gt;${t.use}&lt;/p&gt;&lt;div class=&quot;viz-row&quot;&gt;&lt;button class=&quot;btn btn-primary&quot; data-open-template=&quot;${i}&quot;&gt;&lt;i data-lucide=&quot;file-pen-line&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Open template&lt;/button&gt;&lt;button class=&quot;btn btn-ghost&quot; data-copy-template=&quot;${i}&quot;&gt;&lt;i data-lucide=&quot;copy&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Copy&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;`).join(&#x27;&#x27;);
       const guidelines=[[&#x27;Lead with the decision&#x27;,&#x27;State the decision, outcome or exception before background.&#x27;],[&#x27;Use evidence, not adjectives&#x27;,&#x27;Replace “major issue” with users affected, control impact and duration.&#x27;],[&#x27;Separate facts from assumptions&#x27;,&#x27;Label what is confirmed, estimated and still being validated.&#x27;],[&#x27;Name accountability&#x27;,&#x27;Every action, risk, control and benefit needs one accountable owner.&#x27;],[&#x27;Make outcomes measurable&#x27;,&#x27;Use baselines, targets, dates and data sources.&#x27;],[&#x27;Expose trade-offs&#x27;,&#x27;State what is delayed, stopped, funded or accepted.&#x27;],[&#x27;Preserve traceability&#x27;,&#x27;Link demand → decision → requirement → test → release → metric → control evidence.&#x27;]];
       root.querySelector(&#x27;#writing-guidelines&#x27;).innerHTML=guidelines.map(x=&gt;`&lt;div class=&quot;guideline&quot;&gt;&lt;strong&gt;${x[0]}&lt;/strong&gt;&lt;span&gt;${x[1]}&lt;/span&gt;&lt;/div&gt;`).join(&#x27;&#x27;);
       const ready=[&#x27;Problem validated with evidence&#x27;,&#x27;Outcome and success metric agreed&#x27;,&#x27;Regulatory and control impacts assessed&#x27;,&#x27;Acceptance criteria testable&#x27;,&#x27;Dependencies and non-functional requirements understood&#x27;,&#x27;Owner, capacity and target window confirmed&#x27;];
       root.querySelector(&#x27;#ready-list&#x27;).innerHTML=ready.map(x=&gt;`&lt;label&gt;&lt;input type=&quot;checkbox&quot; class=&quot;form-check-input&quot;&gt;&lt;span&gt;${x}&lt;/span&gt;&lt;/label&gt;`).join(&#x27;&#x27;);
+      root.querySelectorAll(&#x27;[data-open-template]&#x27;).forEach(b=&gt;b.addEventListener(&#x27;click&#x27;,()=&gt;openTemplate(+b.dataset.openTemplate)));
       root.querySelectorAll(&#x27;[data-copy-template]&#x27;).forEach(b=&gt;b.addEventListener(&#x27;click&#x27;,async()=&gt;{const t=templateLibrary[+b.dataset.copyTemplate];try{await navigator.clipboard.writeText(t.body);root.querySelector(&#x27;#copy-status&#x27;).textContent=`${t.name} copied`; }catch(e){root.querySelector(&#x27;#copy-status&#x27;).textContent=&#x27;Copy unavailable in this view&#x27;;}}));
     }
+    const templateEditor=root.querySelector(&#x27;#template-editor&#x27;);
+    let activeTemplateIndex=null,templateSaveTimer;
+    function safeText(value){return String(value).replace(/[&amp;&lt;&gt;&quot;&#x27;]/g,c=&gt;({&#x27;&amp;&#x27;:&#x27;&amp;amp;&#x27;,&#x27;&lt;&#x27;:&#x27;&amp;lt;&#x27;,&#x27;&gt;&#x27;:&#x27;&amp;gt;&#x27;,&#x27;&quot;&#x27;:&#x27;&amp;quot;&#x27;,&#x27;\&#x27;&#x27;:&#x27;&amp;#39;&#x27;}[c]));}
+    function templateFields(template){
+      return template.body.split(&#x27;\n&#x27;).slice(1).filter(Boolean).map(line=&gt;{
+        const colon=line.indexOf(&#x27;:&#x27;);
+        if(colon&gt;=0)return {label:line.slice(0,colon).trim(),value:line.slice(colon+1).trim()};
+        if(line.startsWith(&#x27;As a &#x27;))return {label:&#x27;User or control function&#x27;,value:line.slice(5)};
+        if(line.startsWith(&#x27;I need &#x27;))return {label:&#x27;Capability needed&#x27;,value:line.slice(7)};
+        if(line.startsWith(&#x27;So that &#x27;))return {label:&#x27;Measurable outcome&#x27;,value:line.slice(8)};
+        return {label:line,value:&#x27;&#x27;};
+      });
+    }
+    function draftKey(index){return `pmcc-template-draft-${index}`;}
+    function currentTemplateValues(){return [...root.querySelectorAll(&#x27;[data-template-field]&#x27;)].map(field=&gt;({label:field.dataset.templateField,value:field.value}));}
+    function persistTemplateDraft(message=&#x27;Draft saved locally&#x27;){
+      if(activeTemplateIndex===null)return;
+      localStorage.setItem(draftKey(activeTemplateIndex),JSON.stringify(currentTemplateValues()));
+      root.querySelector(&#x27;#template-save-status&#x27;).textContent=message;
+    }
+    function openTemplate(index){
+      activeTemplateIndex=index;const template=templateLibrary[index];
+      const saved=JSON.parse(localStorage.getItem(draftKey(index))||&#x27;null&#x27;);const fields=saved||templateFields(template);
+      root.querySelector(&#x27;#template-editor-title&#x27;).textContent=template.name;
+      root.querySelector(&#x27;#template-editor-use&#x27;).textContent=template.use;
+      root.querySelector(&#x27;#template-fields&#x27;).innerHTML=fields.map((field,i)=&gt;`&lt;label class=&quot;form-label&quot; for=&quot;template-field-${i}&quot;&gt;${safeText(field.label)}&lt;textarea class=&quot;form-control&quot; id=&quot;template-field-${i}&quot; data-template-field=&quot;${safeText(field.label)}&quot; rows=&quot;3&quot;&gt;${safeText(field.value||&#x27;&#x27;)}&lt;/textarea&gt;&lt;/label&gt;`).join(&#x27;&#x27;);
+      root.querySelector(&#x27;#template-save-status&#x27;).textContent=saved?&#x27;Saved draft restored&#x27;:&#x27;New draft&#x27;;
+      templateEditor.hidden=false;templateEditor.scrollIntoView({behavior:&#x27;smooth&#x27;,block:&#x27;start&#x27;});
+    }
+    function completedTemplateText(){
+      const template=templateLibrary[activeTemplateIndex];
+      return template.name.toUpperCase()+&#x27;\n\n&#x27;+currentTemplateValues().map(field=&gt;`${field.label}:\n${field.value.trim()}`).join(&#x27;\n\n&#x27;);
+    }
+    root.querySelector(&#x27;#template-form&#x27;).addEventListener(&#x27;submit&#x27;,event=&gt;{event.preventDefault();persistTemplateDraft();});
+    root.querySelector(&#x27;#template-fields&#x27;).addEventListener(&#x27;input&#x27;,()=&gt;{clearTimeout(templateSaveTimer);root.querySelector(&#x27;#template-save-status&#x27;).textContent=&#x27;Saving…&#x27;;templateSaveTimer=setTimeout(()=&gt;persistTemplateDraft(),300);});
+    root.querySelector(&#x27;#close-template&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{persistTemplateDraft();templateEditor.hidden=true;});
+    root.querySelector(&#x27;#clear-template&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{if(activeTemplateIndex===null)return;localStorage.removeItem(draftKey(activeTemplateIndex));root.querySelectorAll(&#x27;[data-template-field]&#x27;).forEach(field=&gt;field.value=&#x27;&#x27;);root.querySelector(&#x27;#template-save-status&#x27;).textContent=&#x27;Draft cleared&#x27;;});
+    root.querySelector(&#x27;#copy-completed-template&#x27;).addEventListener(&#x27;click&#x27;,async()=&gt;{try{await navigator.clipboard.writeText(completedTemplateText());root.querySelector(&#x27;#template-save-status&#x27;).textContent=&#x27;Completed template copied&#x27;;}catch(e){root.querySelector(&#x27;#template-save-status&#x27;).textContent=&#x27;Copy unavailable in this view&#x27;;}});
     const dlg=root.querySelector(&#x27;#item-dialog&#x27;);
     root.querySelector(&#x27;#add-action&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;dlg.showModal());
     root.querySelector(&#x27;#new-decision&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{dlg.showModal();dlg.querySelector(&#x27;[name=type]&#x27;).value=&#x27;Decision&#x27;;});
