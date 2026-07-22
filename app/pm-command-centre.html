@@ -1,0 +1,1319 @@
+<div id="pm-command-centre">
+  <style>
+    /* Fallbacks keep this maintainable source readable when opened directly. */
+    body { margin:0; }
+    #pm-command-centre {
+      color-scheme:light dark;
+      --background:light-dark(#f7f8fa,#111316);
+      --foreground:light-dark(#1a1c1f,#f7f8fa);
+      --card:light-dark(#fff,#1b1e22);
+      --card-foreground:var(--foreground);
+      --primary:light-dark(#1f5eff,#8fb0ff);
+      --primary-foreground:light-dark(#fff,#111316);
+      --secondary:light-dark(#eef1f5,#252a30);
+      --muted:light-dark(#e7eaf0,#292e35);
+      --muted-foreground:light-dark(#596170,#aeb6c2);
+      --accent:light-dark(#edf3ff,#202c43);
+      --accent-foreground:var(--foreground);
+      --border:light-dark(#d8dde6,#39404a);
+      --ring:light-dark(#1f5eff,#8fb0ff);
+      --destructive:light-dark(#b42318,#ff8a80);
+      --viz-series-1:light-dark(#3168d8,#82aaff);
+      --viz-series-2:light-dark(#16855b,#63d3a1);
+      --viz-series-4:light-dark(#b85c00,#ffb45c);
+      min-height:100vh;
+      padding:clamp(16px,3vw,36px);
+      background:var(--background);
+      color:var(--foreground);
+      font:14px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    }
+    #pm-command-centre h1 { margin:0; font-size:clamp(1.65rem,3vw,2.35rem); line-height:1.12; }
+    #pm-command-centre h2 { font-size:1.2rem; }
+    #pm-command-centre h3 { font-size:1rem; }
+    #pm-command-centre button, #pm-command-centre input, #pm-command-centre select, #pm-command-centre textarea { font:inherit; }
+    #pm-command-centre .card { background:var(--card); color:var(--card-foreground); border:1px solid var(--border); border-radius:12px; }
+    #pm-command-centre .btn { display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:36px; padding:7px 11px; border:1px solid var(--border); border-radius:8px; background:var(--secondary); color:var(--foreground); cursor:pointer; text-decoration:none; }
+    #pm-command-centre .btn:hover { background:var(--accent); }
+    #pm-command-centre .btn:focus-visible, #pm-command-centre :is(input,select,textarea):focus-visible { outline:3px solid var(--ring); outline-offset:2px; }
+    #pm-command-centre .btn-primary { border-color:var(--primary); background:var(--primary); color:var(--primary-foreground); }
+    #pm-command-centre .btn-primary:hover { filter:brightness(.94); background:var(--primary); }
+    #pm-command-centre .btn-ghost { border-color:transparent; background:transparent; }
+    #pm-command-centre .btn:disabled { cursor:not-allowed; opacity:.55; }
+    #pm-command-centre .viz-row { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+    #pm-command-centre .viz-badge { display:inline-flex; align-items:center; width:max-content; padding:3px 8px; border:1px solid var(--border); border-radius:999px; background:var(--secondary); font-size:.85rem; }
+    #pm-command-centre .viz-stat { padding:14px; }
+    #pm-command-centre .viz-stat-value { margin-top:5px; font-size:1.55rem; font-weight:650; }
+    #pm-command-centre .form-label { display:grid; gap:6px; color:var(--muted-foreground); }
+    #pm-command-centre :is(.form-control,.form-select) { width:100%; min-height:38px; padding:8px 10px; border:1px solid var(--border); border-radius:8px; background:var(--card); color:var(--foreground); }
+    #pm-command-centre .text-muted { color:var(--muted-foreground); }
+    #pm-command-centre .text-destructive { color:var(--destructive); }
+    #pm-command-centre .sr-only { position:absolute!important; width:1px!important; height:1px!important; padding:0!important; margin:-1px!important; overflow:hidden!important; clip:rect(0,0,0,0)!important; white-space:nowrap!important; border:0!important; }
+    #pm-command-centre * { box-sizing: border-box; }
+    #pm-command-centre .topline { display:flex; gap:16px; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; margin-bottom:16px; }
+    #pm-command-centre .subtitle { color:var(--muted-foreground); margin:4px 0 0; }
+    #pm-command-centre .tabs { display:flex; flex-wrap:wrap; gap:6px; padding-bottom:14px; border-bottom:1px solid var(--border); margin-bottom:16px; }
+    #pm-command-centre .panel { display:none; }
+    #pm-command-centre .panel.active { display:block; }
+    #pm-command-centre .stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-bottom:18px; }
+    #pm-command-centre .stat-note { color:var(--muted-foreground); margin-top:4px; }
+    #pm-command-centre .split { display:grid; grid-template-columns:minmax(0,1.4fr) minmax(260px,.6fr); gap:22px; align-items:start; }
+    #pm-command-centre .section { margin-bottom:24px; }
+    #pm-command-centre .section-head { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:10px; }
+    #pm-command-centre .section-head h2, #pm-command-centre .section-head h3 { margin:0; }
+    #pm-command-centre .table-wrap { overflow-x:auto; }
+    #pm-command-centre table { width:100%; border-collapse:collapse; min-width:650px; }
+    #pm-command-centre th { text-align:left; color:var(--muted-foreground); font-weight:500; border-bottom:1px solid var(--border); padding:8px; }
+    #pm-command-centre td { border-bottom:1px solid var(--border); padding:10px 8px; vertical-align:top; }
+    #pm-command-centre tr[data-id] { cursor:pointer; }
+    #pm-command-centre tr[data-id]:hover { background:var(--accent); color:var(--accent-foreground); }
+    #pm-command-centre .name { font-weight:500; }
+    #pm-command-centre .meta { color:var(--muted-foreground); margin-top:3px; }
+    #pm-command-centre .bar { height:8px; background:var(--muted); overflow:hidden; border-radius:999px; min-width:90px; }
+    #pm-command-centre .bar > span { display:block; height:100%; background:var(--viz-series-1); border-radius:inherit; }
+    #pm-command-centre .status { display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
+    #pm-command-centre .dot { width:8px; height:8px; border-radius:50%; background:var(--muted-foreground); }
+    #pm-command-centre .dot.on-track { background:var(--viz-series-2); }
+    #pm-command-centre .dot.at-risk { background:var(--viz-series-4); }
+    #pm-command-centre .dot.blocked, #pm-command-centre .dot.high { background:var(--destructive); }
+    #pm-command-centre .dot.done, #pm-command-centre .dot.low { background:var(--viz-series-2); }
+    #pm-command-centre .matrix { position:relative; height:330px; border-left:1px solid var(--border); border-bottom:1px solid var(--border); background:linear-gradient(to right,transparent 49.8%,var(--border) 50%,transparent 50.2%),linear-gradient(to bottom,transparent 49.8%,var(--border) 50%,transparent 50.2%); margin:26px 16px 42px 48px; }
+    #pm-command-centre .axis-y { position:absolute; left:-46px; top:45%; transform:rotate(-90deg); color:var(--muted-foreground); white-space:nowrap; }
+    #pm-command-centre .axis-x { position:absolute; left:42%; bottom:-34px; color:var(--muted-foreground); }
+    #pm-command-centre .bubble { position:absolute; transform:translate(-50%,50%); width:38px; height:38px; border-radius:50%; border:0; background:color-mix(in srgb,var(--viz-series-1) 24%,var(--card)); color:var(--card-foreground); display:grid; place-items:center; cursor:pointer; font-weight:500; }
+    #pm-command-centre .bubble:hover, #pm-command-centre .bubble:focus { outline:2px solid var(--ring); }
+    #pm-command-centre .detail { padding:14px; }
+    #pm-command-centre .detail dl { display:grid; grid-template-columns:auto 1fr; gap:8px 12px; margin:12px 0 0; }
+    #pm-command-centre .detail dt { color:var(--muted-foreground); }
+    #pm-command-centre .detail dd { margin:0; }
+    #pm-command-centre .lanes { display:grid; gap:12px; }
+    #pm-command-centre .timeline-row { display:grid; grid-template-columns:145px repeat(var(--roadmap-columns,4),minmax(48px,1fr)); gap:3px; align-items:stretch; }
+    #pm-command-centre .timeline-grid { display:grid; grid-template-columns:repeat(var(--roadmap-columns,4),minmax(48px,1fr)); grid-column:2/-1; min-height:62px; background:repeating-linear-gradient(to right,transparent 0,transparent calc((100% / var(--roadmap-columns,4)) - 1px),var(--border) calc((100% / var(--roadmap-columns,4)) - 1px),var(--border) calc(100% / var(--roadmap-columns,4))); }
+    #pm-command-centre .timeline-item { padding:9px; margin:3px; background:color-mix(in srgb,var(--viz-series-1) 15%,var(--card)); border:0; border-left:3px solid var(--viz-series-1); min-width:0; width:calc(100% - 6px); color:inherit; font:inherit; text-align:left; cursor:pointer; }
+    #pm-command-centre .timeline-item:hover { outline:2px solid color-mix(in srgb,var(--primary) 35%,transparent); }
+    #pm-command-centre .timeline-item:focus-visible { outline:3px solid var(--ring); outline-offset:2px; }
+    #pm-command-centre .timeline-item.risk { background:color-mix(in srgb,var(--destructive) 12%,var(--card)); border-left-color:var(--destructive); }
+    #pm-command-centre .lane-label { padding:10px 8px; font-weight:500; }
+    #pm-command-centre .quarter { text-align:center; color:var(--muted-foreground); padding:4px; }
+    #pm-command-centre .empty-cell { min-height:58px; background:color-mix(in srgb,var(--muted) 38%,transparent); }
+    #pm-command-centre .form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+    #pm-command-centre .form-grid .wide { grid-column:1/-1; }
+    #pm-command-centre dialog { color:var(--foreground); background:var(--card); border:1px solid var(--border); border-radius:12px; width:min(620px,calc(100% - 24px)); }
+    #pm-command-centre dialog::backdrop { background:color-mix(in srgb,var(--foreground) 28%,transparent); }
+    #pm-command-centre .dialog-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:16px; }
+    #pm-command-centre textarea { min-height:90px; }
+    #pm-command-centre .health-list { display:grid; gap:12px; }
+    #pm-command-centre .health-row { display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center; }
+    #pm-command-centre .health-row .bar { grid-column:1/-1; }
+    #pm-command-centre .decision { padding:12px 0; border-bottom:1px solid var(--border); }
+    #pm-command-centre .decision:last-child { border-bottom:0; }
+    #pm-command-centre .report { white-space:pre-wrap; padding:16px; min-height:250px; }
+    #pm-command-centre .template-layout { display:grid; grid-template-columns:minmax(210px,.42fr) minmax(0,1.58fr); gap:22px; align-items:start; }
+    #pm-command-centre .template-list { display:grid; gap:6px; }
+    #pm-command-centre .template-list .btn { text-align:left; justify-content:flex-start; }
+    #pm-command-centre .template-intro { margin-bottom:16px; }
+    #pm-command-centre .template-field { padding:14px 0; border-bottom:1px solid var(--border); }
+    #pm-command-centre .template-field:last-child { border-bottom:0; }
+    #pm-command-centre .field-guide { color:var(--muted-foreground); margin:5px 0 9px; }
+    #pm-command-centre .field-example { padding:9px 10px; border-left:3px solid var(--viz-series-1); background:color-mix(in srgb,var(--viz-series-1) 10%,transparent); }
+    #pm-command-centre .method-note { padding:12px 0; margin:10px 0 4px; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+    #pm-command-centre .method-note p { margin:5px 0 0; }
+    #pm-command-centre .template-output { white-space:pre-wrap; min-height:180px; margin-top:14px; }
+    #pm-command-centre .saved-template { padding:10px 0; border-bottom:1px solid var(--border); }
+    #pm-command-centre .saved-template:last-child { border-bottom:0; }
+    #pm-command-centre .item-actions { display:flex; flex-wrap:wrap; gap:5px; }
+    #pm-command-centre .archived-row { opacity:.62; }
+    #pm-command-centre .archived-row .name::after { content:' · Archived'; color:var(--muted-foreground); font-weight:400; }
+    #pm-command-centre .legend { display:flex; flex-wrap:wrap; gap:12px; color:var(--muted-foreground); margin-top:8px; }
+    #pm-command-centre .legend span { display:inline-flex; align-items:center; gap:6px; }
+    #pm-command-centre .check-result { width:100%; text-align:right; color:var(--muted-foreground); }
+    @media (max-width:720px) {
+      #pm-command-centre .stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      #pm-command-centre .split, #pm-command-centre .form-grid { grid-template-columns:1fr; }
+      #pm-command-centre .template-layout { grid-template-columns:1fr; }
+      #pm-command-centre .timeline-row { grid-template-columns:100px repeat(var(--roadmap-columns,4),minmax(36px,1fr)); font-size:.88em; }
+      #pm-command-centre .form-grid .wide { grid-column:auto; }
+    }
+  </style>
+
+  <div class="topline">
+    <div>
+      <h1>Voice &amp; Archive PM Command Centre</h1>
+      <p class="subtitle">Outcome-led governance for a regulated communications platform</p>
+    </div>
+    <div class="viz-row">
+      <button class="btn" id="pm-toggle-archived" aria-pressed="false"><i data-lucide="archive" aria-hidden="true"></i> Show archived</button>
+      <button class="btn" id="pm-import"><i data-lucide="upload" aria-hidden="true"></i> Import</button>
+      <input type="file" id="pm-import-file" accept="application/json,.json" class="sr-only" aria-label="Import command-centre JSON file">
+      <button class="btn" id="pm-export"><i data-lucide="download" aria-hidden="true"></i> Export</button>
+      <button class="btn" id="pm-run-checks"><i data-lucide="shield-check" aria-hidden="true"></i> Run checks</button>
+      <button class="btn btn-primary" id="pm-add"><i data-lucide="plus" aria-hidden="true"></i> Add initiative</button>
+      <span class="viz-badge" id="pm-storage-status" role="status" aria-live="polite"></span>
+      <div class="check-result" id="pm-check-result" role="status" aria-live="polite"></div>
+    </div>
+  </div>
+  <div class="check-result" id="pm-notification" role="status" aria-live="polite" hidden></div>
+
+  <nav class="tabs" aria-label="Product management views">
+    <button class="btn btn-primary" data-tab="overview">Overview</button>
+    <button class="btn" data-tab="roadmap">Roadmap</button>
+    <button class="btn" data-tab="backlog">Backlog</button>
+    <button class="btn" data-tab="controls">Risks &amp; controls</button>
+    <button class="btn" data-tab="ecosystem">Stakeholders &amp; vendors</button>
+    <button class="btn" data-tab="decisions">Decisions</button>
+    <button class="btn" data-tab="templates">Templates</button>
+    <button class="btn" data-tab="report">Executive report</button>
+  </nav>
+
+  <section class="panel active" id="panel-overview">
+    <div class="stats" id="pm-stats"></div>
+    <div id="pm-product-brief"></div>
+    <div class="split">
+      <div>
+        <div class="section">
+          <div class="section-head"><h2 id="pm-matrix-title">Priority portfolio</h2><span class="text-muted">Risk, value, urgency and strategy · adjusted for evidence, effort, capacity and dependencies · mandatory work overrides score</span></div>
+          <div class="matrix" id="pm-matrix" role="group" aria-labelledby="pm-matrix-title" aria-describedby="pm-matrix-description">
+            <span class="sr-only" id="pm-matrix-description">Select an initiative to inspect its priority, status, dates and dependencies.</span>
+            <span class="axis-y">Business value →</span><span class="axis-x">Urgency →</span>
+          </div>
+          <div class="legend"><span><i class="dot on-track"></i>On track</span><span><i class="dot at-risk"></i>At risk</span><span><i class="dot blocked"></i>Blocked</span></div>
+        </div>
+        <div class="section">
+          <div class="section-head"><h2>Outcome metrics</h2><button class="btn" id="pm-add-metric"><i data-lucide="plus" aria-hidden="true"></i> Add metric</button></div>
+          <div class="health-list" id="pm-health"></div>
+        </div>
+      </div>
+      <aside class="card detail" id="pm-detail" aria-live="polite"></aside>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-roadmap">
+    <div class="section-head"><div><h2>Outcome roadmap</h2><p class="subtitle">Schedule initiatives across years, maintain dependencies and manage their complete lifecycle.</p></div><div class="viz-row"><label class="form-label" for="pm-roadmap-year">Roadmap period<select class="form-select" id="pm-roadmap-year"></select></label><button type="button" class="btn btn-primary" id="pm-add-roadmap"><i data-lucide="plus" aria-hidden="true"></i> Add initiative</button></div></div>
+    <div class="lanes" id="pm-roadmap"></div>
+  </section>
+
+  <section class="panel" id="panel-backlog">
+    <div class="section-head"><div><h2>Prioritised backlog</h2><p class="subtitle">Mandatory obligations rank first. Remaining work uses an adjusted WSJF score: weighted risk, value, urgency and strategy × confidence × capacity × dependency readiness ÷ effort.</p></div><button class="btn" id="pm-recalculate"><i data-lucide="calculator" aria-hidden="true"></i> Recalculate</button></div>
+    <div class="table-wrap"><table><thead><tr><th>Rank / initiative</th><th>Dates / duration</th><th>Dependencies</th><th>Risk</th><th>Value</th><th>Urgency</th><th>Strategy</th><th>Confidence</th><th>Capacity</th><th>Effort</th><th>Priority</th><th>Status</th><th>Actions</th></tr></thead><tbody id="pm-backlog"></tbody></table></div>
+  </section>
+
+  <section class="panel" id="panel-controls">
+    <div class="section-head"><h2>Risk and control register</h2><button class="btn btn-primary" id="pm-add-risk"><i data-lucide="plus" aria-hidden="true"></i> Add risk</button></div>
+    <div class="table-wrap"><table><thead><tr><th>Risk / control</th><th>Owner</th><th>Likelihood</th><th>Impact</th><th>Rating</th><th>Evidence / next action</th><th>Actions</th></tr></thead><tbody id="pm-risks"></tbody></table></div>
+  </section>
+
+  <section class="panel" id="panel-ecosystem">
+    <div class="split">
+      <div class="section"><div class="section-head"><h2>Stakeholder map</h2><button class="btn" id="pm-add-stakeholder"><i data-lucide="plus" aria-hidden="true"></i> Add</button></div><div class="table-wrap"><table><thead><tr><th>Stakeholder</th><th>Primary concern</th><th>Power</th><th>Cadence</th><th>Next engagement</th><th>Actions</th></tr></thead><tbody id="pm-stakeholders"></tbody></table></div></div>
+      <aside class="card detail"><div class="section-head"><h3>Vendor scorecard</h3><button class="btn" id="pm-add-vendor"><i data-lucide="plus" aria-hidden="true"></i> Add</button></div><div id="pm-vendors"></div></aside>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-decisions">
+    <div class="section-head"><h2>Decision log</h2><button class="btn btn-primary" id="pm-add-decision"><i data-lucide="plus" aria-hidden="true"></i> Log decision</button></div>
+    <div id="pm-decisions"></div>
+  </section>
+
+  <section class="panel" id="panel-templates">
+    <div class="section-head"><div><h2>PM templates</h2><p class="subtitle">Choose a template, complete the guided fields, then save a draft or publish the completed work.</p></div></div>
+    <div class="template-layout">
+      <nav class="template-list" id="pm-template-list" aria-label="Available templates"></nav>
+      <div>
+        <div class="template-intro"><span class="viz-badge" id="pm-template-purpose"></span><h2 id="pm-template-title"></h2><p id="pm-template-description"></p><div class="method-note"><strong id="pm-template-method"></strong><p class="text-muted" id="pm-template-method-description"></p></div></div>
+        <form id="pm-template-form"></form>
+        <p class="text-destructive" id="pm-template-error" role="alert" hidden></p>
+        <div class="viz-row" style="margin-top:16px"><button type="button" class="btn" id="pm-clear-template"><i data-lucide="eraser" aria-hidden="true"></i> Clear form</button><button type="button" class="btn" id="pm-save-template"><i data-lucide="save" aria-hidden="true"></i> Save draft</button><button type="button" class="btn btn-primary" id="pm-publish-template"><i data-lucide="send" aria-hidden="true"></i> Add to command centre</button></div>
+        <div class="section-head" style="margin-top:16px"><h3>Generated draft</h3><button type="button" class="btn" id="pm-copy-template"><i data-lucide="copy" aria-hidden="true"></i> Copy draft</button></div>
+        <div class="card report template-output" id="pm-template-output" aria-live="polite"></div>
+        <div class="section-head" style="margin-top:18px"><h3>Saved work</h3><span class="text-muted" id="pm-saved-count"></span></div>
+        <div id="pm-saved-templates"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-report">
+    <div class="section-head"><h2>Executive weekly update</h2><div class="viz-row"><button class="btn" id="pm-copy"><i data-lucide="copy" aria-hidden="true"></i> Copy</button><button class="btn" id="pm-clear-report-note"><i data-lucide="message-square-x" aria-hidden="true"></i> Clear commentary</button><button class="btn btn-primary" id="pm-refresh-report"><i data-lucide="refresh-cw" aria-hidden="true"></i> Refresh</button></div></div>
+    <div class="card section">
+      <label class="form-label" for="pm-report-override-input">Executive commentary override
+        <textarea class="form-control" id="pm-report-override-input" maxlength="20000" placeholder="Add leadership context that cannot be calculated from portfolio data. The live report remains visible above this commentary."></textarea>
+      </label>
+      <p class="text-muted">Use this only for verified context, decisions or messages not represented by the live records. It is saved locally and included after the generated report.</p>
+      <div class="viz-row"><button type="button" class="btn btn-primary" id="pm-save-report-note"><i data-lucide="save" aria-hidden="true"></i> Save commentary</button><span class="text-muted" id="pm-report-note-status" role="status"></span></div>
+    </div>
+    <div class="card report" id="pm-report-text"></div>
+  </section>
+
+  <dialog id="pm-dialog" aria-labelledby="pm-dialog-title">
+    <form method="dialog" id="pm-form">
+      <div class="section-head"><h2 id="pm-dialog-title">Add initiative</h2><button type="button" class="btn btn-ghost" data-close-dialog aria-label="Close">Close</button></div>
+      <input type="hidden" id="pm-form-kind" value="initiative">
+      <div class="form-grid" id="pm-form-fields"></div>
+      <p class="text-destructive" id="pm-form-error" role="alert" hidden></p>
+      <div class="dialog-actions"><button type="button" class="btn" data-close-dialog>Cancel</button><button type="submit" class="btn btn-primary" id="pm-save">Save</button></div>
+    </form>
+  </dialog>
+
+  <script>
+  (() => {
+    const root = document.getElementById('pm-command-centre');
+    const storageKey = 'voice-archive-pm-command-centre-v1';
+    const seed = {
+      schemaVersion: 8,
+      initiatives: [
+        {id:'REG',name:'Regulatory retention uplift',theme:'Compliance & Risk',outcome:'Meet new retention and retrieval obligations',risk:5,value:5,urgency:5,effort:3,status:'On track',progress:68,quarter:1,owner:'Compliance Product'},
+        {id:'EOL',name:'Recorder version uplift',theme:'Platform Modernisation',outcome:'Remove end-of-support and security exposure',risk:5,value:4,urgency:4,effort:4,status:'At risk',progress:42,quarter:2,owner:'Voice Engineering'},
+        {id:'CLD',name:'Archive cloud migration',theme:'Platform Modernisation',outcome:'Improve resilience, scalability and cost efficiency',risk:4,value:5,urgency:3,effort:5,status:'On track',progress:31,quarter:2,owner:'Cloud Platform'},
+        {id:'REC',name:'Recording reconciliation controls',theme:'Compliance & Risk',outcome:'Prove capture completeness and data integrity',risk:5,value:5,urgency:4,effort:3,status:'On track',progress:74,quarter:1,owner:'Control Operations'},
+        {id:'SRH',name:'Archive search performance',theme:'User Experience',outcome:'Reduce retrieval time for investigations',risk:2,value:4,urgency:2,effort:2,status:'On track',progress:20,quarter:3,owner:'Archive Product'},
+        {id:'AI',name:'AI communications analytics discovery',theme:'Innovation',outcome:'Validate safe, valuable AI-assisted surveillance',risk:3,value:4,urgency:1,effort:3,status:'Planned',progress:8,quarter:4,owner:'Product Discovery'}
+      ],
+      metrics: [
+        {name:'Recording completeness',current:99.72,target:99.95,unit:'%'},
+        {name:'Platform availability',current:99.91,target:99.99,unit:'%'},
+        {name:'Regulatory requests on time',current:96,target:100,unit:'%'},
+        {name:'Archive retrieval under 10s',current:71,target:95,unit:'%'}
+      ],
+      risks: [
+        {name:'Recorder version reaches end of support',control:'Approved uplift plan and vendor milestones',owner:'Voice Engineering',likelihood:4,impact:5,evidence:'Weekly delivery checkpoint; escalate missed vendor dates'},
+        {name:'Recorded user population mismatch',control:'Daily HR/entitlement/recorder reconciliation',owner:'Control Operations',likelihood:3,impact:5,evidence:'Exception queue, ageing SLA and monthly control attestation'},
+        {name:'Archive migration creates retrieval gaps',control:'Parallel run, checksum validation and rollback plan',owner:'Cloud Platform',likelihood:3,impact:5,evidence:'Exit criteria require 100% sampled retrieval validation'},
+        {name:'AI processes restricted communications',control:'Discovery only pending Legal, Compliance and Cyber approval',owner:'Product',likelihood:2,impact:5,evidence:'Data classification and model-risk assessment required'}
+      ],
+      stakeholders: [
+        {name:'Compliance & Surveillance',concern:'Completeness, retrieval, evidence',power:'High',cadence:'Weekly',next:'Validate regulatory acceptance criteria'},
+        {name:'Front Office / Trading',concern:'Reliable communications and low friction',power:'High',cadence:'Monthly',next:'Confirm priority user journeys'},
+        {name:'Cyber Security',concern:'Vulnerabilities, identity, data handling',power:'High',cadence:'Fortnightly',next:'Review uplift threat model'},
+        {name:'Engineering & Operations',concern:'Capacity, stability, supportability',power:'High',cadence:'Twice weekly',next:'Resolve uplift resource constraint'},
+        {name:'Legal / Records Management',concern:'Retention, legal hold, defensible disposal',power:'Medium',cadence:'Monthly',next:'Approve retention matrix'}
+      ],
+      vendors: [
+        {name:'Verint',fit:88,support:76,risk:'Medium'},
+        {name:'NICE',fit:84,support:82,risk:'Low'},
+        {name:'Smarsh',fit:79,support:78,risk:'Medium'},
+        {name:'Global Relay',fit:81,support:85,risk:'Low'}
+      ],
+      decisions: [
+        {date:'2026-07-10',title:'Sequence cloud migration after recorder uplift',why:'The supported recorder version is a dependency for the target cloud architecture.',owner:'Product',review:'2026-09-30'},
+        {date:'2026-07-08',title:'Keep AI analytics in discovery',why:'Value is promising, but regulatory, privacy and model-risk assumptions remain unvalidated.',owner:'Product / Compliance',review:'2026-10-15'}
+      ],
+      templates: [
+        {
+          id:'one-pager', title:'Product one-pager', purpose:'Align', description:'Align vision, customers, outcomes and guardrails before detailed planning.',
+          fields:[
+            {name:'Vision',guide:'Write one clear sentence describing the future state the product should create. Focus on business value, not technology.',example:'Provide a trusted communications platform that protects the firm’s licence to operate while enabling secure and efficient collaboration.'},
+            {name:'Customers and users',guide:'List the primary users, customers and control partners. Explain whose problem matters most.',example:'Front Office users, Compliance Surveillance, Legal, Records Management, Operations and regulators.'},
+            {name:'Problem statement',guide:'Describe the customer or business problem, the evidence that it exists and the consequence of leaving it unresolved.',example:'Fragmented capture and reconciliation create gaps in evidence, slow investigations and increase regulatory exposure.'},
+            {name:'Target outcomes',guide:'State 3–5 measurable changes you expect. Use outcomes such as reduced risk, faster retrieval or lower cost—not feature delivery.',example:'99.95% recording completeness; 100% regulatory requests delivered on time; 20% reduction in cost per recorded user.'},
+            {name:'Strategic themes',guide:'Group the work into a few durable investment pillars that connect the vision to the roadmap.',example:'Compliance & controls; resilience; platform modernisation; user experience; responsible innovation.'},
+            {name:'Guardrails',guide:'Define the non-negotiable boundaries for security, regulation, architecture, cost and operational resilience.',example:'No reduction in capture coverage; encrypted data; auditable access; approved retention; tested rollback for production change.'},
+            {name:'Success measures',guide:'Name the KPI, baseline, target, owner and review frequency for each outcome.',example:'Recording completeness: 99.72% baseline → 99.95% target, owned by Control Operations, reviewed weekly.'},
+            {name:'Not in scope',guide:'Explicitly record what this product or planning period will not address to prevent uncontrolled expansion.',example:'Trade surveillance model development and replacement of front-office communication channels are outside this scope.'}
+          ]
+        },
+        {
+          id:'initiative', title:'Initiative brief', purpose:'Define', description:'Turn a proposed initiative into a decision-ready problem and outcome statement.',
+          fields:[
+            {name:'Initiative',guide:'Use a short outcome-oriented name that a senior stakeholder can understand.',example:'Recorded-user population reconciliation uplift.'},
+            {name:'Why now',guide:'Explain the trigger, deadline or evidence that makes action necessary in this planning period.',example:'Control exceptions have increased and the next regulatory review requires stronger evidence of population completeness.'},
+            {name:'Problem and evidence',guide:'Describe the problem and cite metrics, incidents, audit findings, user feedback or regulatory obligations.',example:'Manual comparison creates late detection; 18 ageing exceptions were recorded last quarter.'},
+            {name:'Expected outcome',guide:'Describe the measurable business result, not the solution you intend to build.',example:'Detect all population mismatches within one business day and close 95% within the agreed SLA.'},
+            {name:'Options considered',guide:'List credible alternatives, including doing nothing, and summarise their trade-offs.',example:'Improve manual control; automate reconciliation; consolidate identity sources; accept current risk.'},
+            {name:'Recommendation',guide:'State the preferred option and why it best balances value, risk, urgency, cost and feasibility.',example:'Automate daily reconciliation because it materially shortens detection time without waiting for platform consolidation.'},
+            {name:'Dependencies',guide:'List teams, vendors, architecture, data, approvals and preceding work required.',example:'HR population feed, entitlement data, recorder API, Compliance acceptance criteria and Operations ownership.'},
+            {name:'Exit criteria',guide:'Define the evidence required before the initiative can be considered complete.',example:'30-day parallel run completed; no unexplained gaps; control owner signs off; support runbook approved.'}
+          ]
+        },
+        {
+          id:'prioritisation', title:'Prioritisation assessment', purpose:'Prioritise', description:'Compare initiatives consistently while keeping regulatory obligations and dependencies visible.',
+          fields:[
+            {name:'Initiative',guide:'Name the initiative and state the outcome it is expected to create.',example:'Automated recorded-user population reconciliation.'},
+            {name:'Reach',guide:'Estimate how many users, processes, controls or business areas will benefit during the scoring period.',example:'2,500 recorded users and three regional control teams per quarter.'},
+            {name:'Impact',guide:'Score the expected benefit per affected user or process: 3 massive, 2 high, 1 medium, 0.5 low, 0.25 minimal.',example:'Impact 3 because it directly protects recording completeness and audit evidence.'},
+            {name:'Confidence',guide:'State confidence in the reach and impact estimates: 100% high, 80% medium, 50% low. Cite the supporting evidence.',example:'80% confidence based on incident history and reconciliation exceptions.'},
+            {name:'Effort',guide:'Estimate total person-months across Product, Engineering, Operations, vendors, testing and control validation.',example:'Six person-months across two teams.'},
+            {name:'RICE result',guide:'Calculate (Reach × Impact × Confidence) ÷ Effort. Use it to compare value efficiency, not to override mandatory work.',example:'(2,500 × 3 × 0.8) ÷ 6 = 1,000.'},
+            {name:'Risk and urgency override',guide:'Record regulatory deadlines, cyber emergencies, end-of-support dates or hard dependencies that may override the RICE order.',example:'Mandatory control remediation due by 30 September; prioritise regardless of comparative RICE score.'},
+            {name:'Final recommendation',guide:'State the priority, sequencing and rationale after considering score, constraints and mandatory obligations.',example:'Priority 1 because it has strong value efficiency and a fixed regulatory commitment.'}
+          ]
+        },
+        {
+          id:'discovery', title:'Discovery brief', purpose:'Validate', description:'Test whether a problem is valuable, feasible, usable and safe before committing delivery capacity.',
+          fields:[
+            {name:'Hypothesis',guide:'Write the assumption you want to test in an “If…then…because…” format.',example:'If investigators can search enriched metadata, retrieval time will fall because fewer manual filters are required.'},
+            {name:'Target users',guide:'Identify the users to observe or interview and the important context in which they work.',example:'Surveillance analysts handling time-sensitive regulatory and internal investigations.'},
+            {name:'Unknowns',guide:'List the most important value, usability, feasibility, compliance and security questions.',example:'Is metadata accurate enough? Can access remain least-privilege? Are AI-generated tags regulated records?'},
+            {name:'Evidence plan',guide:'Explain how each assumption will be tested through interviews, data analysis, prototype, POC or control review.',example:'Interview eight analysts, analyse 90 days of searches and run a masked-data prototype with Cyber approval.'},
+            {name:'Success threshold',guide:'Set the minimum evidence needed to proceed, pivot or stop.',example:'At least 25% faster retrieval with no increase in false results or unresolved control objections.'},
+            {name:'Decision date',guide:'Set a time-box and name the decision that will be made at its end.',example:'By 30 September: invest, revise the hypothesis or stop.'}
+          ]
+        },
+        {
+          id:'business-case', title:'Business case', purpose:'Invest', description:'Present the value, cost, risk and evidence needed for an investment decision.',
+          fields:[
+            {name:'Business problem',guide:'Explain the material problem in terms of risk, cost, customer impact or strategic limitation.',example:'Ageing infrastructure increases support cost and constrains resilience and future archive capabilities.'},
+            {name:'Cost of inaction',guide:'Quantify what happens if the firm delays: rising cost, incidents, regulatory exposure, lost productivity or blocked strategy.',example:'Support cost rises 12% annually; end-of-support arrives in eight months; future migration becomes more complex.'},
+            {name:'Investment requested',guide:'State funding, people, vendor capacity and duration. Separate one-off and recurring cost.',example:'£5m over 18 months, including migration services, dual running and control validation.'},
+            {name:'Benefits',guide:'List measurable financial, risk, customer and strategic benefits, with timing and accountable owners.',example:'20% lower run cost, improved recovery time, reduced end-of-support exposure and faster delivery of analytics.'},
+            {name:'Options and trade-offs',guide:'Compare realistic alternatives using the same criteria.',example:'Remain on-premises; partial migration; full managed-cloud migration.'},
+            {name:'Recommendation',guide:'Give the chosen option and the evidence supporting it.',example:'Stage the migration after the recorder uplift to remove a technical dependency and reduce transition risk.'},
+            {name:'Risks and mitigations',guide:'Name the top delivery, operational, regulatory and vendor risks and how each will be controlled.',example:'Retrieval gaps mitigated through parallel run, checksums, sampled playback and tested rollback.'}
+          ]
+        },
+        {
+          id:'risk-control', title:'Risk & control record', purpose:'Control', description:'Describe a risk clearly and demonstrate how it is prevented, detected and evidenced.',
+          fields:[
+            {name:'Risk statement',guide:'Use cause → event → impact. Avoid vague labels such as “system risk”.',example:'Because user feeds can become inconsistent, a regulated employee may not be recorded, causing missing evidence and regulatory exposure.'},
+            {name:'Inherent rating',guide:'Score likelihood and impact before controls, and explain the rationale.',example:'Likelihood 3/5; impact 5/5 due to potential missing regulated communications.'},
+            {name:'Preventive controls',guide:'Describe controls that reduce the chance of the event occurring.',example:'Automated provisioning validation and approved source-system mapping.'},
+            {name:'Detective controls',guide:'Describe how failures are discovered, how often, and by whom.',example:'Daily HR–entitlement–recorder reconciliation reviewed by Control Operations.'},
+            {name:'Evidence',guide:'Identify the durable proof retained for audit or control testing.',example:'Timestamped reconciliation output, exception tickets, approvals and monthly attestation.'},
+            {name:'Residual risk',guide:'Re-rate after controls and state whether it is accepted or needs further action.',example:'Likelihood 2/5; impact 5/5; remediation required for exceptions older than two days.'},
+            {name:'Action owner and due date',guide:'Assign one accountable owner and a specific completion date.',example:'Control Operations Lead — 30 September 2026.'}
+          ]
+        },
+        {
+          id:'decision', title:'Decision record', purpose:'Decide', description:'Preserve what was decided, why, by whom and when it should be revisited.',
+          fields:[
+            {name:'Decision',guide:'State the decision in one unambiguous sentence.',example:'Complete the recorder uplift before beginning production archive migration.'},
+            {name:'Context',guide:'Summarise the problem, constraints and trigger for the decision.',example:'The target cloud connector requires the supported recorder release and the current version reaches end of support.'},
+            {name:'Options considered',guide:'List alternatives and the most important trade-off for each.',example:'Parallel delivery, migration first, uplift first or delay both.'},
+            {name:'Decision criteria',guide:'Record the criteria used so the decision remains explainable later.',example:'Regulatory risk, dependency, operational resilience, capacity and time to value.'},
+            {name:'Rationale',guide:'Explain why the selected option best satisfies the criteria.',example:'Uplift first removes a hard dependency and reduces the probability of rollback during migration.'},
+            {name:'Owner and approvers',guide:'Name who owns implementation and who approved the decision.',example:'Product owns; Architecture, Compliance and Engineering approved.'},
+            {name:'Review trigger',guide:'Define the date or event that should cause reconsideration.',example:'Review if vendor delivery slips beyond 30 September or the cloud connector requirement changes.'}
+          ]
+        },
+        {
+          id:'exec-update', title:'Executive weekly update', purpose:'Communicate', description:'Provide a concise view of position, impact, actions and decisions needed.',
+          fields:[
+            {name:'Overall position',guide:'Give a one- or two-sentence RAG position focused on outcomes and confidence.',example:'Portfolio remains on track; recorder uplift is at risk due to a vendor dependency, with no current regulatory impact.'},
+            {name:'Progress this period',guide:'Report material outcomes achieved—not meetings held or tasks performed.',example:'Completed control acceptance criteria and validated 100% of sampled migrated recordings.'},
+            {name:'Next milestones',guide:'List the next dated outcomes that matter to leadership.',example:'Vendor test environment by 12 August; production-readiness decision by 30 August.'},
+            {name:'Risks and mitigations',guide:'State the risk, business impact, mitigation, owner and recovery date.',example:'Vendor delay may move testing by two weeks; parallel preparation protects the regulatory milestone.'},
+            {name:'Decisions required',guide:'Ask for a specific decision, owner and deadline. Write “none” if no support is needed.',example:'Approve two temporary engineers by Friday to protect the Q3 regulatory milestone.'},
+            {name:'Metrics',guide:'Include only measures that explain product health, value or risk.',example:'Completeness 99.92%; availability 99.98%; regulatory requests on time 100%.'}
+          ]
+        },
+        {
+          id:'vendor', title:'Vendor assessment', purpose:'Select', description:'Compare vendor capability and delivery risk against product and control needs.',
+          fields:[
+            {name:'Vendor name',guide:'Enter the vendor or product being assessed so the completed evaluation can be linked to the vendor scorecard.',example:'Verint Financial Compliance.'},
+            {name:'Business requirements',guide:'List the must-have outcomes and distinguish them from desirable features.',example:'Multi-channel capture, defensible retention, legal hold, timely retrieval and complete audit evidence.'},
+            {name:'Capability fit',guide:'Score how well the product meets each requirement using demonstrated evidence.',example:'Recording lifecycle 5/5; search 4/5; population control 3/5.'},
+            {name:'Control and security fit',guide:'Assess data residency, encryption, access, audit, resilience and regulatory obligations.',example:'UK/EU residency available; SSO supported; privileged-access evidence requires enhancement.'},
+            {name:'Delivery and integration',guide:'Evaluate APIs, migration tooling, dependencies, implementation capacity and time to value.',example:'Supported Teams connector; custom legacy integration; 12-month migration estimate.'},
+            {name:'Commercial model',guide:'Capture licence, consumption, implementation, support, exit and growth costs.',example:'Per-user licence plus storage consumption; professional services and egress charged separately.'},
+            {name:'Vendor risk',guide:'Assess viability, roadmap confidence, concentration, support performance and lock-in.',example:'Strong viability; medium lock-in due to proprietary export; UK support SLA meets requirement.'},
+            {name:'Recommendation',guide:'State select, reject, shortlist or run a POC, with conditions.',example:'Shortlist subject to a POC proving bulk retrieval performance and audit evidence.'}
+          ]
+        },
+        {
+          id:'launch', title:'Launch readiness', purpose:'Release', description:'Confirm a product change is safe, supportable and measurable before production release.',
+          fields:[
+            {name:'Outcome and scope',guide:'State what changes for users and what is explicitly excluded from the release.',example:'Move UK archive retrieval to the new service; ingestion and retention remain unchanged.'},
+            {name:'Acceptance evidence',guide:'Link each business, technical and control criterion to verified evidence.',example:'Performance, resilience, security, compliance and user-acceptance results approved.'},
+            {name:'Operational readiness',guide:'Confirm monitoring, alerts, runbooks, support ownership, training and capacity.',example:'24/7 alerts active; L1–L3 runbooks approved; support rota briefed.'},
+            {name:'Migration and rollback',guide:'Describe sequencing, reconciliation, rollback triggers and the maximum acceptable recovery window.',example:'Phased cohort migration; rollback if retrieval failure exceeds 0.1%; 30-minute recovery target.'},
+            {name:'Communications',guide:'List affected audiences, message owner, timing and support route.',example:'Notify investigators five days before launch; dedicated support channel for the first week.'},
+            {name:'Go/no-go decision',guide:'Name approvers, decision time and any open conditions.',example:'Product, Engineering, Operations, Cyber and Compliance at Thursday readiness review.'},
+            {name:'Post-launch measures',guide:'Define the metrics and observation period used to confirm success.',example:'Availability, retrieval latency, exceptions and user contacts reviewed daily for 14 days.'}
+          ]
+        },
+        {
+          id:'pir', title:'Post-implementation review', purpose:'Learn', description:'Confirm whether an initiative achieved its outcomes and capture improvements for future delivery.',
+          fields:[
+            {name:'Original outcomes',guide:'Restate the promised results and success measures from the approved initiative.',example:'Reduce retrieval time below 10 seconds for 95% of searches.'},
+            {name:'Actual results',guide:'Compare baseline, target and observed outcome with dates and evidence.',example:'Median 6.8 seconds; 92% under 10 seconds after 30 days.'},
+            {name:'What worked',guide:'Record repeatable practices, decisions and controls that improved delivery.',example:'Early analyst testing exposed metadata issues before production migration.'},
+            {name:'What did not work',guide:'Describe failures without blame and explain their impact.',example:'Vendor performance data arrived late, delaying capacity tuning by one sprint.'},
+            {name:'Residual actions',guide:'List unresolved risks, benefits or operational work with owners and dates.',example:'Tune two high-volume search patterns by 15 October.'},
+            {name:'Lessons and recommendation',guide:'State what should change next time and whether to expand, adjust or stop the capability.',example:'Expand after tuning; require production-like load data before future vendor design approval.'}
+          ]
+        }
+      ]
+    };
+    const templateMethods={
+      'one-pager':{name:'Method: Product Vision + Lean Product Canvas + OKRs',description:'The vision defines the future state, Lean Canvas thinking connects customers and problems to value, and OKR-style outcomes keep success measurable.'},
+      'initiative':{name:'Method: Opportunity Assessment + Lean Business Case',description:'Frames the problem, evidence, expected outcome, alternatives and dependencies before the organisation commits delivery capacity.'},
+      'prioritisation':{name:'Method: Adjusted WSJF, supported by RICE and MoSCoW',description:'The live ranking weights risk reduction, customer value, time criticality and strategic alignment, then adjusts for confidence, available capacity, dependency readiness and effort. MoSCoW-style regulatory, cyber, end-of-support and critical-dependency overrides remain explicit and rank first.'},
+      'discovery':{name:'Method: Continuous Discovery + Assumption Mapping',description:'Tests value, usability, feasibility and business viability through interviews, evidence analysis, prototypes and time-boxed experiments before delivery.'},
+      'business-case':{name:'Method: Cost–Benefit Analysis + TCO + ROI',description:'Compares the cost of action with the cost of inaction, including one-off investment, recurring cost, measurable benefits, risk reduction and strategic value.'},
+      'risk-control':{name:'Method: RCSA + 5×5 Risk Matrix + Bowtie',description:'RCSA identifies risks and controls, the 5×5 matrix scores likelihood and impact, and Bowtie thinking links causes, preventive controls, the event, consequences and detective controls.'},
+      'decision':{name:'Method: Architecture Decision Record + DACI',description:'ADR preserves context, options and rationale. DACI clarifies the Driver, Approver, Contributors and Informed stakeholders so ownership remains explicit.'},
+      'exec-update':{name:'Method: RAG Status + SIRN Executive Update',description:'RAG shows delivery confidence. SIRN structures the update as Situation, Impact, Recommendation and Next steps, keeping leadership communication concise and decision-oriented.'},
+      'vendor':{name:'Method: Weighted Decision Matrix + TCO Assessment',description:'Scores vendors consistently against weighted business, control, technical, service and commercial criteria while capturing full lifecycle and exit costs.'},
+      'launch':{name:'Method: Go/No-Go Readiness + RACI',description:'Uses evidence-based acceptance gates for product, operations, security and compliance, while RACI makes responsibility and approval ownership explicit.'},
+      'pir':{name:'Method: After-Action Review + Benefits Realisation',description:'Compares promised and actual outcomes, identifies lessons without blame, confirms residual actions and decides whether to expand, adjust or stop.'}
+    };
+    const fallbackPrefix='PM_COMMAND_CENTRE_STORAGE:';
+    const memoryStorage={};
+    const isRecord=value=>Boolean(value)&&typeof value==='object'&&!Array.isArray(value);
+    const recordArray=value=>Array.isArray(value)?value.filter(isRecord):[];
+    function safeParseObject(raw,fallbackFactory=()=>({})){
+      if(typeof raw!=='string'||!raw.trim())return fallbackFactory();
+      try{const parsed=JSON.parse(raw);return isRecord(parsed)?parsed:fallbackFactory()}catch(error){return fallbackFactory()}
+    }
+    const storageProbeKey=`${storageKey}-probe`;
+    let persistentStorageAvailable=false;
+    try{localStorage.setItem(storageProbeKey,'ok');persistentStorageAvailable=localStorage.getItem(storageProbeKey)==='ok';localStorage.removeItem(storageProbeKey)}catch(error){persistentStorageAvailable=false}
+    function fallbackRead(){try{return window.name.startsWith(fallbackPrefix)?safeParseObject(window.name.slice(fallbackPrefix.length),()=>memoryStorage):memoryStorage}catch(error){return memoryStorage}}
+    function fallbackWrite(values){const safeValues=isRecord(values)?values:memoryStorage;try{if(!window.name||window.name.startsWith(fallbackPrefix))window.name=fallbackPrefix+JSON.stringify(safeValues);else Object.assign(memoryStorage,safeValues)}catch(error){Object.assign(memoryStorage,safeValues)}}
+    function storageGet(key){if(persistentStorageAvailable){try{return localStorage.getItem(key)}catch(error){persistentStorageAvailable=false}}const values=fallbackRead();return values[key]??null}
+    function storageSet(key,value){if(persistentStorageAvailable){try{localStorage.setItem(key,value);return localStorage.getItem(key)===value}catch(error){persistentStorageAvailable=false}}const values=fallbackRead();values[key]=value;fallbackWrite(values);return fallbackRead()[key]===value}
+    function storageRemove(key){if(persistentStorageAvailable){try{localStorage.removeItem(key);return}catch(error){persistentStorageAvailable=false}}const values=fallbackRead();delete values[key];fallbackWrite(values)}
+    function loadStoredData(raw){
+      if(typeof raw!=='string'||!raw.trim())return structuredClone(seed);
+      try{const parsed=JSON.parse(raw);return isRecord(parsed)?parsed:structuredClone(seed)}catch(error){return structuredClone(seed)}
+    }
+    let data=loadStoredData(storageGet(storageKey));
+    data.schemaVersion = 8;
+    if(data.reportOverride&&!data.reportNote)data.reportNote={text:String(data.reportOverride),updatedAt:'Migrated from previous report override'};
+    delete data.reportOverride;
+    const makeId = prefix => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`;
+    data.initiatives = recordArray(data.initiatives);
+    data.metrics = recordArray(data.metrics);
+    data.risks = recordArray(data.risks);
+    data.stakeholders = recordArray(data.stakeholders);
+    data.vendors = recordArray(data.vendors);
+    data.decisions = recordArray(data.decisions);
+    data.templateEntries = recordArray(data.templateEntries);
+    data.templates = structuredClone(seed.templates);
+    data.productBrief = isRecord(data.productBrief) ? data.productBrief : null;
+    if(!isRecord(data.reportOverrides))data.reportOverrides={};
+    if(data.reportNote&&!data.reportOverrides.executiveCommentary)data.reportOverrides.executiveCommentary={enabled:true,text:String(data.reportNote.text||''),updatedAt:data.reportNote.updatedAt||new Date().toISOString()};
+    delete data.reportNote;
+    const savedCommentary=data.reportOverrides.executiveCommentary;
+    data.reportOverrides.executiveCommentary=isRecord(savedCommentary)&&typeof savedCommentary.text==='string'?{enabled:savedCommentary.enabled!==false,text:savedCommentary.text,updatedAt:String(savedCommentary.updatedAt||'')}:{enabled:false,text:'',updatedAt:''};
+    const lifecycleStatuses=['Draft','Active','Blocked','Completed','Archived'];
+    const deliveryStatuses=['Planned','On track','At risk','Blocked','Done'];
+    const clamp=(value,min,max,fallback=min)=>{const number=Number(value);return Number.isFinite(number)?Math.min(max,Math.max(min,number)):fallback};
+    const textValue=(value,fallback='')=>typeof value==='string'?value:String(value??fallback);
+    const isValidISODate=value=>{if(!/^\d{4}-\d{2}-\d{2}$/.test(value||''))return false;const date=new Date(`${value}T00:00:00Z`);return !Number.isNaN(date.valueOf())&&date.toISOString().slice(0,10)===value};
+    function normaliseLifecycle(item,kind){
+      let lifecycle=lifecycleStatuses.includes(item.lifecycleStatus)?item.lifecycleStatus:'';
+      if(item.archived||lifecycle==='Archived')lifecycle='Archived';
+      if(!lifecycle&&kind==='initiative')lifecycle=item.status==='Done'?'Completed':item.status==='Blocked'?'Blocked':item.status==='Planned'?'Draft':'Active';
+      if(!lifecycle)lifecycle='Active';
+      item.lifecycleStatus=lifecycle;
+      item.archived=lifecycle==='Archived';
+      if(kind==='initiative'){
+        if(item.status==='Done')lifecycle='Completed';
+        else if(item.status==='Blocked')lifecycle='Blocked';
+        if(lifecycle==='Completed'){item.status='Done';item.progress=100}
+        else if(lifecycle==='Blocked')item.status='Blocked';
+        else if(lifecycle==='Draft')item.status='Planned';
+        else if(!['On track','At risk'].includes(item.status))item.status='On track';
+        item.lifecycleStatus=lifecycle;item.archived=lifecycle==='Archived';
+      }
+      return item;
+    }
+    data.initiatives.forEach(item=>normaliseLifecycle(item,'initiative'));
+    data.metrics.forEach(item=>normaliseLifecycle(item,'metric'));
+    data.risks.forEach(item=>normaliseLifecycle(item,'risk'));
+    data.stakeholders.forEach(item=>normaliseLifecycle(item,'stakeholder'));
+    data.vendors.forEach(item=>normaliseLifecycle(item,'vendor'));
+    data.decisions.forEach(item=>normaliseLifecycle(item,'decision'));
+    data.templateEntries.forEach(entry=>{
+      if(!entry.id)entry.id=makeId('template');
+      if(entry.status==='Published')entry.status='Completed';
+      if(!['Draft','Completed'].includes(entry.status))entry.status='Draft';
+      if(!entry.values||typeof entry.values!=='object'||Array.isArray(entry.values))entry.values={};
+      if(!entry.updatedAt)entry.updatedAt=new Date().toISOString().slice(0,16).replace('T',' ');
+      if(entry.status==='Completed'&&!entry.completedAt)entry.completedAt=entry.updatedAt;
+    });
+    const usedInitiativeIds=new Set();
+    data.initiatives.forEach((item,index) => {
+      let base=String(item.id || `INIT-${index+1}`).toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,12);
+      if(base.length<2) base=`INIT-${index+1}`;
+      let candidate=base, suffix=2;
+      while(usedInitiativeIds.has(candidate)){
+        const tag=`-${suffix++}`;
+        candidate=base.slice(0,12-tag.length)+tag;
+      }
+      item.id=candidate;
+      const year=new Date().getFullYear(), q=Math.min(4,Math.max(1,Number(item.quarter)||1));
+      if(!isValidISODate(item.startDate))item.startDate=`${year}-${String((q-1)*3+1).padStart(2,'0')}-01`;
+      if(!isValidISODate(item.endDate)||item.endDate<item.startDate){const endMonth=q*3;item.endDate=new Date(Date.UTC(year,endMonth,0)).toISOString().slice(0,10)}
+      item.name=textValue(item.name,`Initiative ${candidate}`);item.outcome=textValue(item.outcome,'Outcome not yet defined');item.theme=textValue(item.theme,'Unassigned');item.owner=textValue(item.owner,'Unassigned');
+      item.dependencies=Array.isArray(item.dependencies)?item.dependencies.map(String):String(item.dependencies||'').split(',').map(x=>x.trim()).filter(Boolean);
+      ['risk','value','urgency','effort'].forEach(key=>item[key]=clamp(item[key],1,5,3));
+      item.confidence=clamp(item.confidence,1,5,3);item.strategy=clamp(item.strategy,1,5,3);item.capacity=clamp(item.capacity,1,5,3);item.progress=clamp(item.progress,0,100,0);
+      item.status=deliveryStatuses.includes(item.status)?item.status:'Planned';
+      item.overrideType=['None','Regulatory / legal','Critical cyber security','End of support','Critical dependency'].includes(item.overrideType)?item.overrideType:'None';
+      item.overrideReason=String(item.overrideReason||'');
+      item.overrideDeadline=String(item.overrideDeadline||'');
+      normaliseLifecycle(item,'initiative');
+      usedInitiativeIds.add(candidate);
+    });
+    data.metrics.forEach(item=>{item.name=textValue(item.name,'Unnamed metric');item.unit=textValue(item.unit);item.current=clamp(item.current,0,Number.MAX_SAFE_INTEGER,0);item.target=clamp(item.target,0.000001,Number.MAX_SAFE_INTEGER,1)});
+    data.risks.forEach(item=>{item.name=textValue(item.name,'Unnamed risk');item.owner=textValue(item.owner,'Unassigned');item.control=textValue(item.control,'Control not defined');item.evidence=textValue(item.evidence,'Evidence not recorded');item.likelihood=clamp(item.likelihood,1,5,1);item.impact=clamp(item.impact,1,5,1)});
+    data.stakeholders.forEach(item=>{item.name=textValue(item.name,'Unnamed stakeholder');item.concern=textValue(item.concern);item.power=['High','Medium','Low'].includes(item.power)?item.power:'Low';item.cadence=textValue(item.cadence);item.next=textValue(item.next)});
+    data.vendors.forEach(item=>{item.name=textValue(item.name,'Unnamed vendor');item.risk=['Low','Medium','High'].includes(item.risk)?item.risk:'Medium';item.fit=clamp(item.fit,0,100,0);item.support=clamp(item.support,0,100,0)});
+    data.decisions.forEach(item=>{item.title=textValue(item.title,'Untitled decision');item.why=textValue(item.why);item.owner=textValue(item.owner,'Unassigned');if(!isValidISODate(item.date))item.date=new Date().toISOString().slice(0,10);if(!isValidISODate(item.review)||item.review<item.date)item.review=item.date});
+    const usedRecordIds=new Set(data.initiatives.map(item=>item.id));
+    function ensureUniqueRecordIds(collection,prefix){
+      collection.forEach(item=>{
+        let id=String(item.id||'').trim();
+        while(!id||usedRecordIds.has(id))id=makeId(prefix);
+        item.id=id;usedRecordIds.add(id);
+      });
+    }
+    ensureUniqueRecordIds(data.risks,'risk');
+    ensureUniqueRecordIds(data.metrics,'metric');
+    ensureUniqueRecordIds(data.stakeholders,'stakeholder');
+    ensureUniqueRecordIds(data.vendors,'vendor');
+    ensureUniqueRecordIds(data.decisions,'decision');
+    ensureUniqueRecordIds(data.templateEntries,'template');
+    [...data.initiatives,...data.metrics,...data.risks,...data.stakeholders,...data.vendors,...data.decisions].forEach(x=>{if(x.archived===undefined)x.archived=false});
+    let showArchived=false;
+    let roadmapYear='all';
+    let editing={kind:null,id:null};
+    let activeTemplateEntry=null;
+    let pendingTemplatePublication=null;
+    function updateStorageStatus(saved=true){
+      const status=root.querySelector('#pm-storage-status');
+      status.textContent=persistentStorageAvailable?(saved?'Saved locally':'Local save failed'):(saved?'Session recovery · export before closing':'Session save failed');
+      status.classList.toggle('text-destructive',!saved);
+    }
+    function notify(message,isError=false){const el=root.querySelector('#pm-notification');el.textContent=message;el.hidden=false;el.classList.toggle('text-destructive',isError);clearTimeout(notify.timer);notify.timer=setTimeout(()=>{el.hidden=true},4000)}
+    async function copyText(text,label){try{await navigator.clipboard.writeText(text);notify(`${label} copied to the clipboard.`);return true}catch(error){notify(`Could not copy ${label.toLowerCase()}. Select the text and copy it manually.`,true);return false}}
+    const save = () => {const saved=storageSet(storageKey,JSON.stringify(data));updateStorageStatus(saved);return saved};
+    const esc = s => String(s ?? '').replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]));
+    const slug = s => String(s).toLowerCase().replace(/\s+/g,'-');
+    const overrideTypes=['None','Regulatory / legal','Critical cyber security','End of support','Critical dependency'];
+    const overrideRank={'Regulatory / legal':1,'Critical cyber security':2,'End of support':3,'Critical dependency':4,'None':99};
+    const isMandatory=i=>i.overrideType&&i.overrideType!=='None';
+    const dependencyReadiness=(i,initiatives=data.initiatives)=>{
+      const dependencies=Array.isArray(i.dependencies)?i.dependencies:[];
+      if(!dependencies.length)return 1;
+      const records=dependencies.map(id=>initiatives.find(item=>String(item.id).toUpperCase()===String(id).toUpperCase()));
+      if(records.some(record=>!record))return .25;
+      if(records.every(record=>record.status==='Done'))return 1;
+      if(records.some(record=>record.status==='Blocked'))return .4;
+      if(records.some(record=>record.status==='At risk'))return .65;
+      return .8;
+    };
+    const score = (i,initiatives=data.initiatives) => {
+      const weightedValue=(Number(i.value)*2)+(Number(i.risk)*2)+(Number(i.urgency)*1.5)+(Number(i.strategy||3)*1.5);
+      const confidence=(Number(i.confidence)||3)/5,capacity=(Number(i.capacity)||3)/5;
+      return Math.round((weightedValue*confidence*capacity*dependencyReadiness(i,initiatives)*10)/Math.max(1,Number(i.effort)))/10;
+    };
+    const priorityCompare=(a,b)=>{
+      if(isMandatory(a)!==isMandatory(b))return isMandatory(a)?-1:1;
+      if(isMandatory(a)&&isMandatory(b)){
+        const deadlineA=a.overrideDeadline||'9999-12-31',deadlineB=b.overrideDeadline||'9999-12-31';
+        return deadlineA.localeCompare(deadlineB)||overrideRank[a.overrideType]-overrideRank[b.overrideType]||score(b)-score(a);
+      }
+      return score(b)-score(a)||Number(b.urgency)-Number(a.urgency)||String(a.name).localeCompare(String(b.name));
+    };
+    const priorityLabel=i=>isMandatory(i)?`Mandatory · ${i.overrideType}`:`${score(i)} adjusted WSJF`;
+    const statusHtml = s => `<span class="status"><i class="dot ${slug(s)}"></i>${esc(s)}</span>`;
+    const isActiveRecord = item => ['Active','Blocked'].includes(item.lifecycleStatus)&&!item.archived;
+    const visible = items => items.filter(x=>showArchived || x.lifecycleStatus!=='Archived');
+    const activeInitiatives = (source=data) => source.initiatives.filter(isActiveRecord);
+    const durationDays = item => Math.max(1,Math.round((new Date(item.endDate)-new Date(item.startDate))/86400000)+1);
+    const durationLabel = item => {const days=durationDays(item);return days<14?`${days} days`:`${Math.ceil(days/7)} weeks`};
+    const quarterIndex = date => {const d=new Date(`${date}T00:00:00`);return d.getFullYear()*4+Math.floor(d.getMonth()/3)};
+    function dependencyCyclePath(initiatives){
+      const graph=new Map(initiatives.map(item=>[String(item.id).toUpperCase(),(Array.isArray(item.dependencies)?item.dependencies:[]).map(dep=>String(dep).toUpperCase())]));
+      const state=new Map(),stack=[];
+      function visit(node){
+        if(state.get(node)===1){const start=stack.indexOf(node);return [...stack.slice(start),node]}
+        if(state.get(node)===2)return null;
+        state.set(node,1);stack.push(node);
+        for(const dependency of graph.get(node)||[]){const cycle=visit(dependency);if(cycle)return cycle}
+        stack.pop();state.set(node,2);return null;
+      }
+      for(const node of graph.keys()){const cycle=visit(node);if(cycle)return cycle}
+      return null;
+    }
+    function createsDependencyCycle(id,dependencies){
+      const oldId=editing.id?String(editing.id).toUpperCase():null;
+      const candidate=data.initiatives.filter(i=>String(i.id).toUpperCase()!==oldId).map(i=>({id:i.id,dependencies:[...(i.dependencies||[])].map(dep=>String(dep).toUpperCase()===oldId?id:String(dep).toUpperCase())}));
+      candidate.push({id,dependencies:[...dependencies]});
+      return Boolean(dependencyCyclePath(candidate));
+    }
+    const actionButtons = (kind,id,archived=false) => `<div class="item-actions"><button type="button" class="btn btn-ghost" aria-label="Edit ${esc(kind)} ${esc(id)}" data-action="edit" data-kind="${kind}" data-record="${esc(id)}">Edit</button><button type="button" class="btn btn-ghost" aria-label="${archived?'Restore':'Archive'} ${esc(kind)} ${esc(id)}" data-action="archive" data-kind="${kind}" data-record="${esc(id)}">${archived?'Restore':'Archive'}</button><button type="button" class="btn btn-ghost" aria-label="Delete ${esc(kind)} ${esc(id)}" data-action="delete" data-kind="${kind}" data-record="${esc(id)}">Delete</button></div>`;
+
+    function portfolioSummary(source=data){
+      const active=activeInitiatives(source);
+      const high=source.risks.filter(r=>isActiveRecord(r)&&r.likelihood*r.impact>=15).length;
+      const totalEffort=active.reduce((sum,item)=>sum+(Number(item.effort)||1),0);
+      const progress=Math.round(active.reduce((sum,item)=>sum+Number(item.progress||0)*(Number(item.effort)||1),0)/Math.max(1,totalEffort));
+      return {active:active.length,high,progress,due:active.filter(i=>isMandatory(i)||i.urgency>=4).length,themes:new Set(active.map(i=>i.theme)).size};
+    }
+    function stats() {
+      const summary=portfolioSummary();
+      root.querySelector('#pm-stats').innerHTML = [
+        ['Active initiatives',summary.active,`Across ${summary.themes} strategic theme${summary.themes===1?'':'s'}`],
+        ['Open high risks',summary.high,'Active or blocked risks requiring mitigation'],
+        ['Portfolio progress',summary.progress+'%','Weighted by initiative effort'],
+        ['Urgent commitments',summary.due,'Active mandatory or high-urgency work']
+      ].map(x=>`<div class="card viz-stat"><div class="text-muted">${x[0]}</div><div class="viz-stat-value">${x[1]}</div><div class="stat-note">${x[2]}</div></div>`).join('');
+    }
+    function productBrief(){
+      const el=root.querySelector('#pm-product-brief');
+      if(!data.productBrief){el.innerHTML='';return;}
+      const values=data.productBrief.values||{};
+      el.innerHTML=`<div class="card detail section"><div class="section-head"><div><span class="viz-badge">Product direction</span><h2>Product one-pager</h2></div><button type="button" class="btn" data-template-entry="${esc(data.productBrief.id)}">Open</button></div><p><strong>Vision:</strong> ${esc(values.Vision||'Not completed')}</p><p><strong>Target outcomes:</strong> ${esc(values['Target outcomes']||'Not completed')}</p><p class="text-muted">Updated ${esc(data.productBrief.updatedAt)}</p></div>`;
+    }
+    function matrix() {
+      const el=root.querySelector('#pm-matrix'); el.querySelectorAll('.bubble').forEach(n=>n.remove());
+      activeInitiatives().forEach(i=>{
+        const b=document.createElement('button'); b.className='bubble'; b.type='button'; b.textContent=i.id; b.dataset.tooltip=i.name; b.setAttribute('aria-label',`${i.name}: value ${i.value} of 5, urgency ${i.urgency} of 5, ${priorityLabel(i)}`);b.style.left=(i.urgency*18-5)+'%'; b.style.bottom=(i.value*18-5)+'%';
+        if(isMandatory(i)){b.textContent='! '+i.id;b.dataset.tooltip=`Mandatory: ${i.overrideType} — ${i.name}`;}
+        if(i.status==='At risk') b.style.background='color-mix(in srgb,var(--viz-series-4) 28%,var(--card))';
+        if(i.status==='Blocked') b.style.background='color-mix(in srgb,var(--destructive) 28%,var(--card))';
+        b.title=b.dataset.tooltip;b.addEventListener('click',()=>detail(i)); el.appendChild(b);
+      });
+      const first=activeInitiatives()[0];
+      if(first) detail(first); else root.querySelector('#pm-detail').innerHTML='<p class="text-muted">No initiatives to display.</p>';
+    }
+    function detail(i) {
+      root.querySelector('#pm-detail').innerHTML=`<span class="viz-badge">${esc(i.theme)}</span><h3>${esc(i.name)}</h3><p>${esc(i.outcome)}</p><div class="bar" role="progressbar" aria-label="${esc(i.name)} progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${i.progress}" aria-valuetext="${i.progress}% complete"><span style="width:${i.progress}%"></span></div><dl><dt>Status</dt><dd>${statusHtml(i.status)}</dd><dt>Owner</dt><dd>${esc(i.owner)}</dd><dt>Dates</dt><dd>${esc(i.startDate)} → ${esc(i.endDate)}</dd><dt>Duration</dt><dd>${durationLabel(i)}</dd><dt>Dependencies</dt><dd>${i.dependencies.length?i.dependencies.map(esc).join(', '):'None'}</dd><dt>Dependency readiness</dt><dd>${Math.round(dependencyReadiness(i)*100)}%</dd><dt>Priority</dt><dd>${esc(priorityLabel(i))}</dd>${isMandatory(i)?`<dt>Override rationale</dt><dd>${esc(i.overrideReason)}</dd><dt>Mandatory deadline</dt><dd>${esc(i.overrideDeadline||'Not set')}</dd>`:''}<dt>Strategy</dt><dd>${i.strategy}/5</dd><dt>Confidence</dt><dd>${i.confidence}/5</dd><dt>Capacity</dt><dd>${i.capacity}/5</dd><dt>Progress</dt><dd>${i.progress}%</dd></dl>`;
+    }
+    function health() {
+      root.querySelector('#pm-health').innerHTML=visible(data.metrics).map(m=>{const pct=Math.min(100,(m.current/m.target)*100);return `<div class="health-row ${m.archived?'archived-row':''}"><span><span class="name">${esc(m.name)}</span><span class="meta">${esc(m.lifecycleStatus)}</span></span><strong>${esc(m.current)}${esc(m.unit)} <span class="text-muted">/ ${esc(m.target)}${esc(m.unit)}</span></strong><div class="bar" role="progressbar" aria-label="${esc(m.name)} progress toward target" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}" aria-valuetext="${esc(`${m.current}${m.unit} of ${m.target}${m.unit} target`)}"><span style="width:${pct}%"></span></div>${actionButtons('metric',m.id,m.archived)}</div>`}).join('');
+    }
+    function roadmap() {
+      const allItems=visible(data.initiatives);
+      const years=[...new Set(allItems.flatMap(i=>[Number(i.startDate.slice(0,4)),Number(i.endDate.slice(0,4))]))].sort();
+      const yearSelect=root.querySelector('#pm-roadmap-year');
+      const allowed=['all',...years.map(String)];
+      if(!allowed.includes(String(roadmapYear)))roadmapYear='all';
+      yearSelect.innerHTML=`<option value="all">All years</option>${years.map(y=>`<option value="${y}" ${String(roadmapYear)===String(y)?'selected':''}>${y}</option>`).join('')}`;
+      yearSelect.onchange=()=>{roadmapYear=yearSelect.value;roadmap()};
+      let items=allItems,minQ,maxQ;
+      if(roadmapYear==='all'){
+        minQ=items.length?Math.min(...items.map(i=>quarterIndex(i.startDate))):new Date().getFullYear()*4;
+        maxQ=items.length?Math.max(...items.map(i=>quarterIndex(i.endDate))):minQ+3;
+      }else{
+        const year=Number(roadmapYear);minQ=year*4;maxQ=minQ+3;
+        items=items.filter(i=>quarterIndex(i.endDate)>=minQ&&quarterIndex(i.startDate)<=maxQ);
+      }
+      const columns=Math.max(1,maxQ-minQ+1);
+      const labels=Array.from({length:columns},(_,n)=>{const idx=minQ+n;return `Q${idx%4+1} ${Math.floor(idx/4)}`});
+      let html=`<div class="timeline-row" style="--roadmap-columns:${columns}"><div class="lane-label">Initiative</div>${labels.map(label=>`<div class="quarter">${label}</div>`).join('')}</div>`;
+      html+=items.sort((a,b)=>a.startDate.localeCompare(b.startDate)).map(i=>{
+        const start=Math.max(0,quarterIndex(i.startDate)-minQ)+1,end=Math.min(columns,quarterIndex(i.endDate)-minQ+1)+1;
+        const deps=i.dependencies.length?`Depends on ${i.dependencies.map(esc).join(', ')}`:'No dependencies';
+        const accessibleName=`Open ${i.name}. ${i.startDate} to ${i.endDate}. ${i.status}. ${deps}.`;
+        return `<div class="timeline-row ${i.archived?'archived-row':''}" style="--roadmap-columns:${columns}"><div class="lane-label"><span class="name">${esc(i.id)}</span><div class="meta">${esc(i.theme)}</div>${actionButtons('initiative',i.id,i.archived)}</div><div class="timeline-grid"><button type="button" class="timeline-item ${['At risk','Blocked'].includes(i.status)?'risk':''}" style="grid-column:${start}/${end}" data-roadmap-record="${esc(i.id)}" aria-label="${esc(accessibleName)}"><span class="name">${esc(i.name)}</span><span class="meta">${esc(i.startDate)} → ${esc(i.endDate)} · ${durationLabel(i)}</span><span class="meta">${deps} · ${Math.round(dependencyReadiness(i)*100)}% ready</span><span class="meta">${statusHtml(i.status)}</span></button></div></div>`;
+      }).join('');
+      root.querySelector('#pm-roadmap').innerHTML=html||'<p class="text-muted">No active initiatives in this period.</p>';
+      root.querySelectorAll('[data-roadmap-record]').forEach(button=>button.onclick=()=>{
+        const initiative=data.initiatives.find(item=>item.id===button.dataset.roadmapRecord);
+        if(initiative){detail(initiative);showTab('overview')}
+      });
+    }
+    function backlog() {
+      const sorted=[...visible(data.initiatives)].sort(priorityCompare);
+      root.querySelector('#pm-backlog').innerHTML=sorted.map((i,n)=>`<tr class="${i.archived?'archived-row':''}"><td><span class="name">${n+1}. ${esc(i.name)}</span><div class="meta">${esc(i.theme)} · ${esc(i.outcome)}</div></td><td>${esc(i.startDate)} → ${esc(i.endDate)}<div class="meta">${durationLabel(i)}</div></td><td>${i.dependencies.length?i.dependencies.map(esc).join(', '):'None'}<div class="meta">${Math.round(dependencyReadiness(i)*100)}% ready</div></td><td>${i.risk}/5</td><td>${i.value}/5</td><td>${i.urgency}/5</td><td>${i.strategy}/5</td><td>${i.confidence}/5</td><td>${i.capacity}/5</td><td>${i.effort}/5</td><td><strong>${esc(priorityLabel(i))}</strong>${isMandatory(i)?`<div class="meta">Due ${esc(i.overrideDeadline||'not set')} · ${esc(i.overrideReason)}</div>`:''}</td><td>${statusHtml(i.lifecycleStatus)}<div class="meta">Delivery: ${esc(i.status)}</div></td><td>${actionButtons('initiative',i.id,i.archived)}</td></tr>`).join('');
+    }
+    function risks() {
+      root.querySelector('#pm-risks').innerHTML=visible(data.risks).map(r=>{const rating=r.likelihood*r.impact;const label=rating>=15?'High':rating>=8?'Medium':'Low';return `<tr class="${r.archived?'archived-row':''}"><td><span class="name">${esc(r.name)}</span><div class="meta">Control: ${esc(r.control)} · Lifecycle: ${esc(r.lifecycleStatus)}</div></td><td>${esc(r.owner)}</td><td>${esc(r.likelihood)}/5</td><td>${esc(r.impact)}/5</td><td>${statusHtml(label)}</td><td>${esc(r.evidence)}</td><td>${actionButtons('risk',r.id,r.archived)}</td></tr>`}).join('');
+    }
+    function ecosystem() {
+      root.querySelector('#pm-stakeholders').innerHTML=visible(data.stakeholders).map(s=>`<tr class="${s.archived?'archived-row':''}"><td><span class="name">${esc(s.name)}</span><div class="meta">${esc(s.lifecycleStatus)}</div></td><td>${esc(s.concern)}</td><td>${esc(s.power)}</td><td>${esc(s.cadence)}</td><td>${esc(s.next)}</td><td>${actionButtons('stakeholder',s.id,s.archived)}</td></tr>`).join('');
+      root.querySelector('#pm-vendors').innerHTML=visible(data.vendors).map(v=>{const combined=Math.round((v.fit+v.support)/2);return `<div class="decision ${v.archived?'archived-row':''}"><div class="section-head"><span class="name">${esc(v.name)}</span>${statusHtml(v.risk+' risk')}</div><div class="meta">Capability fit ${esc(v.fit)}% · Support ${esc(v.support)}% · Lifecycle: ${esc(v.lifecycleStatus)}</div><div class="bar" role="progressbar" aria-label="${esc(v.name)} combined assessment" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${combined}" aria-valuetext="${combined}% combined score"><span style="width:${combined}%"></span></div>${actionButtons('vendor',v.id,v.archived)}</div>`}).join('');
+    }
+    function decisions() {
+      root.querySelector('#pm-decisions').innerHTML=[...visible(data.decisions)].reverse().map(d=>`<article class="decision ${d.archived?'archived-row':''}"><div class="section-head"><h3 class="name">${esc(d.title)}</h3><span class="text-muted">${esc(d.date)}</span></div><p>${esc(d.why)}</p><div class="meta">Owner: ${esc(d.owner)} · Review: ${esc(d.review)} · Lifecycle: ${esc(d.lifecycleStatus)}</div>${actionButtons('decision',d.id,d.archived)}</article>`).join('');
+    }
+    let activeTemplate='one-pager';
+    function templates() {
+      if(!data.templates || !data.templates.length) data.templates=structuredClone(seed.templates);
+      seed.templates.forEach(seedTemplate=>{const existing=data.templates.find(t=>t.id===seedTemplate.id);if(existing)Object.assign(existing,structuredClone(seedTemplate));else data.templates.push(structuredClone(seedTemplate))});
+      const list=root.querySelector('#pm-template-list');
+      list.innerHTML=data.templates.map(t=>`<button type="button" class="btn ${t.id===activeTemplate?'btn-primary':''}" aria-pressed="${t.id===activeTemplate}" data-template="${esc(t.id)}">${esc(t.title)}</button>`).join('');
+      list.querySelectorAll('[data-template]').forEach(b=>b.onclick=()=>{activeTemplate=b.dataset.template;activeTemplateEntry=null;templates()});
+      const t=data.templates.find(x=>x.id===activeTemplate)||data.templates[0];
+      root.querySelector('#pm-template-purpose').textContent=t.purpose;
+      root.querySelector('#pm-template-title').textContent=t.title;
+      root.querySelector('#pm-template-description').textContent=t.description;
+      const method=templateMethods[t.id]||{name:'Method: Structured product practice',description:'Use evidence, explicit outcomes, accountable ownership and documented decisions.'};
+      root.querySelector('#pm-template-method').textContent=method.name;
+      root.querySelector('#pm-template-method-description').textContent=method.description;
+      const form=root.querySelector('#pm-template-form');
+      form.innerHTML=t.fields.map((f,n)=>`<div class="template-field"><label class="form-label" for="template-${t.id}-${n}"><strong>${esc(f.name)} <span aria-hidden="true">*</span></strong></label><p class="field-guide">${esc(f.guide)}</p><div class="field-example"><span class="text-muted">Example:</span> ${esc(f.example)}</div><textarea class="form-control" id="template-${t.id}-${n}" data-template-input="${n}" placeholder="Write ${esc(f.name.toLowerCase())} here…" required aria-required="true"></textarea></div>`).join('');
+      const activeEntry=data.templateEntries.find(e=>e.id===activeTemplateEntry&&e.templateId===t.id);
+      if(activeEntry)t.fields.forEach((f,n)=>{const input=form.querySelector(`[data-template-input="${n}"]`);if(input)input.value=activeEntry.values?.[f.name]||''});
+      form.querySelectorAll('[data-template-input]').forEach(input=>input.addEventListener('input',buildTemplateDraft));
+      const destinations={'one-pager':'Publish to overview','initiative':'Create backlog initiative','prioritisation':'Create backlog initiative','discovery':'Create backlog initiative','business-case':'Create backlog initiative','risk-control':'Add to risk register','decision':'Add to decision log','exec-update':'Publish executive report','vendor':'Add to vendor scorecard','launch':'Save launch record','pir':'Save review record'};
+      root.querySelector('#pm-publish-template').textContent=destinations[t.id]||'Add to command centre';
+      const completedEntry=activeEntry?.status==='Completed';
+      form.querySelectorAll('[data-template-input]').forEach(input=>input.readOnly=completedEntry);
+      root.querySelector('#pm-save-template').disabled=completedEntry;
+      root.querySelector('#pm-publish-template').disabled=completedEntry;
+      const saved=data.templateEntries.filter(e=>e.templateId===t.id).sort((a,b)=>b.updatedAt.localeCompare(a.updatedAt));
+      root.querySelector('#pm-saved-count').textContent=`${saved.length} saved`;
+      root.querySelector('#pm-saved-templates').innerHTML=saved.length?saved.map(e=>`<div class="saved-template"><div class="section-head"><div><span class="name">${esc(e.title)}</span><div class="meta">${esc(e.status)} · ${esc(e.updatedAt)}</div></div><div class="item-actions"><button type="button" class="btn btn-ghost" data-template-entry="${esc(e.id)}">Open</button><button type="button" class="btn btn-ghost" data-delete-template-entry="${esc(e.id)}">Delete</button></div></div></div>`).join(''):'<p class="text-muted">No saved drafts yet.</p>';
+      buildTemplateDraft();
+      setTemplateError();
+    }
+    function buildTemplateDraft(){
+      const t=data.templates.find(x=>x.id===activeTemplate)||data.templates[0];
+      const values=[...root.querySelectorAll('#pm-template-form [data-template-input]')];
+      root.querySelector('#pm-template-output').textContent=`${t.title.toUpperCase()}\n\n`+t.fields.map((f,n)=>`${f.name.toUpperCase()}\n${values[n]?.value.trim()||'—'}`).join('\n\n');
+    }
+    function templateValues(){
+      const t=data.templates.find(x=>x.id===activeTemplate)||data.templates[0];
+      const inputs=[...root.querySelectorAll('#pm-template-form [data-template-input]')];
+      return Object.fromEntries(t.fields.map((f,n)=>[f.name,inputs[n]?.value.trim()||'']));
+    }
+    function setTemplateError(message=''){
+      const error=root.querySelector('#pm-template-error');
+      error.textContent=message;error.hidden=!message;
+    }
+    function validateCompletedTemplate(template,values){
+      const missing=template.fields.filter(field=>!String(values[field.name]||'').trim()).map(field=>field.name);
+      if(missing.length)throw new Error(`Complete all mandatory fields before publishing. Missing: ${missing.join(', ')}.`);
+      return true;
+    }
+    function saveTemplateEntry(status='Draft'){
+      const t=data.templates.find(x=>x.id===activeTemplate)||data.templates[0], values=templateValues();
+      const completed=Object.values(values).filter(Boolean).length;
+      if(!completed){alert('Complete at least one field before saving.');return null;}
+      const now=new Date().toISOString().slice(0,16).replace('T',' ');
+      const title=values.Initiative||values.Decision||values['Vendor name']||values.Vision?.slice(0,70)||`${t.title} · ${now}`;
+      let entry=data.templateEntries.find(e=>e.id===activeTemplateEntry);
+      if(entry?.status==='Completed'){setTemplateError('Completed templates are immutable. Open a new template to create another version.');return null;}
+      if(entry)Object.assign(entry,{title,values,status,updatedAt:now});
+      else{entry={id:makeId('template'),templateId:t.id,title,values,status,updatedAt:now};data.templateEntries.push(entry);activeTemplateEntry=entry.id;}
+      if(status==='Completed'&&!entry.completedAt)entry.completedAt=now;
+      if(data.productBrief?.id===entry.id)data.productBrief=structuredClone(entry);
+      save();
+      return entry;
+    }
+    function completeTemplateEntry(entry,persist=true){
+      const now=new Date().toISOString().slice(0,16).replace('T',' ');
+      Object.assign(entry,{status:'Completed',completedAt:entry.completedAt||now,updatedAt:now});
+      if(data.productBrief?.id===entry.id)data.productBrief=structuredClone(entry);
+      return persist?save():true;
+    }
+    function commitTemplatePublication(entry,mutateDestination,persist=save,{silent=false}={}){
+      const snapshot=structuredClone(data);
+      try{
+        mutateDestination();
+        completeTemplateEntry(entry,false);
+        if(!persist())throw new Error('The completed template and destination record could not be persisted.');
+        return true;
+      }catch(error){
+        data=snapshot;
+        if(!silent){updateStorageStatus(false);setTemplateError(error.message||'Template publication failed.');}
+        return false;
+      }
+    }
+    function finalisePendingTemplatePublication(){
+      if(!pendingTemplatePublication)return true;
+      const entry=data.templateEntries.find(item=>item.id===pendingTemplatePublication.entryId);
+      if(!entry)return false;
+      completeTemplateEntry(entry,false);
+      if(save())return true;
+      data=pendingTemplatePublication.snapshot;
+      updateStorageStatus(false);
+      setFormError('Publication could not be persisted. No destination record was created and the template remains a draft.');
+      return false;
+    }
+    function suggestedInitiativeId(name){
+      const base=(name.match(/[A-Za-z0-9]+/g)||['INIT']).slice(0,3).map(w=>w[0]).join('').toUpperCase()||'INIT';
+      let candidate=base.slice(0,8),n=1;
+      while(data.initiatives.some(i=>i.id===candidate))candidate=`${base.slice(0,8)}-${++n}`.slice(0,12);
+      return candidate;
+    }
+    function publishTemplate(){
+      setTemplateError();
+      const template=data.templates.find(x=>x.id===activeTemplate)||data.templates[0],values=templateValues();
+      const existing=data.templateEntries.find(entry=>entry.id===activeTemplateEntry);
+      if(existing?.status==='Completed'){setTemplateError('This template has already been completed and cannot be published again.');return;}
+      try{validateCompletedTemplate(template,values)}catch(error){setTemplateError(error.message);root.querySelector('#pm-template-form').reportValidity();return;}
+      const entry=saveTemplateEntry('Draft');
+      if(!entry)return;
+      const id=entry.templateId;
+      if(id==='one-pager'){
+        if(commitTemplatePublication(entry,()=>{data.productBrief=structuredClone(entry)})){render();showTab('overview')}return;
+      }
+      if(['initiative','prioritisation','discovery','business-case'].includes(id)){
+        const name=values.Initiative||values['Business problem']||values.Hypothesis||entry.title;
+        const outcome=values['Expected outcome']||values['Final recommendation']||values.Recommendation||values.Hypothesis||'Define the measurable outcome before delivery begins.';
+        const start=new Date(),end=new Date(Date.now()+90*86400000);
+        openForm('initiative',null,entry);
+        populate({'f-name':name,'f-id':suggestedInitiativeId(name),'f-outcome':outcome,'f-theme':'Compliance & Risk','f-owner':'Product','f-start':start.toISOString().slice(0,10),'f-end':end.toISOString().slice(0,10),'f-dependencies':'','f-risk':3,'f-value':3,'f-urgency':3,'f-strategy':3,'f-confidence':3,'f-capacity':3,'f-effort':3,'f-override':'None','f-override-reason':'','f-override-deadline':'','f-status':'Planned','f-progress':0});
+        return;
+      }
+      if(id==='risk-control'){
+        openForm('risk',null,entry);
+        populate({'f-name':values['Risk statement'],'f-owner':values['Action owner and due date']||'Risk owner','f-control':[values['Preventive controls'],values['Detective controls']].filter(Boolean).join(' '),'f-likelihood':3,'f-impact':5,'f-evidence':values.Evidence||values['Residual risk']});
+        return;
+      }
+      if(id==='decision'){
+        const today=new Date(), review=new Date(Date.now()+90*86400000);
+        openForm('decision',null,entry);
+        populate({'f-title':values.Decision,'f-date':today.toISOString().slice(0,10),'f-why':values.Rationale||values.Context,'f-owner':values['Owner and approvers']||'Product','f-review':review.toISOString().slice(0,10)});
+        return;
+      }
+      if(id==='vendor'){
+        openForm('vendor',null,entry);
+        populate({'f-name':values['Vendor name'],'f-vendor-risk':'Medium','f-fit':50,'f-support':50});
+        return;
+      }
+      if(id==='exec-update'){
+        if(commitTemplatePublication(entry,()=>{data.reportOverrides.executiveCommentary={enabled:true,text:root.querySelector('#pm-template-output').textContent,updatedAt:new Date().toISOString()}})){render();showTab('report')}return;
+      }
+      if(commitTemplatePublication(entry,()=>{}))render();
+    }
+    function buildReportText(source){
+      source={...source,metrics:source.metrics.filter(isActiveRecord)};
+      const active=activeInitiatives(source);
+      const top=[...active].sort(priorityCompare).slice(0,3);
+      const reds=active.filter(i=>['At risk','Blocked'].includes(i.status));
+      const high=source.risks.filter(r=>isActiveRecord(r)&&r.likelihood*r.impact>=15);
+      const priorityLines=top.length?top.map((i,n)=>`${n+1}. ${i.name} — ${i.outcome} (${i.progress}%, ${i.status}; ${priorityLabel(i)})`).join('\n'):'No active priorities.';
+      return `VOICE & ARCHIVE — WEEKLY EXECUTIVE UPDATE\n\nOVERALL POSITION\nThe portfolio is focused on protecting the firm’s licence to operate while modernising the communications platform. ${reds.length?`${reds.length} initiative(s) require attention.`:'Delivery remains on track.'}\n\nTOP PRIORITIES\n${priorityLines}\n\nRISKS & CONTROLS\n${high.length?high.map(r=>`• ${r.name}: ${r.control}. Next: ${r.evidence}`).join('\n'):'• No high-rated risks currently recorded.'}\n\nMETRICS\n${source.metrics.filter(m=>!m.archived).map(m=>`• ${m.name}: ${m.current}${m.unit} vs ${m.target}${m.unit} target`).join('\n')||'• No active metrics recorded.'}\n\nDECISIONS / SUPPORT REQUIRED\n${reds.length?`• Confirm mitigation and recovery dates for ${reds.map(i=>i.name).join(', ')}.`:'• No executive decision required this week.'}`;
+    }
+    function composeReportText(source){
+      const live=buildReportText(source),override=source.reportOverrides?.executiveCommentary,note=override?.enabled?override.text?.trim():'';
+      return note?`${live}\n\nMANUAL EXECUTIVE COMMENTARY\nUpdated ${override.updatedAt||'date not recorded'}\n${note}`:live;
+    }
+    function report() {
+      const override=data.reportOverrides.executiveCommentary;
+      root.querySelector('#pm-report-text').textContent=composeReportText(data);
+      root.querySelector('#pm-report-override-input').value=override.text||'';
+      root.querySelector('#pm-clear-report-note').disabled=!override.text?.trim();
+      root.querySelector('#pm-report-note-status').textContent=override.updatedAt?`Saved ${override.updatedAt}`:'No manual commentary saved';
+    }
+    function render(){ stats();productBrief();matrix();health();roadmap();backlog();risks();ecosystem();decisions();templates();report();save(); if(window.lucide) lucide.createIcons({attrs:{width:16,height:16}}); }
+    const tabList=root.querySelector('.tabs');tabList.setAttribute('role','tablist');tabList.setAttribute('aria-orientation','horizontal');
+    root.querySelectorAll('th').forEach(th=>th.setAttribute('scope','col'));
+    root.querySelectorAll('[data-tab]').forEach(b=>{const name=b.dataset.tab;b.id=`pm-tab-${name}`;b.setAttribute('role','tab');b.setAttribute('aria-controls',`panel-${name}`);const panel=root.querySelector(`#panel-${name}`);panel.setAttribute('role','tabpanel');panel.setAttribute('aria-labelledby',b.id)});
+    function showTab(name){ root.querySelectorAll('.panel').forEach(p=>{const on=p.id==='panel-'+name;p.classList.toggle('active',on);p.hidden=!on});root.querySelectorAll('[data-tab]').forEach(b=>{const on=b.dataset.tab===name;b.classList.toggle('btn-primary',on);b.setAttribute('aria-selected',String(on));b.tabIndex=on?0:-1}); }
+    root.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{showTab(b.dataset.tab);b.focus()});
+    tabList.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const tabs=[...root.querySelectorAll('[data-tab]')],current=tabs.indexOf(document.activeElement);let next=e.key==='Home'?0:e.key==='End'?tabs.length-1:(current+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;tabs[next].focus();showTab(tabs[next].dataset.tab)});
+
+    const dialog=root.querySelector('#pm-dialog'), fields=root.querySelector('#pm-form-fields'), pmForm=root.querySelector('#pm-form'), formError=root.querySelector('#pm-form-error');
+    function field(label,id,type='text',options=[],wide=false,rules={}){
+      const attrs=[rules.required===false?'':'required',rules.min!==undefined?`min="${rules.min}"`:'',rules.max!==undefined?`max="${rules.max}"`:'',rules.step!==undefined?`step="${rules.step}"`:'',rules.minlength!==undefined?`minlength="${rules.minlength}"`:'',rules.maxlength!==undefined?`maxlength="${rules.maxlength}"`:'',rules.pattern?`pattern="${rules.pattern}"`:'',rules.placeholder?`placeholder="${esc(rules.placeholder)}"`:''].filter(Boolean).join(' ');
+      const control=type==='select'?`<select class="form-select" id="${id}" ${attrs}><option value="">Select…</option>${options.map(o=>`<option value="${esc(o)}">${esc(o)}</option>`).join('')}</select>`:type==='textarea'?`<textarea class="form-control" id="${id}" ${attrs}></textarea>`:`<input class="form-control" id="${id}" type="${type}" ${attrs}>`;
+      return `<label class="form-label ${wide?'wide':''}" for="${id}">${label}${control}</label>`;
+    }
+    function setFormError(message=''){
+      formError.textContent=message;
+      formError.hidden=!message;
+    }
+    function collectionFor(kind){
+      return {initiative:data.initiatives,metric:data.metrics,risk:data.risks,stakeholder:data.stakeholders,vendor:data.vendors,decision:data.decisions}[kind];
+    }
+    function recordFor(kind,id){ return collectionFor(kind)?.find(x=>String(x.id)===String(id)); }
+    function populate(values){ Object.entries(values).forEach(([id,value])=>{const el=root.querySelector('#'+id);if(el)el.value=value??''}); }
+    function openForm(kind,record=null,publicationEntry=null){
+      editing={kind,id:record?.id??null};
+      pendingTemplatePublication=publicationEntry?{entryId:publicationEntry.id,kind,snapshot:structuredClone(data)}:null;
+      root.querySelector('#pm-form-kind').value=kind;
+      pmForm.reset();
+      setFormError();
+      if(kind==='initiative'){
+        root.querySelector('#pm-dialog-title').textContent=record?'Edit initiative':'Add initiative';
+        fields.innerHTML=field('Initiative','f-name','text',[],false,{minlength:3,maxlength:120,placeholder:'Outcome-oriented initiative name'})+field('Short ID','f-id','text',[],false,{minlength:2,maxlength:12,pattern:'[A-Za-z0-9_-]{2,12}',placeholder:'e.g. REC-01'})+field('Outcome','f-outcome','textarea',[],true,{minlength:10,maxlength:400,placeholder:'Measurable business outcome'})+field('Theme','f-theme','select',['Compliance & Risk','Platform Modernisation','User Experience','Innovation'])+field('Owner','f-owner','text',[],false,{minlength:2,maxlength:80})+field('Start date','f-start','date')+field('Target end date','f-end','date')+field('Dependencies (initiative IDs)','f-dependencies','text',[],true,{required:false,maxlength:160,placeholder:'e.g. EOL, REC — leave blank if none'})+field('Risk reduction (1–5)','f-risk','number',[],false,{min:1,max:5,step:1})+field('Business value (1–5)','f-value','number',[],false,{min:1,max:5,step:1})+field('Time criticality (1–5)','f-urgency','number',[],false,{min:1,max:5,step:1})+field('Strategic alignment (1–5)','f-strategy','number',[],false,{min:1,max:5,step:1})+field('Evidence confidence (1–5)','f-confidence','number',[],false,{min:1,max:5,step:1})+field('Available capacity (1–5)','f-capacity','number',[],false,{min:1,max:5,step:1})+field('Effort / job size (1–5)','f-effort','number',[],false,{min:1,max:5,step:1})+field('Mandatory override','f-override','select',overrideTypes)+field('Override rationale','f-override-reason','textarea',[],true,{required:false,maxlength:500,placeholder:'Required for mandatory work: cite the obligation, incident, support deadline or dependency.'})+field('Mandatory deadline','f-override-deadline','date',[],false,{required:false})+field('Delivery health','f-status','select',['Planned','On track','At risk','Blocked','Done'])+field('Lifecycle','f-lifecycle','select',lifecycleStatuses)+field('Progress %','f-progress','number',[],false,{min:0,max:100,step:1});
+      } else if(kind==='risk'){
+        root.querySelector('#pm-dialog-title').textContent=record?'Edit risk and control':'Add risk and control';
+        fields.innerHTML=field('Risk','f-name','text',[],false,{minlength:10,maxlength:180,placeholder:'Cause → event → impact'})+field('Owner','f-owner','text',[],false,{minlength:2,maxlength:80})+field('Control','f-control','textarea',[],true,{minlength:10,maxlength:500})+field('Likelihood (1–5)','f-likelihood','number',[],false,{min:1,max:5,step:1})+field('Impact (1–5)','f-impact','number',[],false,{min:1,max:5,step:1})+field('Evidence / next action','f-evidence','textarea',[],true,{minlength:5,maxlength:500});
+      } else if(kind==='decision') {
+        root.querySelector('#pm-dialog-title').textContent=record?'Edit decision':'Log decision';
+        fields.innerHTML=field('Decision','f-title','text',[],false,{minlength:5,maxlength:180})+field('Date','f-date','date')+field('Rationale','f-why','textarea',[],true,{minlength:10,maxlength:700})+field('Owner','f-owner','text',[],false,{minlength:2,maxlength:80})+field('Review date','f-review','date');
+      } else if(kind==='metric') {
+        root.querySelector('#pm-dialog-title').textContent=record?'Edit metric':'Add metric';
+        fields.innerHTML=field('Metric','f-name','text',[],false,{minlength:3,maxlength:100})+field('Unit','f-unit','text',[],false,{minlength:1,maxlength:12,placeholder:'%, seconds, £'})+field('Current value','f-current','number',[],false,{min:0,step:'any'})+field('Target value','f-target','number',[],false,{min:0.000001,step:'any'});
+      } else if(kind==='stakeholder') {
+        root.querySelector('#pm-dialog-title').textContent=record?'Edit stakeholder':'Add stakeholder';
+        fields.innerHTML=field('Stakeholder','f-name','text',[],false,{minlength:2,maxlength:100})+field('Primary concern','f-concern','text',[],false,{minlength:3,maxlength:180})+field('Power','f-power','select',['High','Medium','Low'])+field('Cadence','f-cadence','text',[],false,{minlength:2,maxlength:60})+field('Next engagement','f-next','textarea',[],true,{minlength:3,maxlength:300});
+      } else if(kind==='vendor') {
+        root.querySelector('#pm-dialog-title').textContent=record?'Edit vendor':'Add vendor';
+        fields.innerHTML=field('Vendor','f-name','text',[],false,{minlength:2,maxlength:100})+field('Risk','f-vendor-risk','select',['Low','Medium','High'])+field('Capability fit %','f-fit','number',[],false,{min:0,max:100,step:1})+field('Support score %','f-support','number',[],false,{min:0,max:100,step:1});
+      }
+      if(kind!=='initiative')fields.insertAdjacentHTML('beforeend',field('Lifecycle','f-lifecycle','select',lifecycleStatuses));
+      if(record){
+        const maps={
+          initiative:{'f-name':record.name,'f-id':record.id,'f-outcome':record.outcome,'f-theme':record.theme,'f-owner':record.owner,'f-start':record.startDate,'f-end':record.endDate,'f-dependencies':record.dependencies.join(', '),'f-risk':record.risk,'f-value':record.value,'f-urgency':record.urgency,'f-strategy':record.strategy||3,'f-confidence':record.confidence||3,'f-capacity':record.capacity||3,'f-effort':record.effort,'f-override':record.overrideType||'None','f-override-reason':record.overrideReason||'','f-override-deadline':record.overrideDeadline||'','f-status':record.status,'f-lifecycle':record.lifecycleStatus,'f-progress':record.progress},
+          risk:{'f-name':record.name,'f-owner':record.owner,'f-control':record.control,'f-likelihood':record.likelihood,'f-impact':record.impact,'f-evidence':record.evidence},
+          decision:{'f-title':record.title,'f-date':record.date,'f-why':record.why,'f-owner':record.owner,'f-review':record.review},
+          metric:{'f-name':record.name,'f-unit':record.unit,'f-current':record.current,'f-target':record.target},
+          stakeholder:{'f-name':record.name,'f-concern':record.concern,'f-power':record.power,'f-cadence':record.cadence,'f-next':record.next},
+          vendor:{'f-name':record.name,'f-vendor-risk':record.risk,'f-fit':record.fit,'f-support':record.support}
+        };
+        populate(maps[kind]);
+        root.querySelector('#f-lifecycle').value=record.lifecycleStatus;
+      }else{
+        root.querySelector('#f-lifecycle').value=kind==='initiative'?'Draft':'Active';
+      }
+      dialog.showModal();
+    }
+    root.querySelector('#pm-add').onclick=()=>openForm('initiative');root.querySelector('#pm-add-roadmap').onclick=()=>openForm('initiative');root.querySelector('#pm-add-risk').onclick=()=>openForm('risk');root.querySelector('#pm-add-decision').onclick=()=>openForm('decision');root.querySelector('#pm-add-metric').onclick=()=>openForm('metric');root.querySelector('#pm-add-stakeholder').onclick=()=>openForm('stakeholder');root.querySelector('#pm-add-vendor').onclick=()=>openForm('vendor');
+    root.querySelectorAll('[data-close-dialog]').forEach(b=>b.onclick=()=>{pendingTemplatePublication=null;dialog.close()});
+    dialog.addEventListener('cancel',()=>{pendingTemplatePublication=null});
+    pmForm.addEventListener('submit',e=>{
+      e.preventDefault();
+      setFormError();
+      if(!pmForm.reportValidity()) return;
+      const kind=root.querySelector('#pm-form-kind').value;
+      const v=id=>root.querySelector('#'+id).value.trim();
+      if(kind==='initiative'){
+        const id=v('f-id').toUpperCase();
+        if(data.initiatives.some(i=>String(i.id).toUpperCase()===id&&String(i.id)!==String(editing.id))){
+          setFormError(`Short ID “${id}” already exists. Enter a unique ID.`);
+          root.querySelector('#f-id').focus();
+          return;
+        }
+        const startDate=v('f-start'),endDate=v('f-end');
+        if(endDate<startDate){setFormError('Target end date cannot be earlier than the start date.');root.querySelector('#f-end').focus();return;}
+        const dependencies=[...new Set(v('f-dependencies').split(',').map(x=>x.trim().toUpperCase()).filter(Boolean))];
+        if(dependencies.includes(id)){setFormError('An initiative cannot depend on itself.');root.querySelector('#f-dependencies').focus();return;}
+        const knownIds=new Set(data.initiatives.map(i=>String(i.id).toUpperCase()));
+        if(editing.id)knownIds.add(id);
+        const missing=dependencies.filter(dep=>!knownIds.has(dep));
+        if(missing.length){setFormError(`Unknown dependency ID${missing.length>1?'s':''}: ${missing.join(', ')}.`);root.querySelector('#f-dependencies').focus();return;}
+        if(createsDependencyCycle(id,dependencies)){setFormError('These dependencies create a circular dependency.');root.querySelector('#f-dependencies').focus();return;}
+        const overrideType=v('f-override'),overrideReason=v('f-override-reason'),overrideDeadline=v('f-override-deadline');
+        if(overrideType!=='None'&&!overrideReason){setFormError('A mandatory override requires a clear rationale and source of obligation.');root.querySelector('#f-override-reason').focus();return;}
+        if(overrideType!=='None'&&!overrideDeadline){setFormError('A mandatory override requires a deadline.');root.querySelector('#f-override-deadline').focus();return;}
+        if(overrideType==='None'&&(overrideReason||overrideDeadline)){setFormError('Select a mandatory override type or clear the override rationale and deadline.');root.querySelector('#f-override').focus();return;}
+        const quarter=Math.floor(new Date(`${startDate}T00:00:00`).getMonth()/3)+1;
+        const lifecycleStatus=v('f-lifecycle');
+        const deliveryStatus=v('f-status');
+        const validState=(lifecycleStatus==='Draft'&&deliveryStatus==='Planned')||(lifecycleStatus==='Active'&&['On track','At risk'].includes(deliveryStatus))||(lifecycleStatus==='Blocked'&&deliveryStatus==='Blocked')||(lifecycleStatus==='Completed'&&deliveryStatus==='Done')||lifecycleStatus==='Archived';
+        if(!validState){setFormError('Lifecycle and delivery health conflict. Use Draft/Planned, Active/On track or At risk, Blocked/Blocked, or Completed/Done.');root.querySelector('#f-lifecycle').focus();return;}
+        const next={id,name:v('f-name'),outcome:v('f-outcome'),theme:v('f-theme'),owner:v('f-owner'),startDate,endDate,dependencies,quarter,risk:Number(v('f-risk')),value:Number(v('f-value')),urgency:Number(v('f-urgency')),strategy:Number(v('f-strategy')),confidence:Number(v('f-confidence')),capacity:Number(v('f-capacity')),effort:Number(v('f-effort')),overrideType,overrideReason,overrideDeadline,status:deliveryStatus,progress:Number(v('f-progress')),lifecycleStatus,archived:lifecycleStatus==='Archived'};
+        normaliseLifecycle(next,'initiative');
+        if(editing.id){const oldId=String(editing.id).toUpperCase();Object.assign(recordFor(kind,editing.id),next);if(oldId!==id)data.initiatives.forEach(i=>{i.dependencies=i.dependencies.map(dep=>dep===oldId?id:dep)})} else data.initiatives.push(next);
+      }
+      if(kind==='risk'){
+        const next={name:v('f-name'),owner:v('f-owner'),control:v('f-control'),likelihood:Number(v('f-likelihood')),impact:Number(v('f-impact')),evidence:v('f-evidence'),lifecycleStatus:v('f-lifecycle'),archived:v('f-lifecycle')==='Archived'};
+        if(editing.id) Object.assign(recordFor(kind,editing.id),next); else data.risks.push({id:makeId('risk'),archived:false,...next});
+      }
+      if(kind==='decision'){
+        const date=v('f-date'), review=v('f-review');
+        if(review<date){
+          setFormError('Review date cannot be earlier than the decision date.');
+          root.querySelector('#f-review').focus();
+          return;
+        }
+        const next={title:v('f-title'),date,why:v('f-why'),owner:v('f-owner'),review,lifecycleStatus:v('f-lifecycle'),archived:v('f-lifecycle')==='Archived'};
+        if(editing.id) Object.assign(recordFor(kind,editing.id),next); else data.decisions.push({id:makeId('decision'),archived:false,...next});
+      }
+      if(kind==='metric'){
+        const next={name:v('f-name'),unit:v('f-unit'),current:Number(v('f-current')),target:Number(v('f-target')),lifecycleStatus:v('f-lifecycle'),archived:v('f-lifecycle')==='Archived'};
+        if(editing.id) Object.assign(recordFor(kind,editing.id),next); else data.metrics.push({id:makeId('metric'),archived:false,...next});
+      }
+      if(kind==='stakeholder'){
+        const next={name:v('f-name'),concern:v('f-concern'),power:v('f-power'),cadence:v('f-cadence'),next:v('f-next'),lifecycleStatus:v('f-lifecycle'),archived:v('f-lifecycle')==='Archived'};
+        if(editing.id) Object.assign(recordFor(kind,editing.id),next); else data.stakeholders.push({id:makeId('stakeholder'),archived:false,...next});
+      }
+      if(kind==='vendor'){
+        const next={name:v('f-name'),risk:v('f-vendor-risk'),fit:Number(v('f-fit')),support:Number(v('f-support')),lifecycleStatus:v('f-lifecycle'),archived:v('f-lifecycle')==='Archived'};
+        if(editing.id) Object.assign(recordFor(kind,editing.id),next); else data.vendors.push({id:makeId('vendor'),archived:false,...next});
+      }
+      if(pendingTemplatePublication?.kind===kind&&!finalisePendingTemplatePublication())return;
+      pendingTemplatePublication=null;
+      dialog.close();
+      editing={kind:null,id:null};
+      render();
+    });
+    root.querySelector('#pm-recalculate').onclick=backlog;
+    root.querySelector('#pm-refresh-report').onclick=()=>{report();save()};
+    root.querySelector('#pm-save-report-note').onclick=()=>{
+      const text=root.querySelector('#pm-report-override-input').value.trim();
+      data.reportOverrides.executiveCommentary={enabled:Boolean(text),text,updatedAt:new Date().toISOString()};
+      report();save();
+    };
+    root.querySelector('#pm-clear-report-note').onclick=()=>{data.reportOverrides.executiveCommentary={enabled:false,text:'',updatedAt:new Date().toISOString()};report();save()};
+    root.querySelector('#pm-clear-template').onclick=()=>{
+      const inputs=[...root.querySelectorAll('#pm-template-form [data-template-input]')];
+      if(!inputs.some(input=>input.value.trim())&&!activeTemplateEntry)return;
+      if(!confirm('Clear the current template form? Saved drafts and completed templates will not be deleted.'))return;
+      inputs.forEach(input=>{input.value=''});
+      activeTemplateEntry=null;
+      buildTemplateDraft();
+      setTemplateError();
+      inputs[0]?.focus();
+    };
+    root.querySelector('#pm-save-template').onclick=()=>{if(saveTemplateEntry('Draft'))templates()};
+    root.querySelector('#pm-publish-template').onclick=publishTemplate;
+    root.querySelector('#pm-copy-template').onclick=()=>copyText(root.querySelector('#pm-template-output').textContent,'Template draft');
+    root.querySelector('#pm-copy').onclick=()=>copyText(root.querySelector('#pm-report-text').textContent,'Executive report');
+    root.addEventListener('click',e=>{
+      const openEntry=e.target.closest('[data-template-entry]');
+      if(openEntry){
+        const entry=data.templateEntries.find(x=>x.id===openEntry.dataset.templateEntry);
+        if(entry){activeTemplate=entry.templateId;activeTemplateEntry=entry.id;showTab('templates');templates()}
+        return;
+      }
+      const deleteEntry=e.target.closest('[data-delete-template-entry]');
+      if(deleteEntry){
+        const id=deleteEntry.dataset.deleteTemplateEntry, entry=data.templateEntries.find(x=>x.id===id);
+        if(entry&&confirm(`Delete saved template “${entry.title}”?`)){
+          data.templateEntries=data.templateEntries.filter(x=>x.id!==id);
+          if(activeTemplateEntry===id)activeTemplateEntry=null;
+          if(data.productBrief?.id===id)data.productBrief=null;
+          templates();productBrief();save();
+        }
+        return;
+      }
+      const button=e.target.closest('[data-action]');
+      if(!button || !root.contains(button)) return;
+      const {action,kind,record:id}=button.dataset;
+      const item=recordFor(kind,id);
+      if(!item) return;
+      if(action==='edit') openForm(kind,item);
+      if(action==='archive'){
+        if(item.lifecycleStatus==='Archived'){
+          item.lifecycleStatus=lifecycleStatuses.includes(item.previousLifecycleStatus)&&item.previousLifecycleStatus!=='Archived'?item.previousLifecycleStatus:'Active';
+          item.archived=false;
+        }else{
+          item.previousLifecycleStatus=item.lifecycleStatus;
+          item.lifecycleStatus='Archived';
+          item.archived=true;
+        }
+        render();
+      }
+      if(action==='delete'){
+        const dependants=kind==='initiative'?data.initiatives.filter(i=>(i.dependencies||[]).includes(item.id)).map(i=>i.id):[];
+        const warning=dependants.length?` It is a dependency of ${dependants.join(', ')}; those references will also be removed.`:'';
+        if(!confirm(`Permanently delete “${item.name||item.title}”? This cannot be undone.${warning}`)) return;
+        const collection=collectionFor(kind), index=collection.indexOf(item);
+        if(index>=0) collection.splice(index,1);
+        if(kind==='initiative')data.initiatives.forEach(i=>{i.dependencies=(i.dependencies||[]).filter(dep=>dep!==item.id)});
+        render();
+      }
+    });
+    root.querySelector('#pm-toggle-archived').onclick=()=>{
+      showArchived=!showArchived;
+      const b=root.querySelector('#pm-toggle-archived');
+      b.setAttribute('aria-pressed',String(showArchived));
+      b.innerHTML=`<i data-lucide="archive" aria-hidden="true"></i> ${showArchived?'Hide archived':'Show archived'}`;
+      render();
+    };
+    function validateImport(candidate){
+      const required=['initiatives','metrics','risks','stakeholders','vendors','decisions'];
+      if(!candidate || typeof candidate!=='object') throw new Error('The JSON file does not contain a data object.');
+      if(candidate.schemaVersion!==undefined&&Number(candidate.schemaVersion)>8)throw new Error(`Unsupported schema version: ${candidate.schemaVersion}.`);
+      required.forEach(key=>{if(!Array.isArray(candidate[key]))throw new Error(`Missing required collection: ${key}.`)});
+      const ids=new Set();
+      candidate.initiatives.forEach((i,n)=>{
+        const id=String(i.id||'').toUpperCase();
+        if(!/^[A-Z0-9_-]{2,12}$/.test(id)) throw new Error(`Initiative ${n+1} has an invalid ID.`);
+        if(ids.has(id)) throw new Error(`Duplicate initiative ID: ${id}.`);
+        ids.add(id);
+        ['risk','value','urgency','strategy','confidence','capacity','effort'].forEach(k=>{if(!Number.isInteger(Number(i[k]))||Number(i[k])<1||Number(i[k])>5)throw new Error(`${id} has invalid ${k}; use 1–5.`)});
+        const overrideType=i.overrideType||'None';
+        if(!overrideTypes.includes(overrideType))throw new Error(`${id} has an invalid mandatory override type.`);
+        if(overrideType!=='None'&&(!String(i.overrideReason||'').trim()||!/^\d{4}-\d{2}-\d{2}$/.test(i.overrideDeadline||'')))throw new Error(`${id} requires an override rationale and valid deadline.`);
+        if(overrideType==='None'&&(String(i.overrideReason||'').trim()||i.overrideDeadline))throw new Error(`${id} has override details but no override type.`);
+        if(!Number.isFinite(Number(i.progress))||Number(i.progress)<0||Number(i.progress)>100)throw new Error(`${id} has invalid progress; use 0–100.`);
+        if(!isValidISODate(i.startDate)||!isValidISODate(i.endDate)||i.endDate<i.startDate)throw new Error(`${id} has invalid start or end dates.`);
+        if(i.lifecycleStatus!==undefined){const delivery=i.status||'Planned',lifecycle=i.lifecycleStatus;const consistent=(lifecycle==='Draft'&&delivery==='Planned')||(lifecycle==='Active'&&['On track','At risk'].includes(delivery))||(lifecycle==='Blocked'&&delivery==='Blocked')||(lifecycle==='Completed'&&delivery==='Done')||lifecycle==='Archived';if(!consistent)throw new Error(`${id} has conflicting lifecycle and delivery status.`)}
+      });
+      candidate.initiatives.forEach(i=>{const deps=Array.isArray(i.dependencies)?i.dependencies:[];deps.forEach(dep=>{if(!ids.has(String(dep).toUpperCase()))throw new Error(`${i.id} references unknown dependency ${dep}.`);if(String(dep).toUpperCase()===String(i.id).toUpperCase())throw new Error(`${i.id} cannot depend on itself.`)})});
+      [...candidate.metrics,...candidate.risks,...candidate.stakeholders,...candidate.vendors,...candidate.decisions,...(candidate.templateEntries||[])].forEach((record,n)=>{
+        const id=String(record?.id||'').trim();
+        if(!id)throw new Error(`Record ${n+1} is missing its unique ID.`);
+        if(ids.has(id))throw new Error(`Duplicate record ID: ${id}.`);
+        ids.add(id);
+        if(record.lifecycleStatus!==undefined&&!lifecycleStatuses.includes(record.lifecycleStatus))throw new Error(`Record ${id} has an invalid lifecycle status.`);
+      });
+      candidate.initiatives.forEach(i=>{if(i.lifecycleStatus!==undefined&&!lifecycleStatuses.includes(i.lifecycleStatus))throw new Error(`${i.id} has an invalid lifecycle status.`)});
+      const cycle=dependencyCyclePath(candidate.initiatives);
+      if(cycle)throw new Error(`Circular dependency detected: ${cycle.join(' → ')}.`);
+      candidate.risks.forEach((r,n)=>['likelihood','impact'].forEach(k=>{if(!Number.isInteger(Number(r[k]))||Number(r[k])<1||Number(r[k])>5)throw new Error(`Risk ${n+1} has invalid ${k}; use 1–5.`)}));
+      candidate.metrics.forEach((m,n)=>{if(!Number.isFinite(Number(m.current))||!Number.isFinite(Number(m.target))||Number(m.target)<=0)throw new Error(`Metric ${n+1} has invalid values.`)});
+      candidate.vendors.forEach((v,n)=>['fit','support'].forEach(k=>{if(!Number.isFinite(Number(v[k]))||Number(v[k])<0||Number(v[k])>100)throw new Error(`Vendor ${n+1} has invalid ${k}; use 0–100.`)}));
+      if(candidate.templates!==undefined){
+        if(!Array.isArray(candidate.templates))throw new Error('Template definitions must be a collection.');
+        const canonicalIds=new Set(seed.templates.map(template=>template.id)),importedIds=new Set();
+        candidate.templates.forEach((template,n)=>{if(!isRecord(template)||!canonicalIds.has(String(template.id)))throw new Error(`Template definition ${n+1} is unknown or invalid.`);if(importedIds.has(template.id))throw new Error(`Duplicate template definition: ${template.id}.`);importedIds.add(template.id)});
+        if(importedIds.size!==canonicalIds.size||[...canonicalIds].some(id=>!importedIds.has(id)))throw new Error('Imported template catalogue does not match this application version.');
+      }
+      if(candidate.templateEntries!==undefined){
+        if(!Array.isArray(candidate.templateEntries))throw new Error('Template entries must be a collection.');
+        const allowedTemplateIds=new Set(seed.templates.map(template=>template.id));
+        const entryIds=new Set();
+        candidate.templateEntries.forEach((entry,n)=>{
+          if(!entry||typeof entry!=='object')throw new Error(`Template entry ${n+1} is invalid.`);
+          if(entry.id&&entryIds.has(entry.id))throw new Error(`Duplicate template entry ID: ${entry.id}.`);
+          if(entry.id)entryIds.add(entry.id);
+          if(!entry.templateId)throw new Error(`Template entry ${n+1} is missing its template type.`);
+          if(!allowedTemplateIds.has(String(entry.templateId)))throw new Error(`Template entry ${n+1} references unknown template type: ${entry.templateId}.`);
+          if(!entry.values||typeof entry.values!=='object'||Array.isArray(entry.values))throw new Error(`Template entry ${n+1} has invalid field values.`);
+          if(entry.status&&!['Draft','Completed','Published'].includes(entry.status))throw new Error(`Template entry ${n+1} has an invalid status.`);
+        });
+      }
+      if(candidate.reportNote!==undefined&&candidate.reportNote!==null){
+        if(typeof candidate.reportNote!=='object'||typeof candidate.reportNote.text!=='string')throw new Error('Executive commentary must contain text.');
+        if(candidate.reportNote.text.length>20000)throw new Error('Executive commentary exceeds the 20,000 character limit.');
+      }
+      if(candidate.reportOverrides!==undefined){
+        const commentary=candidate.reportOverrides?.executiveCommentary;
+        if(!isRecord(candidate.reportOverrides)||!isRecord(commentary)||typeof commentary.text!=='string'||typeof commentary.enabled!=='boolean')throw new Error('Report overrides contain an invalid executive commentary record.');
+        if(commentary.text.length>20000)throw new Error('Executive commentary exceeds the 20,000 character limit.');
+      }
+    }
+    function runSelfTests(){
+      const results=[];
+      const test=(name,fn)=>{try{fn();results.push({name,ok:true})}catch(error){results.push({name,ok:false,error:error.message})}};
+      const assert=(condition,message)=>{if(!condition)throw new Error(message)};
+      test('Scoring and mandatory ordering',()=>{
+        const maximum={id:'MAX',value:5,risk:5,urgency:5,strategy:5,confidence:5,capacity:5,effort:1,dependencies:[]};
+        assert(score(maximum,[])===35,'Adjusted WSJF calculation changed unexpectedly.');
+        const blockedDependency={id:'BLOCK',status:'Blocked'};
+        assert(score({...maximum,dependencies:['BLOCK']},[blockedDependency])===14,'Blocked dependency readiness was not applied.');
+        const mandatory={name:'Mandatory',value:1,risk:1,urgency:1,strategy:1,confidence:1,capacity:1,effort:5,dependencies:[],overrideType:'Regulatory / legal',overrideDeadline:'2026-09-01'};
+        const discretionary={name:'Discretionary',value:5,risk:5,urgency:5,strategy:5,confidence:5,capacity:5,effort:1,dependencies:[],overrideType:'None'};
+        assert(priorityCompare(mandatory,discretionary)<0,'Mandatory work must rank before scored work.');
+      });
+      test('Strict import validation',()=>{
+        const valid=structuredClone(data);validateImport(valid);
+        const invalid=structuredClone(valid);invalid.initiatives[0].overrideType='Regulatory / legal';invalid.initiatives[0].overrideReason='';invalid.initiatives[0].overrideDeadline='';
+        let rejected=false;try{validateImport(invalid)}catch(error){rejected=true}assert(rejected,'Invalid mandatory override was accepted.');
+        const cyclic=structuredClone(valid),first=cyclic.initiatives[0],second=cyclic.initiatives[1];first.dependencies=[second.id];second.dependencies=[first.id];
+        let cycleRejected=false;try{validateImport(cyclic)}catch(error){cycleRejected=error.message.includes('Circular dependency detected')}
+        assert(cycleRejected,'Circular dependency import was accepted.');
+      });
+      test('Unique IDs and schema version',()=>{
+        assert(data.schemaVersion===8,'The current data schema is not version 8.');
+        const records=[...data.initiatives,...data.metrics,...data.risks,...data.stakeholders,...data.vendors,...data.decisions,...data.templateEntries];
+        const ids=records.map(record=>record.id);
+        assert(ids.every(Boolean),'A record is missing its unique ID.');
+        assert(new Set(ids).size===ids.length,'Duplicate record IDs were detected.');
+      });
+      test('Storage round-trip',()=>{
+        const key=`${storageKey}-self-test`,payload={id:'template-test',status:'Completed'};storageSet(key,JSON.stringify(payload));
+        const restored=JSON.parse(storageGet(key));storageRemove(key);assert(restored.id===payload.id&&restored.status==='Completed','Stored data did not round-trip.');
+      });
+      test('Backlog and risk collection persistence',()=>{
+        const key=`${storageKey}-collection-self-test`;
+        const payload={
+          initiatives:[{id:'PERSIST-I',name:'Persistence initiative',archived:false,status:'Planned'}],
+          risks:[{id:'PERSIST-R',name:'Persistence risk',archived:false,likelihood:3,impact:4}]
+        };
+        assert(storageSet(key,JSON.stringify(payload)),'Backlog and risk collections could not be saved.');
+        const restored=JSON.parse(storageGet(key));storageRemove(key);
+        assert(restored.initiatives?.[0]?.id==='PERSIST-I','Backlog initiatives did not persist.');
+        assert(restored.risks?.[0]?.id==='PERSIST-R','Risk records did not persist.');
+      });
+      test('Transactional template completion',()=>{
+        const template=data.templates[0],validValues=Object.fromEntries(template.fields.map(field=>[field.name,'Completed value']));
+        assert(validateCompletedTemplate(template,validValues),'Complete template validation failed.');
+        let missingRejected=false;try{validateCompletedTemplate(template,{})}catch(error){missingRejected=error.message.includes('mandatory fields')}
+        assert(missingRejected,'Incomplete template publication was accepted.');
+        const entry={id:'template-transaction-test',status:'Draft',updatedAt:'2026-01-01 00:00'};
+        assert(entry.status==='Draft','Destination workflow must start as a draft.');completeTemplateEntry(entry,false);
+        assert(entry.status==='Completed'&&Boolean(entry.completedAt),'Template was not completed after destination success.');
+      });
+      test('Template publication rollback',()=>{
+        const before=JSON.stringify(data),entry={id:'template-rollback-test',status:'Draft',updatedAt:'2026-01-01 00:00'};
+        const committed=commitTemplatePublication(entry,()=>data.decisions.push({id:'rollback-destination',title:'Must roll back'}),()=>false,{silent:true});
+        assert(!committed,'A failed template publication was reported as successful.');
+        assert(JSON.stringify(data)===before,'Failed publication left a partial destination record or changed template state.');
+      });
+      test('Stable template identifiers',()=>{
+        const template=data.templates[0],entry={id:'stable-entry',templateId:template.id,values:{}};
+        const reordered=[...data.templates].reverse();
+        const resolved=reordered.find(candidate=>candidate.id===entry.templateId);
+        assert(resolved?.id===template.id,'Reordering templates attached a saved draft to the wrong template.');
+        assert(!/^\d+$/.test(entry.templateId),'Template draft is still identified by an array position.');
+      });
+      test('Corrupted storage recovery',()=>{
+        const malformed=loadStoredData('{not valid JSON');
+        const primitive=loadStoredData('"not an object"');
+        const invalidFallback=safeParseObject('null',()=>({recovered:true}));
+        const filtered=recordArray([null,'invalid',{},42]);
+        assert(malformed.schemaVersion===8&&Array.isArray(malformed.initiatives),'Malformed stored JSON did not recover to seed data.');
+        assert(primitive.schemaVersion===8&&Array.isArray(primitive.templates),'Valid non-object JSON did not recover to seed data.');
+        assert(!isValidISODate('2026-99-99')&&isValidISODate('2026-12-31'),'Calendar date validation is not strict.');
+        assert(invalidFallback.recovered===true,'Invalid fallback storage was not normalized.');
+        assert(filtered.length===1&&isRecord(filtered[0]),'Malformed collection records were not removed.');
+      });
+      test('Active-only executive reporting',()=>{
+        const snapshot=structuredClone(data);
+        snapshot.reportOverrides={executiveCommentary:{enabled:true,text:'Manual commentary marker',updatedAt:'2026-07-17T10:00:00.000Z'}};
+        snapshot.initiatives.push({id:'DONE-T',name:'Completed marker',theme:'Test',outcome:'Must not appear',risk:1,value:1,urgency:1,strategy:1,confidence:5,capacity:5,effort:1,status:'Done',lifecycleStatus:'Completed',progress:100,startDate:'2026-01-01',endDate:'2026-01-02',dependencies:[],overrideType:'None',archived:false});
+        snapshot.initiatives.push({id:'MAND-T',name:'Mandatory marker',theme:'Test',outcome:'Must rank',risk:1,value:1,urgency:1,strategy:1,confidence:1,capacity:1,effort:5,status:'On track',lifecycleStatus:'Active',progress:0,startDate:'2026-01-01',endDate:'2026-01-02',dependencies:[],overrideType:'Regulatory / legal',overrideReason:'Test obligation',overrideDeadline:'2026-08-01',archived:false});
+        const output=composeReportText(snapshot);assert(!output.includes('Completed marker'),'Completed work appeared in the report.');assert(output.includes('Mandatory marker')&&output.includes('Mandatory · Regulatory / legal'),'Mandatory priority was not reported.');assert(output.includes('MANUAL EXECUTIVE COMMENTARY')&&output.includes('Manual commentary marker'),'Manual commentary was not appended to the live report.');
+      });
+      test('Live overview metrics and lifecycle exclusion',()=>{
+        const snapshot=structuredClone(data);
+        snapshot.initiatives=[
+          {theme:'A',progress:20,effort:1,urgency:5,lifecycleStatus:'Active',archived:false,overrideType:'None'},
+          {theme:'B',progress:100,effort:5,urgency:5,lifecycleStatus:'Completed',archived:false,overrideType:'None'}
+        ];
+        snapshot.risks=[
+          {likelihood:5,impact:5,lifecycleStatus:'Active',archived:false},
+          {likelihood:5,impact:5,lifecycleStatus:'Completed',archived:false}
+        ];
+        const summary=portfolioSummary(snapshot);
+        assert(summary.active===1&&summary.high===1&&summary.progress===20,'Overview metrics included completed work or ignored live data.');
+      });
+      test('Report override persistence',()=>{
+        const key=`${storageKey}-report-override-test`,payload={executiveCommentary:{enabled:true,text:'Persisted context',updatedAt:'2026-07-22T10:00:00.000Z'}};
+        assert(storageSet(key,JSON.stringify(payload)),'Report override could not be saved.');
+        const restored=JSON.parse(storageGet(key));storageRemove(key);
+        assert(restored.executiveCommentary.text==='Persisted context'&&restored.executiveCommentary.enabled,'Report override did not survive storage round-trip.');
+      });
+      test('Accessible controls and destructive confirmation',()=>{
+        const tabs=[...root.querySelectorAll('[data-tab]')],selected=tabs.filter(tab=>tab.getAttribute('aria-selected')==='true');
+        assert(tabs.every(tab=>tab.getAttribute('role')==='tab'&&tab.hasAttribute('aria-controls')),'Navigation tabs are missing ARIA relationships.');
+        assert(selected.length===1&&selected[0].tabIndex===0&&tabs.filter(tab=>tab!==selected[0]).every(tab=>tab.tabIndex===-1),'Navigation does not implement roving keyboard focus.');
+        const roadmapControls=[...root.querySelectorAll('[data-roadmap-record]')];
+        assert(roadmapControls.length===visible(data.initiatives).length&&roadmapControls.every(control=>control.tagName==='BUTTON'&&control.getAttribute('aria-label')),'Roadmap does not expose every visible lifecycle item as an accessible control.');
+        const progressBars=[...root.querySelectorAll('.bar')];
+        assert(progressBars.length>0&&progressBars.every(bar=>bar.getAttribute('role')==='progressbar'&&bar.hasAttribute('aria-valuemin')&&bar.hasAttribute('aria-valuemax')&&bar.hasAttribute('aria-valuenow')),'A progress indicator is missing accessible values.');
+        assert(typeof root.querySelector('#pm-clear-template')?.onclick==='function','Clear template does not use the confirmed clear workflow.');
+      });
+      const failed=results.filter(result=>!result.ok),resultEl=root.querySelector('#pm-check-result');
+      resultEl.classList.toggle('text-destructive',Boolean(failed.length));
+      resultEl.textContent=failed.length?`${results.length-failed.length}/${results.length} checks passed · ${failed.map(item=>`${item.name}: ${item.error}`).join(' · ')}`:`${results.length}/${results.length} checks passed`;
+      return results;
+    }
+    root.querySelector('#pm-run-checks').onclick=runSelfTests;
+    const importInput=root.querySelector('#pm-import-file');
+    root.querySelector('#pm-import').onclick=()=>{importInput.value='';importInput.click()};
+    importInput.onchange=async()=>{
+      const file=importInput.files?.[0];
+      if(!file) return;
+      const previous=structuredClone(data);
+      try{
+        const imported=JSON.parse(await file.text());
+        validateImport(imported);
+        if(!confirm('Replace the current command-centre data with this import?')) return;
+        const candidate={...structuredClone(seed),...structuredClone(imported),schemaVersion:8,templates:structuredClone(seed.templates)};
+        if(candidate.reportOverride&&!candidate.reportNote)candidate.reportNote={text:String(candidate.reportOverride),updatedAt:'Migrated from imported report override'};
+        delete candidate.reportOverride;
+        if(!isRecord(candidate.reportOverrides))candidate.reportOverrides={};
+        if(candidate.reportNote&&!candidate.reportOverrides.executiveCommentary)candidate.reportOverrides.executiveCommentary={enabled:true,text:String(candidate.reportNote.text||''),updatedAt:candidate.reportNote.updatedAt||new Date().toISOString()};
+        delete candidate.reportNote;
+        if(!isRecord(candidate.reportOverrides.executiveCommentary))candidate.reportOverrides.executiveCommentary={enabled:false,text:'',updatedAt:''};
+        candidate.initiatives.forEach(i=>{i.id=String(i.id).toUpperCase();i.name=textValue(i.name);i.outcome=textValue(i.outcome);i.theme=textValue(i.theme);i.owner=textValue(i.owner);i.dependencies=i.dependencies.map(x=>String(x).toUpperCase());i.quarter=Math.floor(new Date(`${i.startDate}T00:00:00`).getMonth()/3)+1;['risk','value','urgency','strategy','confidence','capacity','effort'].forEach(key=>i[key]=clamp(i[key],1,5,3));i.progress=clamp(i.progress,0,100,0);i.overrideType=overrideTypes.includes(i.overrideType)?i.overrideType:'None';i.overrideReason=String(i.overrideReason||'');i.overrideDeadline=String(i.overrideDeadline||'');normaliseLifecycle(i,'initiative')});
+        candidate.metrics.forEach(m=>{m.name=textValue(m.name);m.unit=textValue(m.unit);m.current=clamp(m.current,0,Number.MAX_SAFE_INTEGER,0);m.target=clamp(m.target,.000001,Number.MAX_SAFE_INTEGER,1);normaliseLifecycle(m,'metric')});
+        candidate.risks.forEach(r=>{r.name=textValue(r.name);r.owner=textValue(r.owner);r.control=textValue(r.control);r.evidence=textValue(r.evidence);r.likelihood=clamp(r.likelihood,1,5,1);r.impact=clamp(r.impact,1,5,1);normaliseLifecycle(r,'risk')});
+        candidate.stakeholders.forEach(s=>{s.name=textValue(s.name);s.concern=textValue(s.concern);s.cadence=textValue(s.cadence);s.next=textValue(s.next);normaliseLifecycle(s,'stakeholder')});
+        candidate.vendors.forEach(v=>{v.name=textValue(v.name);v.fit=clamp(v.fit,0,100,0);v.support=clamp(v.support,0,100,0);normaliseLifecycle(v,'vendor')});
+        candidate.decisions.forEach(d=>{d.title=textValue(d.title);d.why=textValue(d.why);d.owner=textValue(d.owner);normaliseLifecycle(d,'decision')});
+        candidate.templateEntries=Array.isArray(candidate.templateEntries)?candidate.templateEntries:[];
+        candidate.templateEntries.forEach(entry=>{
+          if(!entry.id)entry.id=makeId('template');
+          if(entry.status==='Published')entry.status='Completed';
+          if(!['Draft','Completed'].includes(entry.status))entry.status='Draft';
+          if(!entry.values||typeof entry.values!=='object'||Array.isArray(entry.values))entry.values={};
+          if(!entry.updatedAt)entry.updatedAt=new Date().toISOString().slice(0,16).replace('T',' ');
+          if(entry.status==='Completed'&&!entry.completedAt)entry.completedAt=entry.updatedAt;
+        });
+        candidate.productBrief=isRecord(candidate.productBrief)?candidate.productBrief:null;
+        data=candidate;
+        if(!save())throw new Error('Imported data could not be persisted.');
+        render();
+      }catch(error){data=previous;render();alert(`Import failed and previous data was restored: ${error.message}`);}
+    };
+    root.querySelector('#pm-export').onclick=()=>{const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='voice-archive-pm-data.json';a.click();URL.revokeObjectURL(a.href)};
+    showTab('overview');
+    render();
+    runSelfTests();
+  })();
+  </script>
+</div>

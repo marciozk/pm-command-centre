@@ -1,0 +1,11 @@
+{
+  "name": "pm-command-centre",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "python3 scripts/build-standalone.py",
+    "test": "node --test --test-concurrency=1 tests/*.test.mjs",
+    "check": "npm run build && npm test"
+  }
+}
