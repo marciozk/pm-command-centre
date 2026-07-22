@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+"""Embed the maintainable PM application fragment in the standalone PWA shell."""
+
+from html import escape, unescape
+from pathlib import Path
+import re
+
+
+ROOT = Path(__file__).resolve().parents[1]
+INDEX = ROOT / "index.html"
+APP = ROOT / "app" / "pm-command-centre.html"
+APP_START = '<div id="pm-command-centre">'
+
+
+def main() -> None:
+    document = INDEX.read_text(encoding="utf-8")
+    match = re.search(r'(<iframe\b[^>]*\bsrcdoc=")([\s\S]*?)("[^>]*></iframe>)', document)
+    if not match:
+        raise SystemExit("Standalone iframe srcdoc was not found.")
+
+    srcdoc = unescape(match.group(2))
+    app_start = srcdoc.find(APP_START)
+    body_end = srcdoc.rfind("</body>")
+    if app_start < 0 or body_end < app_start:
+        raise SystemExit("Expected application or document body marker was not found.")
+
+    fragment = APP.read_text(encoding="utf-8").strip()
+    if not fragment.startswith(APP_START) or not fragment.endswith("</div>"):
+        raise SystemExit("Application fragment must contain one PM command-centre root.")
+
+    # The generated visualization tooltip/icon runtime is unnecessary for this
+    # standalone app and has previously emitted an invalid MutationObserver
+    # target error. Keep the shell styles, embed the application, and close the
+    # document without that external runtime so offline behaviour is deterministic.
+    rebuilt_srcdoc = srcdoc[:app_start] + fragment + "\n\n" + srcdoc[body_end:]
+    encoded = escape(rebuilt_srcdoc, quote=True)
+    rebuilt_document = document[: match.start(2)] + encoded + document[match.end(2) :]
+    INDEX.write_text(rebuilt_document, encoding="utf-8")
+    print(f"Embedded {APP.relative_to(ROOT)} into {INDEX.name}")
+
+
+if __name__ == "__main__":
+    main()

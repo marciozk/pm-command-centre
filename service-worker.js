@@ -1,5 +1,10 @@
-const CACHE = 'pm-command-centre-v6';
-const APP_SHELL = ['./manifest.webmanifest'];
+const CACHE = 'pm-command-centre-v17';
+const APP_SHELL = [
+  './index.html',
+  './manifest.webmanifest',
+  './assets/icon-192.png',
+  './assets/icon-512.png'
+];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(APP_SHELL)));
@@ -20,6 +25,7 @@ self.addEventListener('fetch', event => {
     event.respondWith(
       fetch(event.request, { cache: 'no-store' })
         .then(response => {
+          if (!response.ok) throw new Error(`Navigation failed with ${response.status}`);
           const copy = response.clone();
           caches.open(CACHE).then(cache => cache.put(event.request, copy));
           return response;
