@@ -3,32 +3,65 @@ const json = (body, status = 200) => new Response(JSON.stringify(body), {
   headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }
 });
 
-const validWorkspace = value => /^[0-9a-f-]{36}$/i.test(value || '');
-const validToken = value => /^[A-Za-z0-9_-]{43}$/.test(value || '');
+const digestBytes = async value => new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value)));
 const digest = async value => {
-  const bytes = new TextEncoder().encode(value);
-  return [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))]
+  return [...await digestBytes(value)]
     .map(byte => byte.toString(16).padStart(2, '0')).join('');
 };
 
+const toBase64 = bytes => btoa(String.fromCharCode(...bytes));
+const fromBase64 = value => Uint8Array.from(atob(value), char => char.charCodeAt(0));
+const toBase64Url = bytes => toBase64(bytes).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+const fromBase64Url = value => fromBase64(value.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((value.length + 3) % 4));
+const cookie = (name, value, options = '') => `${name}=${value}; Path=/; Secure; HttpOnly; SameSite=Lax${options}`;
+const cookies = request => Object.fromEntries((request.headers.get('cookie') || '').split(';').map(part => part.trim().split('=').map(decodeURIComponent)).filter(parts => parts.length === 2));
+async function sessionKey(env) {
+  return crypto.subtle.importKey('raw', new TextEncoder().encode(env.SESSION_SECRET), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign', 'verify']);
+}
+async function createSession(env, user) {
+  const payload = toBase64Url(new TextEncoder().encode(JSON.stringify({ id: user.id, login: user.login, exp: Date.now() + 30 * 86400000 })));
+  const signature = toBase64Url(new Uint8Array(await crypto.subtle.sign('HMAC', await sessionKey(env), new TextEncoder().encode(payload))));
+  return `${payload}.${signature}`;
+}
+async function readSession(request, env) {
+  try {
+    const [payload, signature] = (cookies(request).pmcc_session || '').split('.');
+    if (!payload || !signature || !await crypto.subtle.verify('HMAC', await sessionKey(env), fromBase64Url(signature), new TextEncoder().encode(payload))) return null;
+    const user = JSON.parse(new TextDecoder().decode(fromBase64Url(payload)));
+    return user.exp > Date.now() && String(user.login).toLowerCase() === String(env.GITHUB_ALLOWED_LOGIN).toLowerCase() ? user : null;
+  } catch { return null; }
+}
+async function encryptionKey(env, email) {
+  return crypto.subtle.importKey('raw', await digestBytes(`${env.SYNC_SECRET}:${email}`), { name: 'AES-GCM' }, false, ['encrypt', 'decrypt']);
+}
+async function encryptPayload(env, email, value) {
+  const key = await encryptionKey(env, email), iv = crypto.getRandomValues(new Uint8Array(12));
+  const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(JSON.stringify(value)));
+  return JSON.stringify({ iv: toBase64(iv), ciphertext: toBase64(new Uint8Array(encrypted)) });
+}
+async function decryptPayload(env, email, value) {
+  const payload = JSON.parse(value), key = await encryptionKey(env, email);
+  const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: fromBase64(payload.iv) }, key, fromBase64(payload.ciphertext));
+  return JSON.parse(new TextDecoder().decode(decrypted));
+}
+
 async function syncRequest(request, env) {
-  const workspaceId = request.headers.get('x-pmcc-workspace') || '';
-  const token = (request.headers.get('authorization') || '').replace(/^Bearer\s+/i, '');
-  if (!validWorkspace(workspaceId) || !validToken(token)) return json({ error: 'Invalid sync credentials.' }, 401);
-  const tokenHash = await digest(token);
+  const user = await readSession(request, env);
+  if (!user) return json({ error: 'Sign-in required.' }, 401);
+  const identity = `github:${user.id}`, workspaceId = await digest(identity), tokenHash = 'github-oauth';
   const existing = await env.DB.prepare('SELECT token_hash, payload, revision, updated_at FROM sync_workspaces WHERE id = ?')
     .bind(workspaceId).first();
 
   if (request.method === 'GET') {
-    if (!existing || existing.token_hash !== tokenHash) return json({ error: 'Sync workspace not found.' }, 404);
-    return json({ payload: JSON.parse(existing.payload), revision: existing.revision, updatedAt: existing.updated_at });
+    if (!existing) return json({ error: 'Sync workspace not found.' }, 404);
+    return json({ data: await decryptPayload(env, identity, existing.payload), revision: existing.revision, updatedAt: existing.updated_at });
   }
 
   if (request.method === 'PUT') {
     const body = await request.json().catch(() => null);
-    if (!body || typeof body.payload !== 'object' || typeof body.payload.iv !== 'string' || typeof body.payload.ciphertext !== 'string') return json({ error: 'Invalid encrypted payload.' }, 400);
-    if (body.payload.ciphertext.length > 900000) return json({ error: 'Encrypted payload is too large.' }, 413);
-    if (existing && existing.token_hash !== tokenHash) return json({ error: 'Sync workspace not found.' }, 404);
+    if (!body || typeof body.data !== 'object') return json({ error: 'Invalid sync payload.' }, 400);
+    const encryptedPayload = await encryptPayload(env, identity, body.data);
+    if (encryptedPayload.length > 900000) return json({ error: 'Encrypted payload is too large.' }, 413);
     const expectedRevision = Number(body.expectedRevision || 0);
     if (existing && expectedRevision !== Number(existing.revision)) return json({ error: 'Remote data changed.', revision: existing.revision }, 409);
     const revision = existing ? Number(existing.revision) + 1 : 1;
@@ -36,7 +69,7 @@ async function syncRequest(request, env) {
     await env.DB.prepare(`INSERT INTO sync_workspaces (id, token_hash, payload, revision, updated_at)
       VALUES (?, ?, ?, ?, ?)
       ON CONFLICT(id) DO UPDATE SET payload = excluded.payload, revision = excluded.revision, updated_at = excluded.updated_at`)
-      .bind(workspaceId, tokenHash, JSON.stringify(body.payload), revision, updatedAt).run();
+      .bind(workspaceId, tokenHash, encryptedPayload, revision, updatedAt).run();
     return json({ revision, updatedAt }, existing ? 200 : 201);
   }
   return json({ error: 'Method not allowed.' }, 405);
@@ -45,7 +78,24 @@ async function syncRequest(request, env) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (url.pathname === '/auth/login') {
+      const state = toBase64Url(crypto.getRandomValues(new Uint8Array(24)));
+      const target = new URL('https://github.com/login/oauth/authorize');
+      target.searchParams.set('client_id', env.GITHUB_CLIENT_ID);target.searchParams.set('redirect_uri', `${url.origin}/auth/callback`);target.searchParams.set('scope', 'read:user');target.searchParams.set('state', state);
+      return new Response(null, { status: 302, headers: { location: target.toString(), 'set-cookie': cookie('pmcc_oauth_state', state, '; Max-Age=600') } });
+    }
+    if (url.pathname === '/auth/callback') {
+      const state = cookies(request).pmcc_oauth_state;
+      if (!state || state !== url.searchParams.get('state') || !url.searchParams.get('code')) return new Response('Invalid sign-in request.', { status: 400 });
+      const tokenResponse = await fetch('https://github.com/login/oauth/access_token', { method: 'POST', headers: { accept: 'application/json', 'content-type': 'application/json' }, body: JSON.stringify({ client_id: env.GITHUB_CLIENT_ID, client_secret: env.GITHUB_CLIENT_SECRET, code: url.searchParams.get('code'), redirect_uri: `${url.origin}/auth/callback` }) });
+      const token = await tokenResponse.json();if (!token.access_token) return new Response('GitHub sign-in failed.', { status: 401 });
+      const userResponse = await fetch('https://api.github.com/user', { headers: { authorization: `Bearer ${token.access_token}`, accept: 'application/vnd.github+json', 'user-agent': 'PM-Command-Centre' } });
+      const user = await userResponse.json();if (String(user.login).toLowerCase() !== String(env.GITHUB_ALLOWED_LOGIN).toLowerCase()) return new Response('This GitHub account is not allowed.', { status: 403 });
+      return new Response(null, { status: 302, headers: { location: '/', 'set-cookie': cookie('pmcc_session', await createSession(env, user), '; Max-Age=2592000') } });
+    }
+    if (url.pathname === '/auth/logout') return new Response(null, { status: 302, headers: { location: '/auth/login', 'set-cookie': cookie('pmcc_session', '', '; Max-Age=0') } });
     if (url.pathname === '/api/sync' && ['GET', 'PUT'].includes(request.method)) return syncRequest(request, env);
+    if (!await readSession(request, env)) return new Response(null, { status: 302, headers: { location: '/auth/login' } });
     return env.ASSETS.fetch(request);
   }
 };

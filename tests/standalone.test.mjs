@@ -54,10 +54,14 @@ test('cross-device sync encrypts payloads and keeps D1 access server-side', asyn
   const app = await read('app/pm-command-centre.html');
   const worker = await read('worker.js');
   const migration = await read('migrations/0001_sync_workspaces.sql');
-  assert.match(app, /AES-GCM/);
-  assert.match(app, /crypto\.randomUUID\(\)/);
+  assert.match(app, /scheduleAutoSync/);
   assert.match(app, /expectedRevision/);
   assert.doesNotMatch(app, /database_id/);
+  assert.match(worker, /AES-GCM/);
+  assert.match(worker, /github\.com\/login\/oauth\/authorize/);
+  assert.match(worker, /GITHUB_ALLOWED_LOGIN/);
+  assert.match(worker, /pmcc_session/);
+  assert.match(worker, /SYNC_SECRET/);
   assert.match(worker, /env\.DB\.prepare/);
   assert.match(worker, /token_hash/);
   assert.match(worker, /Remote data changed/);

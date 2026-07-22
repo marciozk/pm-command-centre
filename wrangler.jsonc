@@ -3,6 +3,10 @@
   "name": "pm-command-centre-web",
   "main": "dist/server/index.js",
   "compatibility_date": "2026-07-22",
+  "vars": {
+    "GITHUB_ALLOWED_LOGIN": "marciozk",
+    "GITHUB_CLIENT_ID": "Ov23li49YA5J0K43wf6c"
+  },
   "d1_databases": [
     {
       "binding": "DB",
@@ -14,6 +18,7 @@
   "assets": {
     "directory": "dist/client",
     "binding": "ASSETS",
+    "run_worker_first": true,
     "not_found_handling": "single-page-application"
   }
 }
