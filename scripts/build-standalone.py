@@ -42,10 +42,7 @@ def main() -> None:
         shutil.rmtree(dist)
     (dist / "server").mkdir(parents=True)
     (dist / "client" / "assets").mkdir(parents=True)
-    (dist / "server" / "index.js").write_text(
-        "export default { async fetch(request, env) { return env.ASSETS.fetch(request); } };\n",
-        encoding="utf-8",
-    )
+    shutil.copy2(ROOT / "worker.js", dist / "server" / "index.js")
     shutil.copy2(INDEX, dist / "client" / "index.html")
     shutil.copy2(ROOT / "manifest.webmanifest", dist / "client" / "manifest.webmanifest")
     shutil.copy2(ROOT / "service-worker.js", dist / "client" / "service-worker.js")

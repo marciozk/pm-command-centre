@@ -3,6 +3,14 @@
   "name": "pm-command-centre-web",
   "main": "dist/server/index.js",
   "compatibility_date": "2026-07-22",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "pm-command-centre-sync",
+      "database_id": "af78c042-e5c0-466c-b78e-3ebd219c5765",
+      "migrations_dir": "migrations"
+    }
+  ],
   "assets": {
     "directory": "dist/client",
     "binding": "ASSETS",

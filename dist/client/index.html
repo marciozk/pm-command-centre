@@ -929,6 +929,7 @@ html&gt;body{padding:0}&lt;/style&gt;
       &lt;button class=&quot;btn&quot; id=&quot;pm-run-checks&quot;&gt;&lt;i data-lucide=&quot;shield-check&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Run checks&lt;/button&gt;
       &lt;button class=&quot;btn&quot; id=&quot;pm-theme&quot; aria-label=&quot;Theme: System&quot;&gt;Theme: System&lt;/button&gt;
       &lt;button class=&quot;btn&quot; id=&quot;pm-presentation&quot; aria-pressed=&quot;false&quot;&gt;Presentation&lt;/button&gt;
+      &lt;button class=&quot;btn&quot; id=&quot;pm-sync&quot; aria-haspopup=&quot;dialog&quot;&gt;Sync: Off&lt;/button&gt;
       &lt;button class=&quot;btn btn-primary&quot; id=&quot;pm-add&quot;&gt;&lt;i data-lucide=&quot;plus&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Add initiative&lt;/button&gt;
       &lt;span class=&quot;viz-badge connection&quot; id=&quot;pm-network-status&quot; role=&quot;status&quot; aria-live=&quot;polite&quot;&gt;&lt;/span&gt;
       &lt;span class=&quot;viz-badge&quot; id=&quot;pm-storage-status&quot; role=&quot;status&quot; aria-live=&quot;polite&quot;&gt;&lt;/span&gt;
@@ -1047,6 +1048,21 @@ html&gt;body{padding:0}&lt;/style&gt;
     &lt;ol&gt;&lt;li&gt;Start in Overview to understand portfolio health.&lt;/li&gt;&lt;li&gt;Use Roadmap and Backlog to plan and prioritise.&lt;/li&gt;&lt;li&gt;Use Presentation for a read-only meeting view.&lt;/li&gt;&lt;/ol&gt;
     &lt;label class=&quot;form-label&quot;&gt;&lt;input type=&quot;checkbox&quot; id=&quot;pm-onboarding-dismiss&quot;&gt; Don’t show this introduction again&lt;/label&gt;
     &lt;div class=&quot;dialog-actions&quot;&gt;&lt;button class=&quot;btn btn-primary&quot; id=&quot;pm-onboarding-start&quot; type=&quot;button&quot;&gt;Start exploring&lt;/button&gt;&lt;/div&gt;
+  &lt;/dialog&gt;
+  &lt;dialog id=&quot;pm-sync-dialog&quot; aria-labelledby=&quot;pm-sync-title&quot; aria-describedby=&quot;pm-sync-copy&quot;&gt;
+    &lt;div class=&quot;section-head&quot;&gt;&lt;h2 id=&quot;pm-sync-title&quot;&gt;Encrypted cross-device sync&lt;/h2&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; id=&quot;pm-sync-close&quot; aria-label=&quot;Close sync settings&quot;&gt;Close&lt;/button&gt;&lt;/div&gt;
+    &lt;p id=&quot;pm-sync-copy&quot;&gt;Cloudflare stores an encrypted snapshot. Keep the sync code private: anyone with it can read and replace this workspace.&lt;/p&gt;
+    &lt;div id=&quot;pm-sync-disconnected&quot;&gt;
+      &lt;button type=&quot;button&quot; class=&quot;btn btn-primary&quot; id=&quot;pm-sync-create&quot;&gt;Create sync workspace&lt;/button&gt;
+      &lt;label class=&quot;form-label&quot; for=&quot;pm-sync-code&quot;&gt;Or connect another device&lt;input class=&quot;form-control&quot; id=&quot;pm-sync-code&quot; autocomplete=&quot;off&quot; spellcheck=&quot;false&quot; placeholder=&quot;Paste sync code&quot;&gt;&lt;/label&gt;
+      &lt;button type=&quot;button&quot; class=&quot;btn&quot; id=&quot;pm-sync-connect&quot;&gt;Connect and download&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div id=&quot;pm-sync-connected&quot; hidden&gt;
+      &lt;p&gt;&lt;strong id=&quot;pm-sync-state&quot;&gt;Connected&lt;/strong&gt;&lt;/p&gt;
+      &lt;label class=&quot;form-label&quot; for=&quot;pm-sync-share-code&quot;&gt;Your private sync code&lt;input class=&quot;form-control&quot; id=&quot;pm-sync-share-code&quot; readonly&gt;&lt;/label&gt;
+      &lt;div class=&quot;viz-row&quot;&gt;&lt;button type=&quot;button&quot; class=&quot;btn&quot; id=&quot;pm-sync-copy-code&quot;&gt;Copy code&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;btn&quot; id=&quot;pm-sync-push&quot;&gt;Upload this device&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;btn&quot; id=&quot;pm-sync-pull&quot;&gt;Download latest&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;btn&quot; id=&quot;pm-sync-disconnect&quot;&gt;Disconnect device&lt;/button&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;p class=&quot;text-destructive&quot; id=&quot;pm-sync-error&quot; role=&quot;alert&quot; hidden&gt;&lt;/p&gt;
   &lt;/dialog&gt;
 
   &lt;script&gt;
@@ -2131,6 +2147,65 @@ html&gt;body{padding:0}&lt;/style&gt;
     }
     themeButton.onclick=()=&gt;{const themes=[&#x27;system&#x27;,&#x27;light&#x27;,&#x27;dark&#x27;];preferences.theme=themes[(themes.indexOf(preferences.theme)+1)%themes.length];persistPreferences();applyTheme()};
     applyTheme();
+    const syncPreferenceKey=&#x27;pmcc-encrypted-sync-v1&#x27;;
+    let syncConfig=null;
+    try{syncConfig=JSON.parse(localStorage.getItem(syncPreferenceKey)||&#x27;null&#x27;)}catch{}
+    const bytesToBase64Url=bytes=&gt;btoa(String.fromCharCode(...bytes)).replace(/\+/g,&#x27;-&#x27;).replace(/\//g,&#x27;_&#x27;).replace(/=+$/,&#x27;&#x27;);
+    const base64UrlToBytes=value=&gt;Uint8Array.from(atob(value.replace(/-/g,&#x27;+&#x27;).replace(/_/g,&#x27;/&#x27;)+&#x27;===&#x27;.slice((value.length+3)%4)),char=&gt;char.charCodeAt(0));
+    const digestBytes=async bytes=&gt;new Uint8Array(await crypto.subtle.digest(&#x27;SHA-256&#x27;,bytes));
+    async function deriveSyncMaterial(secret){
+      const authInput=new Uint8Array([...secret,...new TextEncoder().encode(&#x27;pmcc-auth-v1&#x27;)]);
+      const keyInput=new Uint8Array([...secret,...new TextEncoder().encode(&#x27;pmcc-encryption-v1&#x27;)]);
+      const authToken=bytesToBase64Url(await digestBytes(authInput));
+      const key=await crypto.subtle.importKey(&#x27;raw&#x27;,await digestBytes(keyInput),{name:&#x27;AES-GCM&#x27;},false,[&#x27;encrypt&#x27;,&#x27;decrypt&#x27;]);
+      return {authToken,key};
+    }
+    async function encryptSyncPayload(value,secret){
+      const {key}=await deriveSyncMaterial(secret),iv=crypto.getRandomValues(new Uint8Array(12));
+      const ciphertext=await crypto.subtle.encrypt({name:&#x27;AES-GCM&#x27;,iv},key,new TextEncoder().encode(JSON.stringify(value)));
+      return {iv:bytesToBase64Url(iv),ciphertext:bytesToBase64Url(new Uint8Array(ciphertext))};
+    }
+    async function decryptSyncPayload(payload,secret){
+      const {key}=await deriveSyncMaterial(secret);
+      const plaintext=await crypto.subtle.decrypt({name:&#x27;AES-GCM&#x27;,iv:base64UrlToBytes(payload.iv)},key,base64UrlToBytes(payload.ciphertext));
+      return JSON.parse(new TextDecoder().decode(plaintext));
+    }
+    function parseSyncCode(code){
+      const [workspaceId,encodedSecret,...extra]=String(code||&#x27;&#x27;).trim().split(&#x27;.&#x27;);
+      if(extra.length||!/^[0-9a-f-]{36}$/i.test(workspaceId||&#x27;&#x27;)||!/^[A-Za-z0-9_-]{43}$/.test(encodedSecret||&#x27;&#x27;))throw new Error(&#x27;The sync code is invalid.&#x27;);
+      const secret=base64UrlToBytes(encodedSecret);if(secret.length!==32)throw new Error(&#x27;The sync code is invalid.&#x27;);
+      return {workspaceId,secret,code:`${workspaceId}.${encodedSecret}`};
+    }
+    const persistSync=()=&gt;{try{localStorage.setItem(syncPreferenceKey,JSON.stringify(syncConfig))}catch{}};
+    const syncDialog=root.querySelector(&#x27;#pm-sync-dialog&#x27;),syncError=root.querySelector(&#x27;#pm-sync-error&#x27;);
+    function setSyncError(message=&#x27;&#x27;){syncError.textContent=message;syncError.hidden=!message}
+    function updateSyncUi(message=&#x27;&#x27;){
+      const connected=Boolean(syncConfig?.code);root.querySelector(&#x27;#pm-sync&#x27;).textContent=connected?&#x27;Sync: On&#x27;:&#x27;Sync: Off&#x27;;
+      root.querySelector(&#x27;#pm-sync-disconnected&#x27;).hidden=connected;root.querySelector(&#x27;#pm-sync-connected&#x27;).hidden=!connected;
+      if(connected){root.querySelector(&#x27;#pm-sync-share-code&#x27;).value=syncConfig.code;root.querySelector(&#x27;#pm-sync-state&#x27;).textContent=message||`Connected · revision ${syncConfig.revision||0}`}
+    }
+    async function syncRequest(method,config,payload){
+      const parsed=parseSyncCode(config.code),{authToken}=await deriveSyncMaterial(parsed.secret);
+      const response=await fetch(&#x27;/api/sync&#x27;,{method,headers:{&#x27;content-type&#x27;:&#x27;application/json&#x27;,&#x27;x-pmcc-workspace&#x27;:parsed.workspaceId,&#x27;authorization&#x27;:`Bearer ${authToken}`},body:payload?JSON.stringify(payload):undefined});
+      const result=await response.json().catch(()=&gt;({error:&#x27;Sync service returned an invalid response.&#x27;}));
+      if(!response.ok){const error=new Error(result.error||&#x27;Sync failed.&#x27;);error.status=response.status;error.revision=result.revision;throw error}return {result,parsed};
+    }
+    async function pushSync(){
+      setSyncError();updateSyncUi(&#x27;Encrypting and uploading…&#x27;);
+      try{const parsed=parseSyncCode(syncConfig.code),payload=await encryptSyncPayload(data,parsed.secret);const {result}=await syncRequest(&#x27;PUT&#x27;,syncConfig,{payload,expectedRevision:syncConfig.revision||0});syncConfig.revision=result.revision;syncConfig.updatedAt=result.updatedAt;persistSync();updateSyncUi(`Synced · revision ${result.revision}`);notify(&#x27;Encrypted workspace uploaded.&#x27;)}catch(error){setSyncError(error.status===409?&#x27;Another device changed the workspace. Download latest before uploading.&#x27;:error.message);updateSyncUi(&#x27;Sync needs attention.&#x27;)}
+    }
+    async function pullSync(config=syncConfig){
+      setSyncError();updateSyncUi(&#x27;Downloading and decrypting…&#x27;);
+      try{const {result,parsed}=await syncRequest(&#x27;GET&#x27;,config);const remote=await decryptSyncPayload(result.payload,parsed.secret);validateImport(remote);data=remote;data.templates=structuredClone(seed.templates);syncConfig={code:parsed.code,revision:result.revision,updatedAt:result.updatedAt};persistSync();render();updateSyncUi(`Synced · revision ${result.revision}`);notify(&#x27;Latest encrypted workspace downloaded.&#x27;)}catch(error){setSyncError(error.message===&#x27;The operation failed for an operation-specific reason&#x27;?&#x27;The sync code could not decrypt this workspace.&#x27;:error.message);updateSyncUi(&#x27;Sync needs attention.&#x27;)}
+    }
+    root.querySelector(&#x27;#pm-sync&#x27;).onclick=()=&gt;{setSyncError();updateSyncUi();syncDialog.showModal()};
+    root.querySelector(&#x27;#pm-sync-close&#x27;).onclick=()=&gt;syncDialog.close();
+    root.querySelector(&#x27;#pm-sync-create&#x27;).onclick=async()=&gt;{const secret=crypto.getRandomValues(new Uint8Array(32));syncConfig={code:`${crypto.randomUUID()}.${bytesToBase64Url(secret)}`,revision:0};persistSync();updateSyncUi(&#x27;New workspace ready to upload.&#x27;);await pushSync()};
+    root.querySelector(&#x27;#pm-sync-connect&#x27;).onclick=async()=&gt;{try{const parsed=parseSyncCode(root.querySelector(&#x27;#pm-sync-code&#x27;).value);await pullSync({code:parsed.code,revision:0})}catch(error){setSyncError(error.message)}};
+    root.querySelector(&#x27;#pm-sync-copy-code&#x27;).onclick=()=&gt;copyText(syncConfig.code,&#x27;Sync code&#x27;);
+    root.querySelector(&#x27;#pm-sync-push&#x27;).onclick=pushSync;root.querySelector(&#x27;#pm-sync-pull&#x27;).onclick=()=&gt;pullSync();
+    root.querySelector(&#x27;#pm-sync-disconnect&#x27;).onclick=()=&gt;{if(!confirm(&#x27;Disconnect this device? Local data will remain available.&#x27;))return;syncConfig=null;try{localStorage.removeItem(syncPreferenceKey)}catch{}updateSyncUi();syncDialog.close();notify(&#x27;This device was disconnected from sync.&#x27;)};
+    updateSyncUi();
     const presentationButton=root.querySelector(&#x27;#pm-presentation&#x27;);
     presentationButton.onclick=()=&gt;{const enabled=!root.classList.contains(&#x27;presentation&#x27;);root.classList.toggle(&#x27;presentation&#x27;,enabled);presentationButton.setAttribute(&#x27;aria-pressed&#x27;,String(enabled));presentationButton.textContent=enabled?&#x27;Exit presentation&#x27;:&#x27;Presentation&#x27;;notify(enabled?&#x27;Presentation mode is read-only.&#x27;:&#x27;Editing controls restored.&#x27;)};
     root.addEventListener(&#x27;submit&#x27;,event=&gt;{if(root.classList.contains(&#x27;presentation&#x27;)){event.preventDefault();notify(&#x27;Exit presentation mode to make changes.&#x27;,true)}},true);

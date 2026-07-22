@@ -49,3 +49,17 @@ test('generated standalone excludes the obsolete visualization observer runtime'
   assert.doesNotMatch(standalone, /@floating-ui/);
   assert.doesNotMatch(standalone, /codex-visualization-lucide/);
 });
+
+test('cross-device sync encrypts payloads and keeps D1 access server-side', async () => {
+  const app = await read('app/pm-command-centre.html');
+  const worker = await read('worker.js');
+  const migration = await read('migrations/0001_sync_workspaces.sql');
+  assert.match(app, /AES-GCM/);
+  assert.match(app, /crypto\.randomUUID\(\)/);
+  assert.match(app, /expectedRevision/);
+  assert.doesNotMatch(app, /database_id/);
+  assert.match(worker, /env\.DB\.prepare/);
+  assert.match(worker, /token_hash/);
+  assert.match(worker, /Remote data changed/);
+  assert.match(migration, /CREATE TABLE IF NOT EXISTS sync_workspaces/);
+});

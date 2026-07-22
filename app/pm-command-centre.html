@@ -174,6 +174,7 @@
       <button class="btn" id="pm-run-checks"><i data-lucide="shield-check" aria-hidden="true"></i> Run checks</button>
       <button class="btn" id="pm-theme" aria-label="Theme: System">Theme: System</button>
       <button class="btn" id="pm-presentation" aria-pressed="false">Presentation</button>
+      <button class="btn" id="pm-sync" aria-haspopup="dialog">Sync: Off</button>
       <button class="btn btn-primary" id="pm-add"><i data-lucide="plus" aria-hidden="true"></i> Add initiative</button>
       <span class="viz-badge connection" id="pm-network-status" role="status" aria-live="polite"></span>
       <span class="viz-badge" id="pm-storage-status" role="status" aria-live="polite"></span>
@@ -292,6 +293,21 @@
     <ol><li>Start in Overview to understand portfolio health.</li><li>Use Roadmap and Backlog to plan and prioritise.</li><li>Use Presentation for a read-only meeting view.</li></ol>
     <label class="form-label"><input type="checkbox" id="pm-onboarding-dismiss"> Don’t show this introduction again</label>
     <div class="dialog-actions"><button class="btn btn-primary" id="pm-onboarding-start" type="button">Start exploring</button></div>
+  </dialog>
+  <dialog id="pm-sync-dialog" aria-labelledby="pm-sync-title" aria-describedby="pm-sync-copy">
+    <div class="section-head"><h2 id="pm-sync-title">Encrypted cross-device sync</h2><button type="button" class="btn btn-ghost" id="pm-sync-close" aria-label="Close sync settings">Close</button></div>
+    <p id="pm-sync-copy">Cloudflare stores an encrypted snapshot. Keep the sync code private: anyone with it can read and replace this workspace.</p>
+    <div id="pm-sync-disconnected">
+      <button type="button" class="btn btn-primary" id="pm-sync-create">Create sync workspace</button>
+      <label class="form-label" for="pm-sync-code">Or connect another device<input class="form-control" id="pm-sync-code" autocomplete="off" spellcheck="false" placeholder="Paste sync code"></label>
+      <button type="button" class="btn" id="pm-sync-connect">Connect and download</button>
+    </div>
+    <div id="pm-sync-connected" hidden>
+      <p><strong id="pm-sync-state">Connected</strong></p>
+      <label class="form-label" for="pm-sync-share-code">Your private sync code<input class="form-control" id="pm-sync-share-code" readonly></label>
+      <div class="viz-row"><button type="button" class="btn" id="pm-sync-copy-code">Copy code</button><button type="button" class="btn" id="pm-sync-push">Upload this device</button><button type="button" class="btn" id="pm-sync-pull">Download latest</button><button type="button" class="btn" id="pm-sync-disconnect">Disconnect device</button></div>
+    </div>
+    <p class="text-destructive" id="pm-sync-error" role="alert" hidden></p>
   </dialog>
 
   <script>
@@ -1376,6 +1392,65 @@
     }
     themeButton.onclick=()=>{const themes=['system','light','dark'];preferences.theme=themes[(themes.indexOf(preferences.theme)+1)%themes.length];persistPreferences();applyTheme()};
     applyTheme();
+    const syncPreferenceKey='pmcc-encrypted-sync-v1';
+    let syncConfig=null;
+    try{syncConfig=JSON.parse(localStorage.getItem(syncPreferenceKey)||'null')}catch{}
+    const bytesToBase64Url=bytes=>btoa(String.fromCharCode(...bytes)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+    const base64UrlToBytes=value=>Uint8Array.from(atob(value.replace(/-/g,'+').replace(/_/g,'/')+'==='.slice((value.length+3)%4)),char=>char.charCodeAt(0));
+    const digestBytes=async bytes=>new Uint8Array(await crypto.subtle.digest('SHA-256',bytes));
+    async function deriveSyncMaterial(secret){
+      const authInput=new Uint8Array([...secret,...new TextEncoder().encode('pmcc-auth-v1')]);
+      const keyInput=new Uint8Array([...secret,...new TextEncoder().encode('pmcc-encryption-v1')]);
+      const authToken=bytesToBase64Url(await digestBytes(authInput));
+      const key=await crypto.subtle.importKey('raw',await digestBytes(keyInput),{name:'AES-GCM'},false,['encrypt','decrypt']);
+      return {authToken,key};
+    }
+    async function encryptSyncPayload(value,secret){
+      const {key}=await deriveSyncMaterial(secret),iv=crypto.getRandomValues(new Uint8Array(12));
+      const ciphertext=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(JSON.stringify(value)));
+      return {iv:bytesToBase64Url(iv),ciphertext:bytesToBase64Url(new Uint8Array(ciphertext))};
+    }
+    async function decryptSyncPayload(payload,secret){
+      const {key}=await deriveSyncMaterial(secret);
+      const plaintext=await crypto.subtle.decrypt({name:'AES-GCM',iv:base64UrlToBytes(payload.iv)},key,base64UrlToBytes(payload.ciphertext));
+      return JSON.parse(new TextDecoder().decode(plaintext));
+    }
+    function parseSyncCode(code){
+      const [workspaceId,encodedSecret,...extra]=String(code||'').trim().split('.');
+      if(extra.length||!/^[0-9a-f-]{36}$/i.test(workspaceId||'')||!/^[A-Za-z0-9_-]{43}$/.test(encodedSecret||''))throw new Error('The sync code is invalid.');
+      const secret=base64UrlToBytes(encodedSecret);if(secret.length!==32)throw new Error('The sync code is invalid.');
+      return {workspaceId,secret,code:`${workspaceId}.${encodedSecret}`};
+    }
+    const persistSync=()=>{try{localStorage.setItem(syncPreferenceKey,JSON.stringify(syncConfig))}catch{}};
+    const syncDialog=root.querySelector('#pm-sync-dialog'),syncError=root.querySelector('#pm-sync-error');
+    function setSyncError(message=''){syncError.textContent=message;syncError.hidden=!message}
+    function updateSyncUi(message=''){
+      const connected=Boolean(syncConfig?.code);root.querySelector('#pm-sync').textContent=connected?'Sync: On':'Sync: Off';
+      root.querySelector('#pm-sync-disconnected').hidden=connected;root.querySelector('#pm-sync-connected').hidden=!connected;
+      if(connected){root.querySelector('#pm-sync-share-code').value=syncConfig.code;root.querySelector('#pm-sync-state').textContent=message||`Connected · revision ${syncConfig.revision||0}`}
+    }
+    async function syncRequest(method,config,payload){
+      const parsed=parseSyncCode(config.code),{authToken}=await deriveSyncMaterial(parsed.secret);
+      const response=await fetch('/api/sync',{method,headers:{'content-type':'application/json','x-pmcc-workspace':parsed.workspaceId,'authorization':`Bearer ${authToken}`},body:payload?JSON.stringify(payload):undefined});
+      const result=await response.json().catch(()=>({error:'Sync service returned an invalid response.'}));
+      if(!response.ok){const error=new Error(result.error||'Sync failed.');error.status=response.status;error.revision=result.revision;throw error}return {result,parsed};
+    }
+    async function pushSync(){
+      setSyncError();updateSyncUi('Encrypting and uploading…');
+      try{const parsed=parseSyncCode(syncConfig.code),payload=await encryptSyncPayload(data,parsed.secret);const {result}=await syncRequest('PUT',syncConfig,{payload,expectedRevision:syncConfig.revision||0});syncConfig.revision=result.revision;syncConfig.updatedAt=result.updatedAt;persistSync();updateSyncUi(`Synced · revision ${result.revision}`);notify('Encrypted workspace uploaded.')}catch(error){setSyncError(error.status===409?'Another device changed the workspace. Download latest before uploading.':error.message);updateSyncUi('Sync needs attention.')}
+    }
+    async function pullSync(config=syncConfig){
+      setSyncError();updateSyncUi('Downloading and decrypting…');
+      try{const {result,parsed}=await syncRequest('GET',config);const remote=await decryptSyncPayload(result.payload,parsed.secret);validateImport(remote);data=remote;data.templates=structuredClone(seed.templates);syncConfig={code:parsed.code,revision:result.revision,updatedAt:result.updatedAt};persistSync();render();updateSyncUi(`Synced · revision ${result.revision}`);notify('Latest encrypted workspace downloaded.')}catch(error){setSyncError(error.message==='The operation failed for an operation-specific reason'?'The sync code could not decrypt this workspace.':error.message);updateSyncUi('Sync needs attention.')}
+    }
+    root.querySelector('#pm-sync').onclick=()=>{setSyncError();updateSyncUi();syncDialog.showModal()};
+    root.querySelector('#pm-sync-close').onclick=()=>syncDialog.close();
+    root.querySelector('#pm-sync-create').onclick=async()=>{const secret=crypto.getRandomValues(new Uint8Array(32));syncConfig={code:`${crypto.randomUUID()}.${bytesToBase64Url(secret)}`,revision:0};persistSync();updateSyncUi('New workspace ready to upload.');await pushSync()};
+    root.querySelector('#pm-sync-connect').onclick=async()=>{try{const parsed=parseSyncCode(root.querySelector('#pm-sync-code').value);await pullSync({code:parsed.code,revision:0})}catch(error){setSyncError(error.message)}};
+    root.querySelector('#pm-sync-copy-code').onclick=()=>copyText(syncConfig.code,'Sync code');
+    root.querySelector('#pm-sync-push').onclick=pushSync;root.querySelector('#pm-sync-pull').onclick=()=>pullSync();
+    root.querySelector('#pm-sync-disconnect').onclick=()=>{if(!confirm('Disconnect this device? Local data will remain available.'))return;syncConfig=null;try{localStorage.removeItem(syncPreferenceKey)}catch{}updateSyncUi();syncDialog.close();notify('This device was disconnected from sync.')};
+    updateSyncUi();
     const presentationButton=root.querySelector('#pm-presentation');
     presentationButton.onclick=()=>{const enabled=!root.classList.contains('presentation');root.classList.toggle('presentation',enabled);presentationButton.setAttribute('aria-pressed',String(enabled));presentationButton.textContent=enabled?'Exit presentation':'Presentation';notify(enabled?'Presentation mode is read-only.':'Editing controls restored.')};
     root.addEventListener('submit',event=>{if(root.classList.contains('presentation')){event.preventDefault();notify('Exit presentation mode to make changes.',true)}},true);

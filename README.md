@@ -27,6 +27,8 @@ The service worker uses network-first navigation, so the latest page is loaded w
 - Create, edit, archive, restore, delete, template publication and imported-data changes are saved immediately and survive reloads. Display-only state—selected tab, selected roadmap year, open dialog and the **Show archived** toggle—is intentionally session-only.
 - If local storage is blocked, the app uses session recovery through the current browser window. Export before closing that window because session recovery is not durable storage.
 - Use **Export** to create a JSON backup. Imports are strictly validated before replacing current data.
+- Optional cross-device sync encrypts the complete snapshot in the browser with AES-GCM before it is sent to Cloudflare D1. The private sync code contains the workspace locator and encryption secret; it is stored only on connected devices and must be protected like a password.
+- Sync uses revision checks to prevent one device from silently overwriting newer remote data. When a conflict is reported, download the latest snapshot before uploading again.
 - Completed and archived initiatives are excluded from active portfolio metrics and executive reporting.
 - Do not enter employer-confidential, regulated, personal, client, production, security, or non-public information.
 - Use only synthetic/sample data unless the application is moved to an employer-approved environment with appropriate authentication, encryption, retention, monitoring, and access controls.
@@ -70,7 +72,8 @@ python3 scripts/build-standalone.py
 
 Keep the source repository private. A public deployment should contain sample data only.
 
-The independent web edition is configured for Cloudflare Workers Static Assets.
+The independent web edition is configured for Cloudflare Workers Static Assets
+with a D1 binding for optional encrypted synchronization.
 Build with `npm run build`, then deploy with `npx wrangler deploy`. No database
 or server-side storage is provisioned; application data remains local to each
 browser and can be moved with the validated JSON export/import workflow.
