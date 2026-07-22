@@ -4,6 +4,7 @@
 from html import escape, unescape
 from pathlib import Path
 import re
+import shutil
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -36,6 +37,21 @@ def main() -> None:
     encoded = escape(rebuilt_srcdoc, quote=True)
     rebuilt_document = document[: match.start(2)] + encoded + document[match.end(2) :]
     INDEX.write_text(rebuilt_document, encoding="utf-8")
+    dist = ROOT / "dist"
+    if dist.exists():
+        shutil.rmtree(dist)
+    (dist / "server").mkdir(parents=True)
+    (dist / "client" / "assets").mkdir(parents=True)
+    (dist / "server" / "index.js").write_text(
+        "export default { async fetch(request, env) { return env.ASSETS.fetch(request); } };\n",
+        encoding="utf-8",
+    )
+    shutil.copy2(INDEX, dist / "client" / "index.html")
+    shutil.copy2(ROOT / "manifest.webmanifest", dist / "client" / "manifest.webmanifest")
+    shutil.copy2(ROOT / "service-worker.js", dist / "client" / "service-worker.js")
+    for asset in (ROOT / "assets").iterdir():
+        if asset.is_file():
+            shutil.copy2(asset, dist / "client" / "assets" / asset.name)
     print(f"Embedded {APP.relative_to(ROOT)} into {INDEX.name}")
 
 

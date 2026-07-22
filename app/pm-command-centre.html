@@ -27,12 +27,14 @@
       color:var(--foreground);
       font:14px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
     }
+    #pm-command-centre[data-theme="light"] { color-scheme:light; }
+    #pm-command-centre[data-theme="dark"] { color-scheme:dark; }
     #pm-command-centre h1 { margin:0; font-size:clamp(1.65rem,3vw,2.35rem); line-height:1.12; }
     #pm-command-centre h2 { font-size:1.2rem; }
     #pm-command-centre h3 { font-size:1rem; }
     #pm-command-centre button, #pm-command-centre input, #pm-command-centre select, #pm-command-centre textarea { font:inherit; }
     #pm-command-centre .card { background:var(--card); color:var(--card-foreground); border:1px solid var(--border); border-radius:12px; }
-    #pm-command-centre .btn { display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:36px; padding:7px 11px; border:1px solid var(--border); border-radius:8px; background:var(--secondary); color:var(--foreground); cursor:pointer; text-decoration:none; }
+    #pm-command-centre .btn { display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:44px; padding:9px 12px; border:1px solid var(--border); border-radius:8px; background:var(--secondary); color:var(--foreground); cursor:pointer; text-decoration:none; }
     #pm-command-centre .btn:hover { background:var(--accent); }
     #pm-command-centre .btn:focus-visible, #pm-command-centre :is(input,select,textarea):focus-visible { outline:3px solid var(--ring); outline-offset:2px; }
     #pm-command-centre .btn-primary { border-color:var(--primary); background:var(--primary); color:var(--primary-foreground); }
@@ -52,6 +54,9 @@
     #pm-command-centre .topline { display:flex; gap:16px; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; margin-bottom:16px; }
     #pm-command-centre .subtitle { color:var(--muted-foreground); margin:4px 0 0; }
     #pm-command-centre .tabs { display:flex; flex-wrap:wrap; gap:6px; padding-bottom:14px; border-bottom:1px solid var(--border); margin-bottom:16px; }
+    #pm-command-centre .command-bar { display:grid; grid-template-columns:minmax(220px,1fr) minmax(150px,220px) auto; gap:10px; align-items:end; margin:0 0 16px; }
+    #pm-command-centre .connection[data-online="false"] { color:var(--destructive); }
+    #pm-command-centre .mobile-nav-label { display:none; }
     #pm-command-centre .panel { display:none; }
     #pm-command-centre .panel.active { display:block; }
     #pm-command-centre .stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-bottom:18px; }
@@ -126,13 +131,34 @@
     #pm-command-centre .legend { display:flex; flex-wrap:wrap; gap:12px; color:var(--muted-foreground); margin-top:8px; }
     #pm-command-centre .legend span { display:inline-flex; align-items:center; gap:6px; }
     #pm-command-centre .check-result { width:100%; text-align:right; color:var(--muted-foreground); }
+    #pm-command-centre.presentation .topline .viz-row > :not(#pm-presentation):not(#pm-network-status), #pm-command-centre.presentation .command-bar, #pm-command-centre.presentation .item-actions, #pm-command-centre.presentation button[id^="pm-add"], #pm-command-centre.presentation #pm-recalculate, #pm-command-centre.presentation #pm-clear-report-note, #pm-command-centre.presentation #pm-save-report-note { display:none!important; }
+    #pm-command-centre.presentation { font-size:16px; }
+    #pm-command-centre.presentation .card { box-shadow:0 8px 30px color-mix(in srgb,var(--foreground) 8%,transparent); }
     @media (max-width:720px) {
+      #pm-command-centre { padding:12px; }
       #pm-command-centre .stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
       #pm-command-centre .split, #pm-command-centre .form-grid { grid-template-columns:1fr; }
       #pm-command-centre .template-layout { grid-template-columns:1fr; }
-      #pm-command-centre .timeline-row { grid-template-columns:100px repeat(var(--roadmap-columns,4),minmax(36px,1fr)); font-size:.88em; }
+      #pm-command-centre .topline .viz-row { width:100%; }
+      #pm-command-centre .topline .viz-row .btn { flex:1 1 44%; }
+      #pm-command-centre .command-bar { grid-template-columns:1fr; }
+      #pm-command-centre .tabs { flex-wrap:nowrap; overflow-x:auto; scroll-snap-type:x proximity; position:sticky; top:0; z-index:5; background:var(--background); padding:8px 0 10px; }
+      #pm-command-centre .tabs .btn { flex:0 0 auto; scroll-snap-align:start; }
+      #pm-command-centre .timeline-row { display:block; border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+      #pm-command-centre .timeline-row:first-child { display:none; }
+      #pm-command-centre .timeline-grid { display:block; min-height:0; background:none; }
+      #pm-command-centre .timeline-item { width:calc(100% - 12px); margin:6px; }
+      #pm-command-centre table, #pm-command-centre tbody, #pm-command-centre tr, #pm-command-centre td { display:block; min-width:0; width:100%; }
+      #pm-command-centre thead { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); }
+      #pm-command-centre tr { border:1px solid var(--border); border-radius:10px; margin:0 0 10px; padding:8px; background:var(--card); }
+      #pm-command-centre td { display:grid; grid-template-columns:minmax(100px,34%) 1fr; gap:10px; border:0; padding:7px 4px; }
+      #pm-command-centre td::before { content:attr(data-label); color:var(--muted-foreground); font-weight:600; }
+      #pm-command-centre td:first-child { display:block; font-size:1.04rem; border-bottom:1px solid var(--border); padding-bottom:10px; }
+      #pm-command-centre td:first-child::before { content:none; }
       #pm-command-centre .form-grid .wide { grid-column:auto; }
+      #pm-command-centre dialog { max-height:calc(100dvh - 16px); overflow:auto; margin:8px auto; }
     }
+    @media (prefers-reduced-motion:reduce) { #pm-command-centre *, #pm-command-centre *::before, #pm-command-centre *::after { scroll-behavior:auto!important; transition:none!important; animation:none!important; } }
   </style>
 
   <div class="topline">
@@ -146,12 +172,21 @@
       <input type="file" id="pm-import-file" accept="application/json,.json" class="sr-only" aria-label="Import command-centre JSON file">
       <button class="btn" id="pm-export"><i data-lucide="download" aria-hidden="true"></i> Export</button>
       <button class="btn" id="pm-run-checks"><i data-lucide="shield-check" aria-hidden="true"></i> Run checks</button>
+      <button class="btn" id="pm-theme" aria-label="Theme: System">Theme: System</button>
+      <button class="btn" id="pm-presentation" aria-pressed="false">Presentation</button>
       <button class="btn btn-primary" id="pm-add"><i data-lucide="plus" aria-hidden="true"></i> Add initiative</button>
+      <span class="viz-badge connection" id="pm-network-status" role="status" aria-live="polite"></span>
       <span class="viz-badge" id="pm-storage-status" role="status" aria-live="polite"></span>
       <div class="check-result" id="pm-check-result" role="status" aria-live="polite"></div>
     </div>
   </div>
   <div class="check-result" id="pm-notification" role="status" aria-live="polite" hidden></div>
+
+  <div class="command-bar" role="search" aria-label="Search and filter command-centre records">
+    <label class="form-label" for="pm-search">Search<input class="form-control" id="pm-search" type="search" placeholder="Initiative, owner, theme, risk or decision"></label>
+    <label class="form-label" for="pm-status-filter">Status<select class="form-select" id="pm-status-filter"><option value="all">All statuses</option><option>Draft</option><option>Active</option><option>Blocked</option><option>Completed</option><option>Archived</option></select></label>
+    <button class="btn" id="pm-clear-filters">Clear filters</button>
+  </div>
 
   <nav class="tabs" aria-label="Product management views">
     <button class="btn btn-primary" data-tab="overview">Overview</button>
@@ -250,6 +285,13 @@
       <p class="text-destructive" id="pm-form-error" role="alert" hidden></p>
       <div class="dialog-actions"><button type="button" class="btn" data-close-dialog>Cancel</button><button type="submit" class="btn btn-primary" id="pm-save">Save</button></div>
     </form>
+  </dialog>
+  <dialog id="pm-onboarding" aria-labelledby="pm-onboarding-title" aria-describedby="pm-onboarding-copy">
+    <div class="section-head"><h2 id="pm-onboarding-title">Welcome to your PM Command Centre</h2></div>
+    <p id="pm-onboarding-copy">Explore the synthetic portfolio safely, filter any view, and use Export before moving data between browsers. Nothing is sent to a server.</p>
+    <ol><li>Start in Overview to understand portfolio health.</li><li>Use Roadmap and Backlog to plan and prioritise.</li><li>Use Presentation for a read-only meeting view.</li></ol>
+    <label class="form-label"><input type="checkbox" id="pm-onboarding-dismiss"> Don’t show this introduction again</label>
+    <div class="dialog-actions"><button class="btn btn-primary" id="pm-onboarding-start" type="button">Start exploring</button></div>
   </dialog>
 
   <script>
@@ -566,6 +608,8 @@
     [...data.initiatives,...data.metrics,...data.risks,...data.stakeholders,...data.vendors,...data.decisions].forEach(x=>{if(x.archived===undefined)x.archived=false});
     let showArchived=false;
     let roadmapYear='all';
+    let searchQuery='';
+    let statusFilter='all';
     let editing={kind:null,id:null};
     let activeTemplateEntry=null;
     let pendingTemplatePublication=null;
@@ -608,8 +652,14 @@
     const priorityLabel=i=>isMandatory(i)?`Mandatory · ${i.overrideType}`:`${score(i)} adjusted WSJF`;
     const statusHtml = s => `<span class="status"><i class="dot ${slug(s)}"></i>${esc(s)}</span>`;
     const isActiveRecord = item => ['Active','Blocked'].includes(item.lifecycleStatus)&&!item.archived;
-    const visible = items => items.filter(x=>showArchived || x.lifecycleStatus!=='Archived');
-    const activeInitiatives = (source=data) => source.initiatives.filter(isActiveRecord);
+    const matchesFilters=item=>{
+      const status=String(item.lifecycleStatus||item.status||'');
+      const statusMatch=statusFilter==='all'||status===statusFilter;
+      const haystack=Object.values(item).flat().join(' ').toLowerCase();
+      return statusMatch&&(!searchQuery||haystack.includes(searchQuery));
+    };
+    const visible = items => items.filter(x=>(showArchived || x.lifecycleStatus!=='Archived')&&matchesFilters(x));
+    const activeInitiatives = (source=data) => source.initiatives.filter(i=>isActiveRecord(i)&&matchesFilters(i));
     const durationDays = item => Math.max(1,Math.round((new Date(item.endDate)-new Date(item.startDate))/86400000)+1);
     const durationLabel = item => {const days=durationDays(item);return days<14?`${days} days`:`${Math.ceil(days/7)} weeks`};
     const quarterIndex = date => {const d=new Date(`${date}T00:00:00`);return d.getFullYear()*4+Math.floor(d.getMonth()/3)};
@@ -881,7 +931,10 @@
       root.querySelector('#pm-clear-report-note').disabled=!override.text?.trim();
       root.querySelector('#pm-report-note-status').textContent=override.updatedAt?`Saved ${override.updatedAt}`:'No manual commentary saved';
     }
-    function render(){ stats();productBrief();matrix();health();roadmap();backlog();risks();ecosystem();decisions();templates();report();save(); if(window.lucide) lucide.createIcons({attrs:{width:16,height:16}}); }
+    function labelMobileTableCells(){
+      root.querySelectorAll('table').forEach(table=>{const labels=[...table.querySelectorAll('thead th')].map(th=>th.textContent.trim());table.querySelectorAll('tbody tr').forEach(row=>[...row.children].forEach((cell,index)=>cell.dataset.label=labels[index]||'Details'))});
+    }
+    function render(){ stats();productBrief();matrix();health();roadmap();backlog();risks();ecosystem();decisions();templates();report();labelMobileTableCells();save(); if(window.lucide) lucide.createIcons({attrs:{width:16,height:16}}); }
     const tabList=root.querySelector('.tabs');tabList.setAttribute('role','tablist');tabList.setAttribute('aria-orientation','horizontal');
     root.querySelectorAll('th').forEach(th=>th.setAttribute('scope','col'));
     root.querySelectorAll('[data-tab]').forEach(b=>{const name=b.dataset.tab;b.id=`pm-tab-${name}`;b.setAttribute('role','tab');b.setAttribute('aria-controls',`panel-${name}`);const panel=root.querySelector(`#panel-${name}`);panel.setAttribute('role','tabpanel');panel.setAttribute('aria-labelledby',b.id)});
@@ -1311,9 +1364,33 @@
       }catch(error){data=previous;render();alert(`Import failed and previous data was restored: ${error.message}`);}
     };
     root.querySelector('#pm-export').onclick=()=>{const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='voice-archive-pm-data.json';a.click();URL.revokeObjectURL(a.href)};
+    const preferenceKey='pmcc-web-preferences-v1';
+    let preferences={theme:'system',onboardingComplete:false};
+    try{preferences={...preferences,...JSON.parse(localStorage.getItem(preferenceKey)||'{}')}}catch{}
+    const persistPreferences=()=>{try{localStorage.setItem(preferenceKey,JSON.stringify(preferences))}catch{}}
+    const themeButton=root.querySelector('#pm-theme');
+    function applyTheme(){
+      if(preferences.theme==='system')root.removeAttribute('data-theme');else root.dataset.theme=preferences.theme;
+      const label=preferences.theme[0].toUpperCase()+preferences.theme.slice(1);
+      themeButton.textContent=`Theme: ${label}`;themeButton.setAttribute('aria-label',`Theme: ${label}. Activate to change theme.`);
+    }
+    themeButton.onclick=()=>{const themes=['system','light','dark'];preferences.theme=themes[(themes.indexOf(preferences.theme)+1)%themes.length];persistPreferences();applyTheme()};
+    applyTheme();
+    const presentationButton=root.querySelector('#pm-presentation');
+    presentationButton.onclick=()=>{const enabled=!root.classList.contains('presentation');root.classList.toggle('presentation',enabled);presentationButton.setAttribute('aria-pressed',String(enabled));presentationButton.textContent=enabled?'Exit presentation':'Presentation';notify(enabled?'Presentation mode is read-only.':'Editing controls restored.')};
+    root.addEventListener('submit',event=>{if(root.classList.contains('presentation')){event.preventDefault();notify('Exit presentation mode to make changes.',true)}},true);
+    const searchInput=root.querySelector('#pm-search'),statusSelect=root.querySelector('#pm-status-filter');
+    searchInput.oninput=()=>{searchQuery=searchInput.value.trim().toLowerCase();render()};
+    statusSelect.onchange=()=>{statusFilter=statusSelect.value;render()};
+    root.querySelector('#pm-clear-filters').onclick=()=>{searchInput.value='';statusSelect.value='all';searchQuery='';statusFilter='all';render();searchInput.focus()};
+    function updateNetworkStatus(){const online=navigator.onLine;const el=root.querySelector('#pm-network-status');el.dataset.online=String(online);el.textContent=online?'Online · offline-ready':'Offline · local data available'}
+    addEventListener('online',updateNetworkStatus);addEventListener('offline',updateNetworkStatus);updateNetworkStatus();
+    const onboarding=root.querySelector('#pm-onboarding');
+    root.querySelector('#pm-onboarding-start').onclick=()=>{if(root.querySelector('#pm-onboarding-dismiss').checked){preferences.onboardingComplete=true;persistPreferences()}onboarding.close();root.querySelector('[data-tab="overview"]').focus()};
     showTab('overview');
     render();
     runSelfTests();
+    if(!preferences.onboardingComplete)setTimeout(()=>onboarding.showModal(),0);
   })();
   </script>
 </div>

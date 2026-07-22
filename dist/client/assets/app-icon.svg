@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">PM Command Centre</title>
+  <rect width="512" height="512" rx="112" fill="#181818"/>
+  <path d="M112 142h288v52H112zm0 88h176v52H112zm0 88h288v52H112z" fill="#f4f4f5"/>
+  <circle cx="356" cy="256" r="48" fill="#22c55e"/>
+  <path d="m334 256 15 15 30-34" fill="none" stroke="#181818" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

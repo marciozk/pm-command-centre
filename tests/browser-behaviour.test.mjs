@@ -26,7 +26,7 @@ test('actual browser executes all in-app behavioural checks', { skip: !chrome },
   const app = await readFile(new URL('../app/pm-command-centre.html', import.meta.url));
   const server = createServer((request, response) => {
     response.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' });
-    response.end(app);
+    response.end(`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>${app}</body></html>`);
   });
   await new Promise((resolve, reject) => server.listen(0, '127.0.0.1', error => error ? reject(error) : resolve()));
   const profile = await mkdtemp(join(tmpdir(), 'pmcc-browser-test-'));
@@ -54,10 +54,32 @@ test('actual browser executes all in-app behavioural checks', { skip: !chrome },
       if(!result.includes('checks passed'))await wait(50);
     }
     assert.equal(result, '13/13 checks passed');
+    await command('Page.enable');
+    await command('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 3, mobile: true });
+    await command('Page.reload', { ignoreCache: true });
+    await wait(500);
+    const mobile = await command('Runtime.evaluate', { expression: `JSON.stringify((()=>{
+      const root=document.querySelector('#pm-command-centre');
+      const table=document.querySelector('#pm-backlog')?.closest('table');
+      const row=table?.querySelector('tbody tr');
+      const roadmap=document.querySelector('#pm-roadmap .timeline-row:nth-child(2)');
+      const button=document.querySelector('#pm-add');
+      return {overflow:document.documentElement.scrollWidth<=document.documentElement.clientWidth,tableDisplay:getComputedStyle(table).display,rowDisplay:getComputedStyle(row).display,roadmapDisplay:getComputedStyle(roadmap).display,touchTarget:button.getBoundingClientRect().height>=44,labels:[...row.children].every((cell,index)=>index===0||cell.dataset.label)};
+    })())`, returnByValue: true });
+    assert.deepEqual(JSON.parse(mobile.result.value), { overflow: true, tableDisplay: 'block', rowDisplay: 'block', roadmapDisplay: 'block', touchTarget: true, labels: true });
+    const accessibility = await command('Runtime.evaluate', { expression: `JSON.stringify((()=>({
+      dialog:document.querySelector('#pm-onboarding').getAttribute('aria-labelledby')==='pm-onboarding-title',
+      tabs:[...document.querySelectorAll('[role="tab"]')].every(tab=>tab.hasAttribute('aria-controls')),
+      search:document.querySelector('[role="search"]')?.getAttribute('aria-label'),
+      theme:document.querySelector('#pm-theme')?.getAttribute('aria-label'),
+      network:document.querySelector('#pm-network-status')?.getAttribute('aria-live')
+    }))())`, returnByValue: true });
+    assert.deepEqual(JSON.parse(accessibility.result.value), { dialog: true, tabs: true, search: 'Search and filter command-centre records', theme: 'Theme: System. Activate to change theme.', network: 'polite' });
     socket.close();
   } finally {
     browser.kill('SIGKILL');
+    await Promise.race([new Promise(resolve => browser.once('exit', resolve)), wait(1000)]);
     await new Promise(resolve => server.close(resolve));
-    await rm(profile, { recursive: true, force: true });
+    for(let attempt=0;attempt<3;attempt+=1){try{await rm(profile,{recursive:true,force:true});break}catch(error){if(attempt===2)throw error;await wait(150)}}
   }
 });
