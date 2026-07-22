@@ -69,3 +69,8 @@ python3 scripts/build-standalone.py
 ## Publishing
 
 Keep the source repository private. A public deployment should contain sample data only.
+
+The independent web edition is configured for Cloudflare Workers Static Assets.
+Build with `npm run build`, then deploy with `npx wrangler deploy`. No database
+or server-side storage is provisioned; application data remains local to each
+browser and can be moved with the validated JSON export/import workflow.
