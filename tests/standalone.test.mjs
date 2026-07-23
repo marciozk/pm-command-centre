@@ -65,5 +65,15 @@ test('cross-device sync encrypts payloads and keeps D1 access server-side', asyn
   assert.match(worker, /env\.DB\.prepare/);
   assert.match(worker, /token_hash/);
   assert.match(worker, /Remote data changed/);
+  assert.match(worker, /window\.location\.replace/);
+  assert.match(worker, /service-worker\.js/);
   assert.match(migration, /CREATE TABLE IF NOT EXISTS sync_workspaces/);
+});
+
+test('Safari authentication avoids service-worker redirect responses', async () => {
+  const worker = await read('worker.js');
+  const serviceWorker = await read('service-worker.js');
+  assert.match(worker, /githubLoginPage/);
+  assert.match(worker, /navigationPage\('\/', 'Sign-in complete'/);
+  assert.match(serviceWorker, /pm-command-centre-v19/);
 });
