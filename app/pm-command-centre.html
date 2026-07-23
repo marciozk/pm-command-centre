@@ -998,6 +998,19 @@
       }else{
         root.querySelector('#f-lifecycle').value=kind==='initiative'?'Draft':'Active';
       }
+      if(kind==='initiative'){
+        const lifecycle=root.querySelector('#f-lifecycle');
+        const delivery=root.querySelector('#f-status');
+        const healthForLifecycle={Draft:'Planned',Active:'On track',Blocked:'Blocked',Completed:'Done'};
+        const lifecycleForHealth={Planned:'Draft','On track':'Active','At risk':'Active',Blocked:'Blocked',Done:'Completed'};
+        if(!record)delivery.value=healthForLifecycle[lifecycle.value];
+        lifecycle.addEventListener('change',()=>{
+          if(healthForLifecycle[lifecycle.value])delivery.value=healthForLifecycle[lifecycle.value];
+        });
+        delivery.addEventListener('change',()=>{
+          if(lifecycle.value!=='Archived'&&lifecycleForHealth[delivery.value])lifecycle.value=lifecycleForHealth[delivery.value];
+        });
+      }
       dialog.showModal();
     }
     root.querySelector('#pm-add').onclick=()=>openForm('initiative');root.querySelector('#pm-add-roadmap').onclick=()=>openForm('initiative');root.querySelector('#pm-add-risk').onclick=()=>openForm('risk');root.querySelector('#pm-add-decision').onclick=()=>openForm('decision');root.querySelector('#pm-add-metric').onclick=()=>openForm('metric');root.querySelector('#pm-add-stakeholder').onclick=()=>openForm('stakeholder');root.querySelector('#pm-add-vendor').onclick=()=>openForm('vendor');

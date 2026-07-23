@@ -1753,6 +1753,19 @@ html&gt;body{padding:0}&lt;/style&gt;
       }else{
         root.querySelector(&#x27;#f-lifecycle&#x27;).value=kind===&#x27;initiative&#x27;?&#x27;Draft&#x27;:&#x27;Active&#x27;;
       }
+      if(kind===&#x27;initiative&#x27;){
+        const lifecycle=root.querySelector(&#x27;#f-lifecycle&#x27;);
+        const delivery=root.querySelector(&#x27;#f-status&#x27;);
+        const healthForLifecycle={Draft:&#x27;Planned&#x27;,Active:&#x27;On track&#x27;,Blocked:&#x27;Blocked&#x27;,Completed:&#x27;Done&#x27;};
+        const lifecycleForHealth={Planned:&#x27;Draft&#x27;,&#x27;On track&#x27;:&#x27;Active&#x27;,&#x27;At risk&#x27;:&#x27;Active&#x27;,Blocked:&#x27;Blocked&#x27;,Done:&#x27;Completed&#x27;};
+        if(!record)delivery.value=healthForLifecycle[lifecycle.value];
+        lifecycle.addEventListener(&#x27;change&#x27;,()=&gt;{
+          if(healthForLifecycle[lifecycle.value])delivery.value=healthForLifecycle[lifecycle.value];
+        });
+        delivery.addEventListener(&#x27;change&#x27;,()=&gt;{
+          if(lifecycle.value!==&#x27;Archived&#x27;&amp;&amp;lifecycleForHealth[delivery.value])lifecycle.value=lifecycleForHealth[delivery.value];
+        });
+      }
       dialog.showModal();
     }
     root.querySelector(&#x27;#pm-add&#x27;).onclick=()=&gt;openForm(&#x27;initiative&#x27;);root.querySelector(&#x27;#pm-add-roadmap&#x27;).onclick=()=&gt;openForm(&#x27;initiative&#x27;);root.querySelector(&#x27;#pm-add-risk&#x27;).onclick=()=&gt;openForm(&#x27;risk&#x27;);root.querySelector(&#x27;#pm-add-decision&#x27;).onclick=()=&gt;openForm(&#x27;decision&#x27;);root.querySelector(&#x27;#pm-add-metric&#x27;).onclick=()=&gt;openForm(&#x27;metric&#x27;);root.querySelector(&#x27;#pm-add-stakeholder&#x27;).onclick=()=&gt;openForm(&#x27;stakeholder&#x27;);root.querySelector(&#x27;#pm-add-vendor&#x27;).onclick=()=&gt;openForm(&#x27;vendor&#x27;);
