@@ -75,7 +75,7 @@ test('Safari authentication avoids service-worker redirect responses', async () 
   const serviceWorker = await read('service-worker.js');
   assert.match(worker, /githubLoginPage/);
   assert.match(worker, /navigationPage\('\/', 'Sign-in complete'/);
-  assert.match(serviceWorker, /pm-command-centre-v22/);
+  assert.match(serviceWorker, /pm-command-centre-v23/);
 });
 
 test('initiative lifecycle and delivery health stay compatible', async () => {
@@ -100,4 +100,15 @@ test('polished shell uses the generic PM Command Centre identity', async () => {
   assert.match(app, /class="app-header card"/);
   assert.match(app, /class="command-bar card"/);
   assert.doesNotMatch(app, /Voice &amp; Archive PM Command Centre/);
+});
+
+test('Guide Centre provides offline workflows and portfolio-aware coaching', async () => {
+  const app = await read('app/pm-command-centre.html');
+  assert.match(app, /id="pm-guide"/);
+  assert.match(app, /function guideRecommendations/);
+  assert.match(app, /function coachResponse/);
+  assert.match(app, /What should I focus on this week/);
+  assert.match(app, /Answers use transparent rules—no external AI or usage charges/);
+  assert.match(app, /data-guide-action="new-initiative"/);
+  assert.doesNotMatch(app, /\/api\/(?:ai|chat|coach)/);
 });

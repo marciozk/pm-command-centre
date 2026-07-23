@@ -64,6 +64,9 @@
     #pm-command-centre .topline { display:contents; }
     #pm-command-centre .header-actions { position:relative; z-index:1; display:flex; justify-content:flex-end; align-items:center; flex-wrap:wrap; gap:8px; }
     #pm-command-centre .header-actions .btn-primary { box-shadow:0 8px 20px color-mix(in srgb,var(--primary) 24%,transparent); }
+    #pm-command-centre .guide-button { position:relative; }
+    #pm-command-centre .guide-count { display:none; min-width:20px; height:20px; padding:0 5px; place-items:center; border-radius:999px; color:white; background:var(--destructive); font-size:.72rem; font-weight:750; }
+    #pm-command-centre .guide-count[data-count]:not([data-count="0"]) { display:grid; }
     #pm-command-centre .subtitle { color:var(--muted-foreground); margin:4px 0 0; }
     #pm-command-centre .system-strip { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px 14px; margin-bottom:12px; padding:8px 12px; color:var(--muted-foreground); font-size:.88rem; }
     #pm-command-centre .utility-actions, #pm-command-centre .system-status { display:flex; align-items:center; flex-wrap:wrap; gap:6px; }
@@ -140,6 +143,37 @@
     #pm-command-centre .dialog-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:16px; }
     #pm-command-centre .onboarding-choice { display:flex; align-items:center; gap:9px; color:var(--muted-foreground); }
     #pm-command-centre .onboarding-choice input { flex:0 0 auto; width:18px; height:18px; margin:0; accent-color:var(--primary); }
+    #pm-command-centre .guide-drawer { inset:0 0 0 auto; width:min(540px,100%); max-width:none; height:100dvh; max-height:none; margin:0 0 0 auto; padding:0; border-radius:24px 0 0 24px; overflow:hidden; }
+    #pm-command-centre .guide-drawer[open] { animation:guide-in .22s ease-out; }
+    @keyframes guide-in { from { opacity:0; transform:translateX(24px); } to { opacity:1; transform:none; } }
+    #pm-command-centre .guide-shell { display:grid; grid-template-rows:auto 1fr; height:100%; }
+    #pm-command-centre .guide-head { padding:20px; color:white; background:linear-gradient(135deg,#3157d5,#6848c8); }
+    #pm-command-centre .guide-head .section-head { align-items:flex-start; margin:0; }
+    #pm-command-centre .guide-head .subtitle { color:rgba(255,255,255,.78); }
+    #pm-command-centre .guide-head .btn { color:white; border-color:rgba(255,255,255,.28); background:rgba(255,255,255,.1); }
+    #pm-command-centre .guide-body { overflow:auto; padding:18px; }
+    #pm-command-centre .guide-section { margin-bottom:24px; }
+    #pm-command-centre .guide-section > h3 { margin:0 0 4px; font-size:1.08rem; }
+    #pm-command-centre .guide-kicker { margin:0 0 12px; color:var(--muted-foreground); }
+    #pm-command-centre .recommendation-list { display:grid; gap:9px; }
+    #pm-command-centre .recommendation { display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:start; padding:12px; border:1px solid var(--border); border-radius:12px; background:var(--card); }
+    #pm-command-centre .recommendation-icon { display:grid; place-items:center; width:30px; height:30px; border-radius:9px; color:var(--primary); background:var(--accent); font-weight:800; }
+    #pm-command-centre .recommendation strong { display:block; margin-bottom:2px; }
+    #pm-command-centre .recommendation p { margin:0; color:var(--muted-foreground); font-size:.9rem; }
+    #pm-command-centre .recommendation .btn { min-height:34px; padding:5px 8px; }
+    #pm-command-centre .guide-empty { padding:14px; border:1px solid color-mix(in srgb,var(--viz-series-2) 35%,var(--border)); border-radius:12px; background:color-mix(in srgb,var(--viz-series-2) 8%,var(--card)); }
+    #pm-command-centre .workflow-list { display:grid; gap:8px; }
+    #pm-command-centre .workflow { border:1px solid var(--border); border-radius:12px; background:var(--card); }
+    #pm-command-centre .workflow summary { cursor:pointer; padding:13px 14px; font-weight:650; }
+    #pm-command-centre .workflow ol { margin:0; padding:0 18px 14px 34px; color:var(--muted-foreground); }
+    #pm-command-centre .workflow li + li { margin-top:7px; }
+    #pm-command-centre .workflow .btn { margin:0 14px 14px; }
+    #pm-command-centre .coach-card { padding:14px; border:1px solid var(--border); border-radius:14px; background:linear-gradient(145deg,color-mix(in srgb,var(--primary) 7%,var(--card)),var(--card)); }
+    #pm-command-centre .coach-prompts { display:flex; flex-wrap:wrap; gap:7px; margin:10px 0; }
+    #pm-command-centre .coach-prompts .btn { min-height:36px; padding:6px 9px; font-size:.86rem; }
+    #pm-command-centre .coach-form { display:grid; grid-template-columns:1fr auto; gap:8px; margin-top:10px; }
+    #pm-command-centre .coach-answer { min-height:78px; margin-top:12px; padding:12px; border-left:3px solid var(--primary); border-radius:0 10px 10px 0; background:var(--secondary); white-space:pre-wrap; }
+    #pm-command-centre .context-note { display:flex; align-items:center; gap:8px; margin-top:12px; color:rgba(255,255,255,.82); font-size:.85rem; }
     #pm-command-centre textarea { min-height:90px; }
     #pm-command-centre .health-list { display:grid; gap:12px; }
     #pm-command-centre .health-row { display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center; }
@@ -197,6 +231,8 @@
       #pm-command-centre td:first-child::before { content:none; }
       #pm-command-centre .form-grid .wide { grid-column:auto; }
       #pm-command-centre dialog { max-height:calc(100dvh - 16px); overflow:auto; margin:8px auto; }
+      #pm-command-centre .guide-drawer { width:100%; max-height:none; margin:0; border-radius:0; }
+      #pm-command-centre .coach-form { grid-template-columns:1fr; }
     }
     @media (max-width:460px) {
       #pm-command-centre .stats { grid-template-columns:1fr; }
@@ -218,6 +254,7 @@
       </div>
     </div>
     <div class="header-actions">
+      <button class="btn guide-button" id="pm-guide-open" aria-haspopup="dialog"><i data-lucide="sparkles" aria-hidden="true"></i> Guide &amp; Coach <span class="guide-count" id="pm-guide-count" data-count="0" aria-label="0 recommended actions"></span></button>
       <button class="btn" id="pm-theme" aria-label="Theme: System">Theme: System</button>
       <button class="btn" id="pm-presentation" aria-pressed="false">Presentation</button>
       <button class="btn btn-primary" id="pm-add"><i data-lucide="plus" aria-hidden="true"></i> Add initiative</button>
@@ -344,10 +381,55 @@
       <div class="dialog-actions"><button type="button" class="btn" data-close-dialog>Cancel</button><button type="submit" class="btn btn-primary" id="pm-save">Save</button></div>
     </form>
   </dialog>
+  <dialog class="guide-drawer" id="pm-guide" aria-labelledby="pm-guide-title">
+    <div class="guide-shell">
+      <header class="guide-head">
+        <div class="section-head">
+          <div><p class="eyebrow" style="color:rgba(255,255,255,.78)">Built-in guidance</p><h2 id="pm-guide-title">Guide Centre</h2><p class="subtitle">A practical PM companion that works offline and keeps your data in this app.</p></div>
+          <button type="button" class="btn" id="pm-guide-close" aria-label="Close Guide Centre">Close</button>
+        </div>
+        <div class="context-note"><i data-lucide="map-pin" aria-hidden="true"></i><span id="pm-guide-context">You are viewing Overview.</span></div>
+      </header>
+      <div class="guide-body">
+        <section class="guide-section" aria-labelledby="pm-next-title">
+          <h3 id="pm-next-title">What should I do next?</h3>
+          <p class="guide-kicker">Recommendations are calculated from the current portfolio.</p>
+          <div class="recommendation-list" id="pm-guide-recommendations"></div>
+        </section>
+        <section class="guide-section" aria-labelledby="pm-workflows-title">
+          <h3 id="pm-workflows-title">Guided workflows</h3>
+          <p class="guide-kicker">Follow a short playbook instead of learning every option at once.</p>
+          <div class="workflow-list">
+            <details class="workflow"><summary>Create and activate an initiative</summary><ol><li>Define a measurable outcome and accountable owner.</li><li>Add dates and only confirmed dependency IDs.</li><li>Use the scoring guide to assess value, urgency, confidence, capacity and effort.</li><li>Save as Draft while shaping the work; move to Active / On track when committed.</li></ol><button type="button" class="btn btn-primary" data-guide-action="new-initiative">Start this workflow</button></details>
+            <details class="workflow"><summary>Prioritise the portfolio</summary><ol><li>Confirm mandatory obligations and deadlines first.</li><li>Review confidence and capacity—not just value.</li><li>Resolve blocked or unready dependencies.</li><li>Use the Backlog rank as a decision aid, then document trade-offs.</li></ol><button type="button" class="btn" data-guide-view="backlog">Open Backlog</button></details>
+            <details class="workflow"><summary>Run a risk and control review</summary><ol><li>Describe cause, event and impact clearly.</li><li>Assign an owner and preventive or detective control.</li><li>Record evidence and the next action.</li><li>Escalate high-rated risks and connect them to delivery decisions.</li></ol><button type="button" class="btn" data-guide-view="controls">Open Risks &amp; controls</button></details>
+            <details class="workflow"><summary>Prepare the weekly executive update</summary><ol><li>Update progress, health, risks and decisions.</li><li>Check the top priorities and urgent commitments on Overview.</li><li>Review the generated report for accuracy.</li><li>Add manual commentary only for verified context not present in the records.</li></ol><button type="button" class="btn" data-guide-view="report">Open Executive report</button></details>
+          </div>
+        </section>
+        <section class="guide-section" aria-labelledby="pm-coach-title">
+          <div class="coach-card">
+            <h3 id="pm-coach-title">PM Coach</h3>
+            <p class="guide-kicker">Ask about this portfolio. Answers use transparent rules—no external AI or usage charges.</p>
+            <div class="coach-prompts">
+              <button type="button" class="btn" data-coach-prompt="focus">What should I focus on this week?</button>
+              <button type="button" class="btn" data-coach-prompt="priority">Explain the priority ranking</button>
+              <button type="button" class="btn" data-coach-prompt="report">How do I prepare the update?</button>
+            </div>
+            <form class="coach-form" id="pm-coach-form">
+              <label class="sr-only" for="pm-coach-question">Ask the PM Coach</label>
+              <input class="form-control" id="pm-coach-question" maxlength="240" placeholder="Ask about priorities, risks, roadmap or reporting">
+              <button class="btn btn-primary" type="submit">Ask</button>
+            </form>
+            <div class="coach-answer" id="pm-coach-answer" role="status" aria-live="polite">Choose a question above or ask in your own words.</div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </dialog>
   <dialog id="pm-onboarding" aria-labelledby="pm-onboarding-title" aria-describedby="pm-onboarding-copy">
     <div class="section-head"><h2 id="pm-onboarding-title">Welcome to your PM Command Centre</h2></div>
     <p id="pm-onboarding-copy">Explore the synthetic portfolio safely and filter any view. Your signed-in workspace saves automatically; Export remains available for portable backups.</p>
-    <ol><li>Start in Overview to understand portfolio health.</li><li>Use Roadmap and Backlog to plan and prioritise.</li><li>Use Presentation for a read-only meeting view.</li></ol>
+    <ol><li>Start in Overview to understand portfolio health.</li><li>Use Guide &amp; Coach whenever you need the next action or a short workflow.</li><li>Use Presentation for a read-only meeting view.</li></ol>
     <label class="onboarding-choice"><input type="checkbox" id="pm-onboarding-dismiss"> Don’t show this introduction again</label>
     <div class="dialog-actions"><button class="btn btn-primary" id="pm-onboarding-start" type="button">Start exploring</button></div>
   </dialog>
@@ -669,6 +751,7 @@
     let roadmapYear='all';
     let searchQuery='';
     let statusFilter='all';
+    let currentView='overview';
     let editing={kind:null,id:null};
     let activeTemplateEntry=null;
     let pendingTemplatePublication=null;
@@ -990,14 +1073,65 @@
       root.querySelector('#pm-clear-report-note').disabled=!override.text?.trim();
       root.querySelector('#pm-report-note-status').textContent=override.updatedAt?`Saved ${override.updatedAt}`:'No manual commentary saved';
     }
+    const viewLabels={overview:'Overview',roadmap:'Roadmap',backlog:'Backlog',controls:'Risks & controls',ecosystem:'Stakeholders & vendors',decisions:'Decisions',templates:'Templates',report:'Executive report'};
+    function guideRecommendations(source=data){
+      const recommendations=[],today=new Date().toISOString().slice(0,10);
+      const drafts=source.initiatives.filter(item=>item.lifecycleStatus==='Draft'&&!item.archived);
+      const attention=source.initiatives.filter(item=>isActiveRecord(item)&&['At risk','Blocked'].includes(item.status));
+      const weakConfidence=source.initiatives.filter(item=>isActiveRecord(item)&&Number(item.confidence)<=2);
+      const highRisks=source.risks.filter(item=>isActiveRecord(item)&&Number(item.likelihood)*Number(item.impact)>=15);
+      const overdueDecisions=source.decisions.filter(item=>isActiveRecord(item)&&item.review<today);
+      const mandatorySoon=source.initiatives.filter(item=>isActiveRecord(item)&&isMandatory(item)&&item.overrideDeadline&&item.overrideDeadline>=today&&((new Date(item.overrideDeadline)-new Date(today))/86400000)<=30);
+      if(attention.length)recommendations.push({icon:'!',title:`Review ${attention.length} delivery exception${attention.length===1?'':'s'}`,detail:`${attention.map(item=>item.id).slice(0,3).join(', ')} ${attention.length>3?'and others ':''}need recovery actions or decisions.`,view:'overview'});
+      if(highRisks.length)recommendations.push({icon:'R',title:`Challenge ${highRisks.length} high-rated risk${highRisks.length===1?'':'s'}`,detail:'Confirm the control evidence, accountable owner and next mitigation date.',view:'controls'});
+      if(drafts.length)recommendations.push({icon:'D',title:`Shape ${drafts.length} draft initiative${drafts.length===1?'':'s'}`,detail:'Validate outcomes and scoring, then activate only genuinely committed work.',view:'roadmap'});
+      if(mandatorySoon.length)recommendations.push({icon:'M',title:`Track ${mandatorySoon.length} near-term mandatory deadline${mandatorySoon.length===1?'':'s'}`,detail:'Confirm delivery evidence and escalation paths before the deadline.',view:'backlog'});
+      if(overdueDecisions.length)recommendations.push({icon:'?',title:`Review ${overdueDecisions.length} overdue decision${overdueDecisions.length===1?'':'s'}`,detail:'Reconfirm the decision, owner and next review date.',view:'decisions'});
+      if(weakConfidence.length)recommendations.push({icon:'E',title:`Improve evidence for ${weakConfidence.length} active initiative${weakConfidence.length===1?'':'s'}`,detail:'Low confidence reduces priority. Add research, data or committed demand.',view:'backlog'});
+      if(!source.metrics.some(isActiveRecord))recommendations.push({icon:'+',title:'Add an outcome metric',detail:'Connect the portfolio to a measurable result, not only delivery progress.',view:'overview'});
+      return recommendations.slice(0,6);
+    }
+    function renderGuide(){
+      const recommendations=guideRecommendations();
+      const count=root.querySelector('#pm-guide-count');
+      count.textContent=String(recommendations.length);count.dataset.count=String(recommendations.length);count.setAttribute('aria-label',`${recommendations.length} recommended action${recommendations.length===1?'':'s'}`);
+      root.querySelector('#pm-guide-context').textContent=`You are viewing ${viewLabels[currentView]||'the command centre'}.`;
+      root.querySelector('#pm-guide-recommendations').innerHTML=recommendations.length?recommendations.map(item=>`<article class="recommendation"><span class="recommendation-icon" aria-hidden="true">${esc(item.icon)}</span><div><strong>${esc(item.title)}</strong><p>${esc(item.detail)}</p></div><button type="button" class="btn" data-guide-view="${esc(item.view)}">Open</button></article>`).join(''):'<div class="guide-empty"><strong>No immediate exceptions found.</strong><p class="text-muted">Keep portfolio health current and prepare the next executive update.</p></div>';
+    }
+    function coachResponse(input){
+      const question=String(input||'').trim().toLowerCase();
+      const active=[...activeInitiatives()].sort(priorityCompare),attention=active.filter(item=>['At risk','Blocked'].includes(item.status));
+      const highRisks=data.risks.filter(item=>isActiveRecord(item)&&item.likelihood*item.impact>=15);
+      if(question==='focus'||/(focus|this week|next|priority today)/.test(question)){
+        const first=active[0];
+        return `${first?`Start with ${first.name} (${priorityLabel(first)}).`:'There are no active initiatives to prioritise.'}${attention.length?` Review recovery actions for ${attention.map(item=>item.id).join(', ')}.`:' Delivery health has no active exceptions.'}${highRisks.length?` Challenge evidence for ${highRisks.length} high-rated risk${highRisks.length===1?'':'s'}.`:''}`;
+      }
+      if(question==='priority'||/(rank|score|wsjf|lower|higher|priorit)/.test(question)){
+        const top=active.slice(0,3).map((item,index)=>`${index+1}. ${item.name} — ${priorityLabel(item)}`).join('\n');
+        return `Mandatory obligations rank first. Other work balances risk reduction, value, urgency and strategic alignment, then adjusts for confidence, capacity, dependency readiness and effort.\n\nCurrent top priorities:\n${top||'No active priorities.'}`;
+      }
+      if(question==='report'||/(report|executive|update|leadership)/.test(question)){
+        return `Before the executive update: refresh progress and delivery health, review ${attention.length} active exception${attention.length===1?'':'s'}, validate ${highRisks.length} high-rated risk${highRisks.length===1?'':'s'}, check decisions requiring support, then open Executive report. Add commentary only for verified context that is not already recorded.`;
+      }
+      if(/risk|control|mitigat/.test(question))return highRisks.length?`There are ${highRisks.length} high-rated active risks. Open Risks & controls and confirm each control has evidence, an owner and a dated next action.`:'There are no high-rated active risks. Continue monitoring likelihood, impact and control evidence.';
+      if(/roadmap|date|dependency|blocked/.test(question)){
+        const blocked=active.filter(item=>item.status==='Blocked');
+        return blocked.length?`${blocked.map(item=>item.id).join(', ')} ${blocked.length===1?'is':'are'} blocked. Review dependency readiness, owner and recovery date in Roadmap before changing priority.`:'No active initiative is currently blocked. Use Roadmap to check sequencing, dependencies and deadline collisions.';
+      }
+      if(/draft|activate|initiative/.test(question)){
+        const drafts=data.initiatives.filter(item=>item.lifecycleStatus==='Draft'&&!item.archived);
+        return `${drafts.length} draft initiative${drafts.length===1?' is':'s are'} recorded. A draft should have a measurable outcome, owner, dates and evidence-based score before moving to Active / On track.`;
+      }
+      return 'I can help with priorities, risks, roadmap dependencies, initiative activation and the executive update. Try asking “What should I focus on this week?”';
+    }
     function labelMobileTableCells(){
       root.querySelectorAll('table').forEach(table=>{const labels=[...table.querySelectorAll('thead th')].map(th=>th.textContent.trim());table.querySelectorAll('tbody tr').forEach(row=>[...row.children].forEach((cell,index)=>cell.dataset.label=labels[index]||'Details'))});
     }
-    function render(){ stats();productBrief();matrix();health();roadmap();backlog();risks();ecosystem();decisions();templates();report();labelMobileTableCells();save(); if(window.lucide) lucide.createIcons({attrs:{width:16,height:16}}); }
+    function render(){ stats();productBrief();matrix();health();roadmap();backlog();risks();ecosystem();decisions();templates();report();renderGuide();labelMobileTableCells();save(); if(window.lucide) lucide.createIcons({attrs:{width:16,height:16}}); }
     const tabList=root.querySelector('.tabs');tabList.setAttribute('role','tablist');tabList.setAttribute('aria-orientation','horizontal');
     root.querySelectorAll('th').forEach(th=>th.setAttribute('scope','col'));
     root.querySelectorAll('[data-tab]').forEach(b=>{const name=b.dataset.tab;b.id=`pm-tab-${name}`;b.setAttribute('role','tab');b.setAttribute('aria-controls',`panel-${name}`);const panel=root.querySelector(`#panel-${name}`);panel.setAttribute('role','tabpanel');panel.setAttribute('aria-labelledby',b.id)});
-    function showTab(name){ root.querySelectorAll('.panel').forEach(p=>{const on=p.id==='panel-'+name;p.classList.toggle('active',on);p.hidden=!on});root.querySelectorAll('[data-tab]').forEach(b=>{const on=b.dataset.tab===name;b.classList.toggle('btn-primary',on);b.setAttribute('aria-selected',String(on));b.tabIndex=on?0:-1}); }
+    function showTab(name){ currentView=name;root.querySelectorAll('.panel').forEach(p=>{const on=p.id==='panel-'+name;p.classList.toggle('active',on);p.hidden=!on});root.querySelectorAll('[data-tab]').forEach(b=>{const on=b.dataset.tab===name;b.classList.toggle('btn-primary',on);b.setAttribute('aria-selected',String(on));b.tabIndex=on?0:-1});if(root.querySelector('#pm-guide-context'))renderGuide(); }
     root.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{showTab(b.dataset.tab);b.focus()});
     tabList.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const tabs=[...root.querySelectorAll('[data-tab]')],current=tabs.indexOf(document.activeElement);let next=e.key==='Home'?0:e.key==='End'?tabs.length-1:(current+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;tabs[next].focus();showTab(tabs[next].dataset.tab)});
 
@@ -1495,6 +1629,17 @@
     searchInput.oninput=()=>{searchQuery=searchInput.value.trim().toLowerCase();render()};
     statusSelect.onchange=()=>{statusFilter=statusSelect.value;render()};
     root.querySelector('#pm-clear-filters').onclick=()=>{searchInput.value='';statusSelect.value='all';searchQuery='';statusFilter='all';render();searchInput.focus()};
+    const guideDialog=root.querySelector('#pm-guide'),coachAnswer=root.querySelector('#pm-coach-answer'),coachQuestion=root.querySelector('#pm-coach-question');
+    root.querySelector('#pm-guide-open').onclick=()=>{renderGuide();guideDialog.showModal()};
+    root.querySelector('#pm-guide-close').onclick=()=>guideDialog.close();
+    guideDialog.addEventListener('click',event=>{
+      const viewButton=event.target.closest('[data-guide-view]');
+      if(viewButton){const view=viewButton.dataset.guideView;guideDialog.close();showTab(view);root.querySelector(`[data-tab="${view}"]`)?.focus();return}
+      if(event.target.closest('[data-guide-action="new-initiative"]')){guideDialog.close();openForm('initiative');return}
+      const prompt=event.target.closest('[data-coach-prompt]');
+      if(prompt){coachAnswer.textContent=coachResponse(prompt.dataset.coachPrompt)}
+    });
+    root.querySelector('#pm-coach-form').addEventListener('submit',event=>{event.preventDefault();const question=coachQuestion.value.trim();if(!question){coachQuestion.focus();return}coachAnswer.textContent=coachResponse(question)});
     function updateNetworkStatus(){const online=navigator.onLine;const el=root.querySelector('#pm-network-status');el.dataset.online=String(online);el.textContent=online?'Online · offline-ready':'Offline · local data available'}
     addEventListener('online',()=>{updateNetworkStatus();initialiseAutomaticSync()});addEventListener('offline',updateNetworkStatus);updateNetworkStatus();
     const onboarding=root.querySelector('#pm-onboarding');
