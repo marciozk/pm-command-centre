@@ -41,6 +41,8 @@ The service worker uses network-first navigation, so the latest page is loaded w
 - Adjusted WSJF prioritisation using risk reduction, customer value, urgency, strategic alignment, confidence, available capacity, dependency readiness and effort, with mandatory regulatory, cyber, end-of-support and dependency overrides
 - Persisted executive commentary and active-only reporting
 - Persistent completed templates with transactional publication into destination workflows
+- Responsive light/dark/system interface with touch-friendly navigation, mobile tables and offline PWA recovery
+- Built-in Guide Centre, workflow playbooks and portfolio-aware PM Coach that operate locally without external AI calls
 
 ## Verification
 

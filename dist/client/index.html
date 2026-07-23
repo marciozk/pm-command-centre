@@ -902,8 +902,9 @@ html&gt;body{padding:0}&lt;/style&gt;
     #pm-command-centre .guide-drawer[open] { animation:guide-in .22s ease-out; }
     @keyframes guide-in { from { opacity:0; transform:translateX(24px); } to { opacity:1; transform:none; } }
     #pm-command-centre .guide-shell { display:grid; grid-template-rows:auto 1fr; height:100%; }
-    #pm-command-centre .guide-head { padding:20px; color:white; background:linear-gradient(135deg,#3157d5,#6848c8); }
-    #pm-command-centre .guide-head .section-head { align-items:flex-start; margin:0; }
+    #pm-command-centre .guide-head { position:relative; padding:20px 96px 20px 20px; color:white; background:linear-gradient(135deg,#3157d5,#6848c8); }
+    #pm-command-centre .guide-head .section-head { display:block; margin:0; }
+    #pm-command-centre .guide-head .section-head &gt; .btn { position:absolute; top:18px; right:18px; }
     #pm-command-centre .guide-head .subtitle { color:rgba(255,255,255,.78); }
     #pm-command-centre .guide-head .btn { color:white; border-color:rgba(255,255,255,.28); background:rgba(255,255,255,.1); }
     #pm-command-centre .guide-body { overflow:auto; padding:18px; }
@@ -964,8 +965,8 @@ html&gt;body{padding:0}&lt;/style&gt;
       #pm-command-centre .header-actions { justify-content:flex-start; }
       #pm-command-centre .header-actions .btn { flex:1 1 auto; }
       #pm-command-centre .system-strip { align-items:flex-start; }
-      #pm-command-centre .utility-actions { width:100%; overflow-x:auto; flex-wrap:nowrap; padding-bottom:3px; }
-      #pm-command-centre .utility-actions .btn { flex:0 0 auto; }
+      #pm-command-centre .utility-actions { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); width:100%; overflow:visible; padding-bottom:3px; }
+      #pm-command-centre .utility-actions .btn { min-width:0; min-height:44px; padding:6px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:.82rem; }
       #pm-command-centre .stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
       #pm-command-centre .split, #pm-command-centre .form-grid { grid-template-columns:1fr; }
       #pm-command-centre .template-layout { grid-template-columns:1fr; }
@@ -1968,7 +1969,7 @@ html&gt;body{padding:0}&lt;/style&gt;
         const delivery=root.querySelector(&#x27;#f-status&#x27;);
         const healthForLifecycle={Draft:&#x27;Planned&#x27;,Active:&#x27;On track&#x27;,Blocked:&#x27;Blocked&#x27;,Completed:&#x27;Done&#x27;};
         const lifecycleForHealth={Planned:&#x27;Draft&#x27;,&#x27;On track&#x27;:&#x27;Active&#x27;,&#x27;At risk&#x27;:&#x27;Active&#x27;,Blocked:&#x27;Blocked&#x27;,Done:&#x27;Completed&#x27;};
-        if(!record)delivery.value=healthForLifecycle[lifecycle.value];
+        if(!record){delivery.value=healthForLifecycle[lifecycle.value];root.querySelector(&#x27;#f-override&#x27;).value=&#x27;None&#x27;;root.querySelector(&#x27;#f-progress&#x27;).value=&#x27;0&#x27;}
         lifecycle.addEventListener(&#x27;change&#x27;,()=&gt;{
           if(healthForLifecycle[lifecycle.value])delivery.value=healthForLifecycle[lifecycle.value];
         });

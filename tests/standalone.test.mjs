@@ -75,14 +75,16 @@ test('Safari authentication avoids service-worker redirect responses', async () 
   const serviceWorker = await read('service-worker.js');
   assert.match(worker, /githubLoginPage/);
   assert.match(worker, /navigationPage\('\/', 'Sign-in complete'/);
-  assert.match(serviceWorker, /pm-command-centre-v23/);
+  assert.match(serviceWorker, /pm-command-centre-v24/);
 });
 
 test('initiative lifecycle and delivery health stay compatible', async () => {
   const app = await read('app/pm-command-centre.html');
   assert.match(app, /healthForLifecycle=\{Draft:'Planned',Active:'On track',Blocked:'Blocked',Completed:'Done'\}/);
   assert.match(app, /lifecycleForHealth=\{Planned:'Draft','On track':'Active','At risk':'Active',Blocked:'Blocked',Done:'Completed'\}/);
-  assert.match(app, /if\(!record\)delivery\.value=healthForLifecycle/);
+  assert.match(app, /if\(!record\)\{delivery\.value=healthForLifecycle/);
+  assert.match(app, /querySelector\('#f-override'\)\.value='None'/);
+  assert.match(app, /querySelector\('#f-progress'\)\.value='0'/);
 });
 
 test('initiative form explains priority scoring', async () => {
