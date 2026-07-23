@@ -75,7 +75,7 @@ test('Safari authentication avoids service-worker redirect responses', async () 
   const serviceWorker = await read('service-worker.js');
   assert.match(worker, /githubLoginPage/);
   assert.match(worker, /navigationPage\('\/', 'Sign-in complete'/);
-  assert.match(serviceWorker, /pm-command-centre-v20/);
+  assert.match(serviceWorker, /pm-command-centre-v21/);
 });
 
 test('initiative lifecycle and delivery health stay compatible', async () => {
@@ -83,4 +83,12 @@ test('initiative lifecycle and delivery health stay compatible', async () => {
   assert.match(app, /healthForLifecycle=\{Draft:'Planned',Active:'On track',Blocked:'Blocked',Completed:'Done'\}/);
   assert.match(app, /lifecycleForHealth=\{Planned:'Draft','On track':'Active','At risk':'Active',Blocked:'Blocked',Done:'Completed'\}/);
   assert.match(app, /if\(!record\)delivery\.value=healthForLifecycle/);
+});
+
+test('initiative form explains priority scoring', async () => {
+  const app = await read('app/pm-command-centre.html');
+  assert.match(app, /How to score 1–5/);
+  assert.match(app, /Higher effort lowers the adjusted priority score/);
+  assert.match(app, /Score against evidence, not optimism/);
+  assert.match(app, /popovertarget="pm-scoring-guide"/);
 });

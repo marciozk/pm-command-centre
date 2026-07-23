@@ -102,6 +102,15 @@
     #pm-command-centre .empty-cell { min-height:58px; background:color-mix(in srgb,var(--muted) 38%,transparent); }
     #pm-command-centre .form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
     #pm-command-centre .form-grid .wide { grid-column:1/-1; }
+    #pm-command-centre .score-guide-trigger { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 12px; border:1px solid var(--border); border-radius:10px; background:color-mix(in srgb,var(--primary) 7%,var(--card)); }
+    #pm-command-centre .score-guide-trigger p { margin:2px 0 0; }
+    #pm-command-centre .score-guide-popover { width:min(560px,calc(100% - 24px)); max-height:min(78vh,700px); overflow:auto; padding:18px; color:var(--foreground); background:var(--card); border:1px solid var(--border); border-radius:12px; box-shadow:0 18px 60px color-mix(in srgb,var(--foreground) 22%,transparent); }
+    #pm-command-centre .score-guide-popover::backdrop { background:color-mix(in srgb,var(--foreground) 25%,transparent); }
+    #pm-command-centre .score-scale { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin:12px 0 16px; }
+    #pm-command-centre .score-scale span { padding:7px 4px; border-radius:7px; background:var(--secondary); text-align:center; font-size:.86rem; }
+    #pm-command-centre .score-guide-list { display:grid; grid-template-columns:minmax(120px,.7fr) 1fr; gap:8px 14px; margin:0; }
+    #pm-command-centre .score-guide-list dt { font-weight:650; }
+    #pm-command-centre .score-guide-list dd { margin:0; color:var(--muted-foreground); }
     #pm-command-centre dialog { color:var(--foreground); background:var(--card); border:1px solid var(--border); border-radius:12px; width:min(620px,calc(100% - 24px)); }
     #pm-command-centre dialog::backdrop { background:color-mix(in srgb,var(--foreground) 28%,transparent); }
     #pm-command-centre .dialog-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:16px; }
@@ -949,6 +958,24 @@
       const control=type==='select'?`<select class="form-select" id="${id}" ${attrs}><option value="">Select…</option>${options.map(o=>`<option value="${esc(o)}">${esc(o)}</option>`).join('')}</select>`:type==='textarea'?`<textarea class="form-control" id="${id}" ${attrs}></textarea>`:`<input class="form-control" id="${id}" type="${type}" ${attrs}>`;
       return `<label class="form-label ${wide?'wide':''}" for="${id}">${label}${control}</label>`;
     }
+    function scoringGuide(){
+      return `<div class="score-guide-trigger wide"><div><strong>Priority scoring guide</strong><p class="text-muted">Use the same 1–5 scale across every initiative.</p></div><button type="button" class="btn" popovertarget="pm-scoring-guide" aria-haspopup="dialog">How to score 1–5</button></div>
+        <div class="score-guide-popover" id="pm-scoring-guide" popover role="dialog" aria-labelledby="pm-scoring-guide-title">
+          <div class="section-head"><div><h3 id="pm-scoring-guide-title">How to score an initiative</h3><p class="subtitle">Score against evidence, not optimism. Use 3 when impact is meaningful but not exceptional.</p></div><button type="button" class="btn btn-ghost" popovertarget="pm-scoring-guide" popovertargetaction="hide" aria-label="Close scoring guide">Close</button></div>
+          <div class="score-scale" aria-label="Five point scale"><span><strong>1</strong><br>Very low</span><span><strong>2</strong><br>Low</span><span><strong>3</strong><br>Medium</span><span><strong>4</strong><br>High</span><span><strong>5</strong><br>Critical</span></div>
+          <dl class="score-guide-list">
+            <dt>Risk reduction</dt><dd>1 = negligible exposure reduced · 5 = removes or controls a critical exposure.</dd>
+            <dt>Business value</dt><dd>1 = small local benefit · 5 = major customer, financial or enterprise outcome.</dd>
+            <dt>Time criticality</dt><dd>1 = timing is flexible · 5 = immediate deadline, rapidly increasing loss or expiring opportunity.</dd>
+            <dt>Strategic alignment</dt><dd>1 = weak connection · 5 = directly delivers a stated strategic priority.</dd>
+            <dt>Evidence confidence</dt><dd>1 = assumption only · 5 = validated by strong data, research or committed demand.</dd>
+            <dt>Available capacity</dt><dd>1 = team or skills unavailable · 5 = people, skills and funding are ready.</dd>
+            <dt>Effort / job size</dt><dd>1 = very small · 5 = very large. Higher effort lowers the adjusted priority score.</dd>
+            <dt>Dependencies</dt><dd>Enter existing initiative IDs only. Unready dependencies reduce priority.</dd>
+            <dt>Mandatory override</dt><dd>Use only for a verified regulatory, cyber, end-of-support, incident or dependency obligation; record the rationale and deadline.</dd>
+          </dl>
+        </div>`;
+    }
     function setFormError(message=''){
       formError.textContent=message;
       formError.hidden=!message;
@@ -966,7 +993,7 @@
       setFormError();
       if(kind==='initiative'){
         root.querySelector('#pm-dialog-title').textContent=record?'Edit initiative':'Add initiative';
-        fields.innerHTML=field('Initiative','f-name','text',[],false,{minlength:3,maxlength:120,placeholder:'Outcome-oriented initiative name'})+field('Short ID','f-id','text',[],false,{minlength:2,maxlength:12,pattern:'[A-Za-z0-9_-]{2,12}',placeholder:'e.g. REC-01'})+field('Outcome','f-outcome','textarea',[],true,{minlength:10,maxlength:400,placeholder:'Measurable business outcome'})+field('Theme','f-theme','select',['Compliance & Risk','Platform Modernisation','User Experience','Innovation'])+field('Owner','f-owner','text',[],false,{minlength:2,maxlength:80})+field('Start date','f-start','date')+field('Target end date','f-end','date')+field('Dependencies (initiative IDs)','f-dependencies','text',[],true,{required:false,maxlength:160,placeholder:'e.g. EOL, REC — leave blank if none'})+field('Risk reduction (1–5)','f-risk','number',[],false,{min:1,max:5,step:1})+field('Business value (1–5)','f-value','number',[],false,{min:1,max:5,step:1})+field('Time criticality (1–5)','f-urgency','number',[],false,{min:1,max:5,step:1})+field('Strategic alignment (1–5)','f-strategy','number',[],false,{min:1,max:5,step:1})+field('Evidence confidence (1–5)','f-confidence','number',[],false,{min:1,max:5,step:1})+field('Available capacity (1–5)','f-capacity','number',[],false,{min:1,max:5,step:1})+field('Effort / job size (1–5)','f-effort','number',[],false,{min:1,max:5,step:1})+field('Mandatory override','f-override','select',overrideTypes)+field('Override rationale','f-override-reason','textarea',[],true,{required:false,maxlength:500,placeholder:'Required for mandatory work: cite the obligation, incident, support deadline or dependency.'})+field('Mandatory deadline','f-override-deadline','date',[],false,{required:false})+field('Delivery health','f-status','select',['Planned','On track','At risk','Blocked','Done'])+field('Lifecycle','f-lifecycle','select',lifecycleStatuses)+field('Progress %','f-progress','number',[],false,{min:0,max:100,step:1});
+        fields.innerHTML=field('Initiative','f-name','text',[],false,{minlength:3,maxlength:120,placeholder:'Outcome-oriented initiative name'})+field('Short ID','f-id','text',[],false,{minlength:2,maxlength:12,pattern:'[A-Za-z0-9_-]{2,12}',placeholder:'e.g. REC-01'})+field('Outcome','f-outcome','textarea',[],true,{minlength:10,maxlength:400,placeholder:'Measurable business outcome'})+field('Theme','f-theme','select',['Compliance & Risk','Platform Modernisation','User Experience','Innovation'])+field('Owner','f-owner','text',[],false,{minlength:2,maxlength:80})+field('Start date','f-start','date')+field('Target end date','f-end','date')+field('Dependencies (initiative IDs)','f-dependencies','text',[],true,{required:false,maxlength:160,placeholder:'e.g. EOL, REC — leave blank if none'})+scoringGuide()+field('Risk reduction (1–5)','f-risk','number',[],false,{min:1,max:5,step:1})+field('Business value (1–5)','f-value','number',[],false,{min:1,max:5,step:1})+field('Time criticality (1–5)','f-urgency','number',[],false,{min:1,max:5,step:1})+field('Strategic alignment (1–5)','f-strategy','number',[],false,{min:1,max:5,step:1})+field('Evidence confidence (1–5)','f-confidence','number',[],false,{min:1,max:5,step:1})+field('Available capacity (1–5)','f-capacity','number',[],false,{min:1,max:5,step:1})+field('Effort / job size (1–5)','f-effort','number',[],false,{min:1,max:5,step:1})+field('Mandatory override','f-override','select',overrideTypes)+field('Override rationale','f-override-reason','textarea',[],true,{required:false,maxlength:500,placeholder:'Required for mandatory work: cite the obligation, incident, support deadline or dependency.'})+field('Mandatory deadline','f-override-deadline','date',[],false,{required:false})+field('Delivery health','f-status','select',['Planned','On track','At risk','Blocked','Done'])+field('Lifecycle','f-lifecycle','select',lifecycleStatuses)+field('Progress %','f-progress','number',[],false,{min:0,max:100,step:1});
       } else if(kind==='risk'){
         root.querySelector('#pm-dialog-title').textContent=record?'Edit risk and control':'Add risk and control';
         fields.innerHTML=field('Risk','f-name','text',[],false,{minlength:10,maxlength:180,placeholder:'Cause → event → impact'})+field('Owner','f-owner','text',[],false,{minlength:2,maxlength:80})+field('Control','f-control','textarea',[],true,{minlength:10,maxlength:500})+field('Likelihood (1–5)','f-likelihood','number',[],false,{min:1,max:5,step:1})+field('Impact (1–5)','f-impact','number',[],false,{min:1,max:5,step:1})+field('Evidence / next action','f-evidence','textarea',[],true,{minlength:5,maxlength:500});
