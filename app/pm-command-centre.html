@@ -4,38 +4,43 @@
     body { margin:0; }
     #pm-command-centre {
       color-scheme:light dark;
-      --background:light-dark(#f7f8fa,#111316);
-      --foreground:light-dark(#1a1c1f,#f7f8fa);
-      --card:light-dark(#fff,#1b1e22);
+      --background:light-dark(#f3f6fb,#0b0f16);
+      --foreground:light-dark(#172033,#f4f7fb);
+      --card:light-dark(#fff,#151b24);
       --card-foreground:var(--foreground);
-      --primary:light-dark(#1f5eff,#8fb0ff);
+      --primary:light-dark(#3157d5,#91a9ff);
       --primary-foreground:light-dark(#fff,#111316);
-      --secondary:light-dark(#eef1f5,#252a30);
-      --muted:light-dark(#e7eaf0,#292e35);
-      --muted-foreground:light-dark(#596170,#aeb6c2);
-      --accent:light-dark(#edf3ff,#202c43);
+      --secondary:light-dark(#eef2f8,#202938);
+      --muted:light-dark(#e6ebf3,#253040);
+      --muted-foreground:light-dark(#637087,#a9b4c5);
+      --accent:light-dark(#e8edff,#222d4b);
       --accent-foreground:var(--foreground);
-      --border:light-dark(#d8dde6,#39404a);
-      --ring:light-dark(#1f5eff,#8fb0ff);
+      --border:light-dark(#dce3ee,#303b4d);
+      --ring:light-dark(#3157d5,#91a9ff);
       --destructive:light-dark(#b42318,#ff8a80);
       --viz-series-1:light-dark(#3168d8,#82aaff);
       --viz-series-2:light-dark(#16855b,#63d3a1);
       --viz-series-4:light-dark(#b85c00,#ffb45c);
       min-height:100vh;
-      padding:clamp(16px,3vw,36px);
-      background:var(--background);
+      padding:clamp(12px,2.5vw,32px);
+      background:
+        radial-gradient(circle at 8% -10%,color-mix(in srgb,var(--primary) 15%,transparent),transparent 30rem),
+        radial-gradient(circle at 95% 4%,color-mix(in srgb,var(--viz-series-2) 9%,transparent),transparent 26rem),
+        var(--background);
       color:var(--foreground);
       font:14px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
     }
     #pm-command-centre[data-theme="light"] { color-scheme:light; }
     #pm-command-centre[data-theme="dark"] { color-scheme:dark; }
-    #pm-command-centre h1 { margin:0; font-size:clamp(1.65rem,3vw,2.35rem); line-height:1.12; }
+    #pm-command-centre h1 { margin:0; font-size:clamp(1.75rem,3vw,2.55rem); line-height:1.08; letter-spacing:-.035em; }
     #pm-command-centre h2 { font-size:1.2rem; }
     #pm-command-centre h3 { font-size:1rem; }
     #pm-command-centre button, #pm-command-centre input, #pm-command-centre select, #pm-command-centre textarea { font:inherit; }
-    #pm-command-centre .card { background:var(--card); color:var(--card-foreground); border:1px solid var(--border); border-radius:12px; }
-    #pm-command-centre .btn { display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:44px; padding:9px 12px; border:1px solid var(--border); border-radius:8px; background:var(--secondary); color:var(--foreground); cursor:pointer; text-decoration:none; }
+    #pm-command-centre .app-shell { width:min(1480px,100%); margin:0 auto; }
+    #pm-command-centre .card { background:color-mix(in srgb,var(--card) 96%,transparent); color:var(--card-foreground); border:1px solid var(--border); border-radius:16px; box-shadow:0 1px 2px color-mix(in srgb,var(--foreground) 5%,transparent),0 14px 40px color-mix(in srgb,var(--foreground) 4%,transparent); }
+    #pm-command-centre .btn { display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:44px; padding:8px 12px; border:1px solid var(--border); border-radius:10px; background:var(--secondary); color:var(--foreground); cursor:pointer; text-decoration:none; transition:transform .16s ease,background .16s ease,border-color .16s ease,box-shadow .16s ease; }
     #pm-command-centre .btn:hover { background:var(--accent); }
+    #pm-command-centre .btn:active { transform:translateY(1px); }
     #pm-command-centre .btn:focus-visible, #pm-command-centre :is(input,select,textarea):focus-visible { outline:3px solid var(--ring); outline-offset:2px; }
     #pm-command-centre .btn-primary { border-color:var(--primary); background:var(--primary); color:var(--primary-foreground); }
     #pm-command-centre .btn-primary:hover { filter:brightness(.94); background:var(--primary); }
@@ -51,24 +56,42 @@
     #pm-command-centre .text-destructive { color:var(--destructive); }
     #pm-command-centre .sr-only { position:absolute!important; width:1px!important; height:1px!important; padding:0!important; margin:-1px!important; overflow:hidden!important; clip:rect(0,0,0,0)!important; white-space:nowrap!important; border:0!important; }
     #pm-command-centre * { box-sizing: border-box; }
-    #pm-command-centre .topline { display:flex; gap:16px; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; margin-bottom:16px; }
+    #pm-command-centre .app-header { position:relative; overflow:hidden; display:grid; grid-template-columns:minmax(260px,1fr) auto; gap:22px; align-items:center; padding:20px 22px; margin-bottom:12px; background:linear-gradient(135deg,color-mix(in srgb,var(--card) 96%,var(--primary) 4%),var(--card)); }
+    #pm-command-centre .app-header::after { content:''; position:absolute; right:-60px; top:-90px; width:260px; height:260px; border-radius:50%; background:color-mix(in srgb,var(--primary) 8%,transparent); pointer-events:none; }
+    #pm-command-centre .brand { position:relative; z-index:1; display:flex; gap:14px; align-items:center; }
+    #pm-command-centre .brand-mark { display:grid; place-items:center; flex:0 0 auto; width:48px; height:48px; border-radius:14px; color:white; background:linear-gradient(145deg,#3157d5,#6e56cf); box-shadow:0 10px 24px color-mix(in srgb,var(--primary) 30%,transparent); font-weight:800; letter-spacing:-.04em; }
+    #pm-command-centre .eyebrow { margin:0 0 4px; color:var(--primary); font-size:.75rem; font-weight:750; letter-spacing:.12em; text-transform:uppercase; }
+    #pm-command-centre .topline { display:contents; }
+    #pm-command-centre .header-actions { position:relative; z-index:1; display:flex; justify-content:flex-end; align-items:center; flex-wrap:wrap; gap:8px; }
+    #pm-command-centre .header-actions .btn-primary { box-shadow:0 8px 20px color-mix(in srgb,var(--primary) 24%,transparent); }
     #pm-command-centre .subtitle { color:var(--muted-foreground); margin:4px 0 0; }
-    #pm-command-centre .tabs { display:flex; flex-wrap:wrap; gap:6px; padding-bottom:14px; border-bottom:1px solid var(--border); margin-bottom:16px; }
-    #pm-command-centre .command-bar { display:grid; grid-template-columns:minmax(220px,1fr) minmax(150px,220px) auto; gap:10px; align-items:end; margin:0 0 16px; }
+    #pm-command-centre .system-strip { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px 14px; margin-bottom:12px; padding:8px 12px; color:var(--muted-foreground); font-size:.88rem; }
+    #pm-command-centre .utility-actions, #pm-command-centre .system-status { display:flex; align-items:center; flex-wrap:wrap; gap:6px; }
+    #pm-command-centre .utility-actions .btn { min-height:36px; padding:6px 9px; border-color:transparent; background:transparent; }
+    #pm-command-centre .utility-actions .btn:hover { border-color:var(--border); background:var(--secondary); }
+    #pm-command-centre .tabs { display:flex; flex-wrap:wrap; gap:4px; padding:6px; margin:0 0 16px; border:1px solid var(--border); border-radius:14px; background:color-mix(in srgb,var(--card) 90%,transparent); box-shadow:0 8px 28px color-mix(in srgb,var(--foreground) 4%,transparent); }
+    #pm-command-centre .tabs .btn { min-height:38px; border-color:transparent; background:transparent; color:var(--muted-foreground); }
+    #pm-command-centre .tabs .btn[aria-selected="true"] { color:var(--primary-foreground); background:var(--primary); box-shadow:0 5px 14px color-mix(in srgb,var(--primary) 22%,transparent); }
+    #pm-command-centre .command-bar { display:grid; grid-template-columns:minmax(260px,1fr) minmax(170px,220px) auto; gap:10px; align-items:end; margin:0 0 12px; padding:12px; }
     #pm-command-centre .connection[data-online="false"] { color:var(--destructive); }
     #pm-command-centre .mobile-nav-label { display:none; }
     #pm-command-centre .panel { display:none; }
-    #pm-command-centre .panel.active { display:block; }
-    #pm-command-centre .stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-bottom:18px; }
+    #pm-command-centre .panel.active { display:block; animation:panel-in .22s ease-out; }
+    @keyframes panel-in { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:none; } }
+    #pm-command-centre .stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-bottom:18px; }
+    #pm-command-centre .stats .card { position:relative; overflow:hidden; min-height:112px; padding:16px; }
+    #pm-command-centre .stats .card::before { content:''; position:absolute; inset:0 auto 0 0; width:4px; background:linear-gradient(var(--primary),var(--viz-series-2)); }
+    #pm-command-centre .stats .viz-stat-value { font-size:1.85rem; letter-spacing:-.04em; }
     #pm-command-centre .stat-note { color:var(--muted-foreground); margin-top:4px; }
     #pm-command-centre .split { display:grid; grid-template-columns:minmax(0,1.4fr) minmax(260px,.6fr); gap:22px; align-items:start; }
     #pm-command-centre .section { margin-bottom:24px; }
+    #pm-command-centre .surface { padding:18px; }
     #pm-command-centre .section-head { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:10px; }
     #pm-command-centre .section-head h2, #pm-command-centre .section-head h3 { margin:0; }
-    #pm-command-centre .table-wrap { overflow-x:auto; }
+    #pm-command-centre .table-wrap { overflow-x:auto; border:1px solid var(--border); border-radius:14px; background:var(--card); box-shadow:0 8px 28px color-mix(in srgb,var(--foreground) 3%,transparent); }
     #pm-command-centre table { width:100%; border-collapse:collapse; min-width:650px; }
-    #pm-command-centre th { text-align:left; color:var(--muted-foreground); font-weight:500; border-bottom:1px solid var(--border); padding:8px; }
-    #pm-command-centre td { border-bottom:1px solid var(--border); padding:10px 8px; vertical-align:top; }
+    #pm-command-centre th { text-align:left; color:var(--muted-foreground); font-size:.78rem; letter-spacing:.04em; text-transform:uppercase; font-weight:700; border-bottom:1px solid var(--border); padding:11px 12px; background:color-mix(in srgb,var(--secondary) 68%,transparent); }
+    #pm-command-centre td { border-bottom:1px solid var(--border); padding:12px; vertical-align:top; }
     #pm-command-centre tr[data-id] { cursor:pointer; }
     #pm-command-centre tr[data-id]:hover { background:var(--accent); color:var(--accent-foreground); }
     #pm-command-centre .name { font-weight:500; }
@@ -86,7 +109,8 @@
     #pm-command-centre .axis-x { position:absolute; left:42%; bottom:-34px; color:var(--muted-foreground); }
     #pm-command-centre .bubble { position:absolute; transform:translate(-50%,50%); width:38px; height:38px; border-radius:50%; border:0; background:color-mix(in srgb,var(--viz-series-1) 24%,var(--card)); color:var(--card-foreground); display:grid; place-items:center; cursor:pointer; font-weight:500; }
     #pm-command-centre .bubble:hover, #pm-command-centre .bubble:focus { outline:2px solid var(--ring); }
-    #pm-command-centre .detail { padding:14px; }
+    #pm-command-centre .detail { padding:18px; }
+    #pm-command-centre #pm-detail { position:sticky; top:76px; }
     #pm-command-centre .detail dl { display:grid; grid-template-columns:auto 1fr; gap:8px 12px; margin:12px 0 0; }
     #pm-command-centre .detail dt { color:var(--muted-foreground); }
     #pm-command-centre .detail dd { margin:0; }
@@ -111,9 +135,11 @@
     #pm-command-centre .score-guide-list { display:grid; grid-template-columns:minmax(120px,.7fr) 1fr; gap:8px 14px; margin:0; }
     #pm-command-centre .score-guide-list dt { font-weight:650; }
     #pm-command-centre .score-guide-list dd { margin:0; color:var(--muted-foreground); }
-    #pm-command-centre dialog { color:var(--foreground); background:var(--card); border:1px solid var(--border); border-radius:12px; width:min(620px,calc(100% - 24px)); }
+    #pm-command-centre dialog { color:var(--foreground); background:var(--card); border:1px solid var(--border); border-radius:18px; width:min(680px,calc(100% - 24px)); padding:20px; box-shadow:0 24px 80px color-mix(in srgb,#000 35%,transparent); }
     #pm-command-centre dialog::backdrop { background:color-mix(in srgb,var(--foreground) 28%,transparent); }
     #pm-command-centre .dialog-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:16px; }
+    #pm-command-centre .onboarding-choice { display:flex; align-items:center; gap:9px; color:var(--muted-foreground); }
+    #pm-command-centre .onboarding-choice input { flex:0 0 auto; width:18px; height:18px; margin:0; accent-color:var(--primary); }
     #pm-command-centre textarea { min-height:90px; }
     #pm-command-centre .health-list { display:grid; gap:12px; }
     #pm-command-centre .health-row { display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center; }
@@ -139,20 +165,25 @@
     #pm-command-centre .archived-row .name::after { content:' · Archived'; color:var(--muted-foreground); font-weight:400; }
     #pm-command-centre .legend { display:flex; flex-wrap:wrap; gap:12px; color:var(--muted-foreground); margin-top:8px; }
     #pm-command-centre .legend span { display:inline-flex; align-items:center; gap:6px; }
-    #pm-command-centre .check-result { width:100%; text-align:right; color:var(--muted-foreground); }
-    #pm-command-centre.presentation .topline .viz-row > :not(#pm-presentation):not(#pm-network-status), #pm-command-centre.presentation .command-bar, #pm-command-centre.presentation .item-actions, #pm-command-centre.presentation button[id^="pm-add"], #pm-command-centre.presentation #pm-recalculate, #pm-command-centre.presentation #pm-clear-report-note, #pm-command-centre.presentation #pm-save-report-note { display:none!important; }
+    #pm-command-centre .check-result { color:var(--muted-foreground); }
+    #pm-command-centre.presentation .header-actions > :not(#pm-presentation), #pm-command-centre.presentation .utility-actions, #pm-command-centre.presentation .command-bar, #pm-command-centre.presentation .item-actions, #pm-command-centre.presentation button[id^="pm-add"], #pm-command-centre.presentation #pm-recalculate, #pm-command-centre.presentation #pm-clear-report-note, #pm-command-centre.presentation #pm-save-report-note { display:none!important; }
     #pm-command-centre.presentation { font-size:16px; }
     #pm-command-centre.presentation .card { box-shadow:0 8px 30px color-mix(in srgb,var(--foreground) 8%,transparent); }
     @media (max-width:720px) {
       #pm-command-centre { padding:12px; }
+      #pm-command-centre .app-header { grid-template-columns:1fr; padding:16px; }
+      #pm-command-centre .header-actions { justify-content:flex-start; }
+      #pm-command-centre .header-actions .btn { flex:1 1 auto; }
+      #pm-command-centre .system-strip { align-items:flex-start; }
+      #pm-command-centre .utility-actions { width:100%; overflow-x:auto; flex-wrap:nowrap; padding-bottom:3px; }
+      #pm-command-centre .utility-actions .btn { flex:0 0 auto; }
       #pm-command-centre .stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
       #pm-command-centre .split, #pm-command-centre .form-grid { grid-template-columns:1fr; }
       #pm-command-centre .template-layout { grid-template-columns:1fr; }
-      #pm-command-centre .topline .viz-row { width:100%; }
-      #pm-command-centre .topline .viz-row .btn { flex:1 1 44%; }
       #pm-command-centre .command-bar { grid-template-columns:1fr; }
-      #pm-command-centre .tabs { flex-wrap:nowrap; overflow-x:auto; scroll-snap-type:x proximity; position:sticky; top:0; z-index:5; background:var(--background); padding:8px 0 10px; }
+      #pm-command-centre .tabs { flex-wrap:nowrap; overflow-x:auto; scroll-snap-type:x proximity; position:sticky; top:0; z-index:5; padding:6px; }
       #pm-command-centre .tabs .btn { flex:0 0 auto; scroll-snap-align:start; }
+      #pm-command-centre #pm-detail { position:static; }
       #pm-command-centre .timeline-row { display:block; border:1px solid var(--border); border-radius:10px; overflow:hidden; }
       #pm-command-centre .timeline-row:first-child { display:none; }
       #pm-command-centre .timeline-grid { display:block; min-height:0; background:none; }
@@ -167,32 +198,49 @@
       #pm-command-centre .form-grid .wide { grid-column:auto; }
       #pm-command-centre dialog { max-height:calc(100dvh - 16px); overflow:auto; margin:8px auto; }
     }
+    @media (max-width:460px) {
+      #pm-command-centre .stats { grid-template-columns:1fr; }
+      #pm-command-centre .brand-mark { width:42px; height:42px; border-radius:12px; }
+      #pm-command-centre .system-status { gap:5px; }
+      #pm-command-centre .viz-badge { font-size:.78rem; }
+    }
     @media (prefers-reduced-motion:reduce) { #pm-command-centre *, #pm-command-centre *::before, #pm-command-centre *::after { scroll-behavior:auto!important; transition:none!important; animation:none!important; } }
   </style>
 
-  <div class="topline">
-    <div>
-      <h1>Voice &amp; Archive PM Command Centre</h1>
-      <p class="subtitle">Outcome-led governance for a regulated communications platform</p>
+  <div class="app-shell">
+  <header class="app-header card">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">PM</div>
+      <div>
+        <p class="eyebrow">Portfolio operating system</p>
+        <h1>PM Command Centre</h1>
+        <p class="subtitle">Plan, prioritise and govern work with confidence.</p>
+      </div>
     </div>
-    <div class="viz-row">
+    <div class="header-actions">
+      <button class="btn" id="pm-theme" aria-label="Theme: System">Theme: System</button>
+      <button class="btn" id="pm-presentation" aria-pressed="false">Presentation</button>
+      <button class="btn btn-primary" id="pm-add"><i data-lucide="plus" aria-hidden="true"></i> Add initiative</button>
+    </div>
+  </header>
+  <div class="system-strip">
+    <div class="utility-actions" aria-label="Workspace tools">
       <button class="btn" id="pm-toggle-archived" aria-pressed="false"><i data-lucide="archive" aria-hidden="true"></i> Show archived</button>
       <button class="btn" id="pm-import"><i data-lucide="upload" aria-hidden="true"></i> Import</button>
       <input type="file" id="pm-import-file" accept="application/json,.json" class="sr-only" aria-label="Import command-centre JSON file">
       <button class="btn" id="pm-export"><i data-lucide="download" aria-hidden="true"></i> Export</button>
       <button class="btn" id="pm-run-checks"><i data-lucide="shield-check" aria-hidden="true"></i> Run checks</button>
-      <button class="btn" id="pm-theme" aria-label="Theme: System">Theme: System</button>
-      <button class="btn" id="pm-presentation" aria-pressed="false">Presentation</button>
       <button class="btn" id="pm-sync" type="button" aria-label="Synchronize now">Syncing…</button>
-      <button class="btn btn-primary" id="pm-add"><i data-lucide="plus" aria-hidden="true"></i> Add initiative</button>
+    </div>
+    <div class="system-status">
       <span class="viz-badge connection" id="pm-network-status" role="status" aria-live="polite"></span>
       <span class="viz-badge" id="pm-storage-status" role="status" aria-live="polite"></span>
-      <div class="check-result" id="pm-check-result" role="status" aria-live="polite"></div>
+      <span class="viz-badge" id="pm-check-result" role="status" aria-live="polite"></span>
     </div>
   </div>
   <div class="check-result" id="pm-notification" role="status" aria-live="polite" hidden></div>
 
-  <div class="command-bar" role="search" aria-label="Search and filter command-centre records">
+  <div class="command-bar card" role="search" aria-label="Search and filter command-centre records">
     <label class="form-label" for="pm-search">Search<input class="form-control" id="pm-search" type="search" placeholder="Initiative, owner, theme, risk or decision"></label>
     <label class="form-label" for="pm-status-filter">Status<select class="form-select" id="pm-status-filter"><option value="all">All statuses</option><option>Draft</option><option>Active</option><option>Blocked</option><option>Completed</option><option>Archived</option></select></label>
     <button class="btn" id="pm-clear-filters">Clear filters</button>
@@ -214,7 +262,7 @@
     <div id="pm-product-brief"></div>
     <div class="split">
       <div>
-        <div class="section">
+        <div class="section card surface">
           <div class="section-head"><h2 id="pm-matrix-title">Priority portfolio</h2><span class="text-muted">Risk, value, urgency and strategy · adjusted for evidence, effort, capacity and dependencies · mandatory work overrides score</span></div>
           <div class="matrix" id="pm-matrix" role="group" aria-labelledby="pm-matrix-title" aria-describedby="pm-matrix-description">
             <span class="sr-only" id="pm-matrix-description">Select an initiative to inspect its priority, status, dates and dependencies.</span>
@@ -222,7 +270,7 @@
           </div>
           <div class="legend"><span><i class="dot on-track"></i>On track</span><span><i class="dot at-risk"></i>At risk</span><span><i class="dot blocked"></i>Blocked</span></div>
         </div>
-        <div class="section">
+        <div class="section card surface">
           <div class="section-head"><h2>Outcome metrics</h2><button class="btn" id="pm-add-metric"><i data-lucide="plus" aria-hidden="true"></i> Add metric</button></div>
           <div class="health-list" id="pm-health"></div>
         </div>
@@ -300,9 +348,10 @@
     <div class="section-head"><h2 id="pm-onboarding-title">Welcome to your PM Command Centre</h2></div>
     <p id="pm-onboarding-copy">Explore the synthetic portfolio safely and filter any view. Your signed-in workspace saves automatically; Export remains available for portable backups.</p>
     <ol><li>Start in Overview to understand portfolio health.</li><li>Use Roadmap and Backlog to plan and prioritise.</li><li>Use Presentation for a read-only meeting view.</li></ol>
-    <label class="form-label"><input type="checkbox" id="pm-onboarding-dismiss"> Don’t show this introduction again</label>
+    <label class="onboarding-choice"><input type="checkbox" id="pm-onboarding-dismiss"> Don’t show this introduction again</label>
     <div class="dialog-actions"><button class="btn btn-primary" id="pm-onboarding-start" type="button">Start exploring</button></div>
   </dialog>
+  </div>
 
   <script>
   (() => {
@@ -928,7 +977,7 @@
       const reds=active.filter(i=>['At risk','Blocked'].includes(i.status));
       const high=source.risks.filter(r=>isActiveRecord(r)&&r.likelihood*r.impact>=15);
       const priorityLines=top.length?top.map((i,n)=>`${n+1}. ${i.name} — ${i.outcome} (${i.progress}%, ${i.status}; ${priorityLabel(i)})`).join('\n'):'No active priorities.';
-      return `VOICE & ARCHIVE — WEEKLY EXECUTIVE UPDATE\n\nOVERALL POSITION\nThe portfolio is focused on protecting the firm’s licence to operate while modernising the communications platform. ${reds.length?`${reds.length} initiative(s) require attention.`:'Delivery remains on track.'}\n\nTOP PRIORITIES\n${priorityLines}\n\nRISKS & CONTROLS\n${high.length?high.map(r=>`• ${r.name}: ${r.control}. Next: ${r.evidence}`).join('\n'):'• No high-rated risks currently recorded.'}\n\nMETRICS\n${source.metrics.filter(m=>!m.archived).map(m=>`• ${m.name}: ${m.current}${m.unit} vs ${m.target}${m.unit} target`).join('\n')||'• No active metrics recorded.'}\n\nDECISIONS / SUPPORT REQUIRED\n${reds.length?`• Confirm mitigation and recovery dates for ${reds.map(i=>i.name).join(', ')}.`:'• No executive decision required this week.'}`;
+      return `PM COMMAND CENTRE — WEEKLY EXECUTIVE UPDATE\n\nOVERALL POSITION\nThe portfolio is focused on protecting the firm’s licence to operate while modernising the communications platform. ${reds.length?`${reds.length} initiative(s) require attention.`:'Delivery remains on track.'}\n\nTOP PRIORITIES\n${priorityLines}\n\nRISKS & CONTROLS\n${high.length?high.map(r=>`• ${r.name}: ${r.control}. Next: ${r.evidence}`).join('\n'):'• No high-rated risks currently recorded.'}\n\nMETRICS\n${source.metrics.filter(m=>!m.archived).map(m=>`• ${m.name}: ${m.current}${m.unit} vs ${m.target}${m.unit} target`).join('\n')||'• No active metrics recorded.'}\n\nDECISIONS / SUPPORT REQUIRED\n${reds.length?`• Confirm mitigation and recovery dates for ${reds.map(i=>i.name).join(', ')}.`:'• No executive decision required this week.'}`;
     }
     function composeReportText(source){
       const live=buildReportText(source),override=source.reportOverrides?.executiveCommentary,note=override?.enabled?override.text?.trim():'';
@@ -1404,7 +1453,7 @@
         render();
       }catch(error){data=previous;render();alert(`Import failed and previous data was restored: ${error.message}`);}
     };
-    root.querySelector('#pm-export').onclick=()=>{const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='voice-archive-pm-data.json';a.click();URL.revokeObjectURL(a.href)};
+    root.querySelector('#pm-export').onclick=()=>{const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='pm-command-centre-data.json';a.click();URL.revokeObjectURL(a.href)};
     const preferenceKey='pmcc-web-preferences-v1';
     let preferences={theme:'system',onboardingComplete:false};
     try{preferences={...preferences,...JSON.parse(localStorage.getItem(preferenceKey)||'{}')}}catch{}

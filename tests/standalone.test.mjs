@@ -75,7 +75,7 @@ test('Safari authentication avoids service-worker redirect responses', async () 
   const serviceWorker = await read('service-worker.js');
   assert.match(worker, /githubLoginPage/);
   assert.match(worker, /navigationPage\('\/', 'Sign-in complete'/);
-  assert.match(serviceWorker, /pm-command-centre-v21/);
+  assert.match(serviceWorker, /pm-command-centre-v22/);
 });
 
 test('initiative lifecycle and delivery health stay compatible', async () => {
@@ -91,4 +91,13 @@ test('initiative form explains priority scoring', async () => {
   assert.match(app, /Higher effort lowers the adjusted priority score/);
   assert.match(app, /Score against evidence, not optimism/);
   assert.match(app, /popovertarget="pm-scoring-guide"/);
+});
+
+test('polished shell uses the generic PM Command Centre identity', async () => {
+  const app = await read('app/pm-command-centre.html');
+  assert.match(app, /<h1>PM Command Centre<\/h1>/);
+  assert.match(app, /Portfolio operating system/);
+  assert.match(app, /class="app-header card"/);
+  assert.match(app, /class="command-bar card"/);
+  assert.doesNotMatch(app, /Voice &amp; Archive PM Command Centre/);
 });
