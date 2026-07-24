@@ -42,7 +42,7 @@ The service worker uses network-first navigation, so the latest page is loaded w
 - Persisted executive commentary and active-only reporting
 - Persistent completed templates with transactional publication into destination workflows
 - Responsive light/dark/system interface with touch-friendly navigation, mobile tables and offline PWA recovery
-- Built-in Guide Centre, workflow playbooks and portfolio-aware PM Coach that operate locally without external AI calls
+- Built-in Guide Centre with searchable workflows, methodology and formula reference, plus a portfolio-aware PM Coach that operates locally without external AI calls
 
 ## Verification
 

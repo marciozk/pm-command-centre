@@ -924,6 +924,22 @@ html&gt;body{padding:0}&lt;/style&gt;
     #pm-command-centre .workflow ol { margin:0; padding:0 18px 14px 34px; color:var(--muted-foreground); }
     #pm-command-centre .workflow li + li { margin-top:7px; }
     #pm-command-centre .workflow .btn { margin:0 14px 14px; }
+    #pm-command-centre .help-search { display:grid; grid-template-columns:1fr auto; gap:8px; margin:12px 0 8px; }
+    #pm-command-centre .help-results { min-height:1.3em; margin:0 0 10px; color:var(--muted-foreground); font-size:.88rem; }
+    #pm-command-centre .reference-list { display:grid; gap:8px; }
+    #pm-command-centre .reference-card { border:1px solid var(--border); border-radius:12px; background:var(--card); }
+    #pm-command-centre .reference-card[hidden] { display:none; }
+    #pm-command-centre .reference-card summary { cursor:pointer; padding:13px 14px; font-weight:650; }
+    #pm-command-centre .reference-content { padding:0 14px 14px; color:var(--muted-foreground); }
+    #pm-command-centre .reference-content h4 { margin:14px 0 5px; color:var(--foreground); }
+    #pm-command-centre .reference-content h4:first-child { margin-top:0; }
+    #pm-command-centre .reference-content p { margin:5px 0; }
+    #pm-command-centre .reference-content ol, #pm-command-centre .reference-content ul { margin:7px 0; padding-left:22px; }
+    #pm-command-centre .reference-content li + li { margin-top:5px; }
+    #pm-command-centre .formula { display:block; overflow-wrap:anywhere; margin:9px 0; padding:10px; border-radius:9px; color:var(--foreground); background:var(--secondary); font:600 .84rem/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; }
+    #pm-command-centre .definition-grid { display:grid; grid-template-columns:minmax(120px,.6fr) 1.4fr; gap:7px 12px; margin:8px 0; }
+    #pm-command-centre .definition-grid dt { color:var(--foreground); font-weight:650; }
+    #pm-command-centre .definition-grid dd { margin:0; }
     #pm-command-centre .coach-card { padding:14px; border:1px solid var(--border); border-radius:14px; background:linear-gradient(145deg,color-mix(in srgb,var(--primary) 7%,var(--card)),var(--card)); }
     #pm-command-centre .coach-prompts { display:flex; flex-wrap:wrap; gap:7px; margin:10px 0; }
     #pm-command-centre .coach-prompts .btn { min-height:36px; padding:6px 9px; font-size:.86rem; }
@@ -1162,6 +1178,68 @@ html&gt;body{padding:0}&lt;/style&gt;
             &lt;details class=&quot;workflow&quot;&gt;&lt;summary&gt;Prepare the weekly executive update&lt;/summary&gt;&lt;ol&gt;&lt;li&gt;Update progress, health, risks and decisions.&lt;/li&gt;&lt;li&gt;Check the top priorities and urgent commitments on Overview.&lt;/li&gt;&lt;li&gt;Review the generated report for accuracy.&lt;/li&gt;&lt;li&gt;Add manual commentary only for verified context not present in the records.&lt;/li&gt;&lt;/ol&gt;&lt;button type=&quot;button&quot; class=&quot;btn&quot; data-guide-view=&quot;report&quot;&gt;Open Executive report&lt;/button&gt;&lt;/details&gt;
           &lt;/div&gt;
         &lt;/section&gt;
+        &lt;section class=&quot;guide-section&quot; aria-labelledby=&quot;pm-reference-title&quot;&gt;
+          &lt;h3 id=&quot;pm-reference-title&quot;&gt;Methods &amp;amp; metrics reference&lt;/h3&gt;
+          &lt;p class=&quot;guide-kicker&quot;&gt;Search the full operating guide, from first idea to executive reporting.&lt;/p&gt;
+          &lt;div class=&quot;help-search&quot;&gt;
+            &lt;label class=&quot;sr-only&quot; for=&quot;pm-help-search&quot;&gt;Search methods and metrics&lt;/label&gt;
+            &lt;input class=&quot;form-control&quot; id=&quot;pm-help-search&quot; type=&quot;search&quot; placeholder=&quot;Search workflows, methods, formulas or lifecycle rules&quot;&gt;
+            &lt;button type=&quot;button&quot; class=&quot;btn&quot; id=&quot;pm-help-clear&quot;&gt;Clear&lt;/button&gt;
+          &lt;/div&gt;
+          &lt;p class=&quot;help-results&quot; id=&quot;pm-help-results&quot; role=&quot;status&quot; aria-live=&quot;polite&quot;&gt;6 reference topics&lt;/p&gt;
+          &lt;div class=&quot;reference-list&quot; id=&quot;pm-help-reference&quot;&gt;
+            &lt;details class=&quot;reference-card&quot; data-help-item data-help-terms=&quot;workflow idea discovery delivery reporting portfolio&quot;&gt;
+              &lt;summary&gt;How work flows through the app&lt;/summary&gt;
+              &lt;div class=&quot;reference-content&quot;&gt;
+                &lt;ol&gt;&lt;li&gt;&lt;strong&gt;Frame:&lt;/strong&gt; use Product one-pager to define the customer, problem, vision and outcomes.&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Assess:&lt;/strong&gt; use Initiative brief, Discovery brief or Business case to test evidence and options.&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Commit:&lt;/strong&gt; publish a decision-ready item into the portfolio, then confirm its final initiative fields.&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Prioritise and sequence:&lt;/strong&gt; use Backlog for rank and Roadmap for dates and dependencies.&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Control:&lt;/strong&gt; maintain risks, controls, decisions, stakeholders and vendors as delivery progresses.&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Report and learn:&lt;/strong&gt; generate the Executive update, then complete a Post-implementation review.&lt;/li&gt;&lt;/ol&gt;
+                &lt;p&gt;Draft work stays outside active reporting. Activate only committed work; complete or archive it when it should leave the active portfolio.&lt;/p&gt;
+              &lt;/div&gt;
+            &lt;/details&gt;
+            &lt;details class=&quot;reference-card&quot; data-help-item data-help-terms=&quot;templates publish destination saved work product one-pager initiative brief discovery business case risk decision executive vendor launch review&quot;&gt;
+              &lt;summary&gt;Template workflow &amp;amp; publication destinations&lt;/summary&gt;
+              &lt;div class=&quot;reference-content&quot;&gt;
+                &lt;p&gt;Complete a template, review the generated draft, then choose &lt;strong&gt;Add to command centre&lt;/strong&gt;. Publication validates and writes the destination record as one transaction; a failure leaves the original data unchanged. Published entries are immutable and remain in Saved work.&lt;/p&gt;
+                &lt;dl class=&quot;definition-grid&quot;&gt;&lt;dt&gt;Product one-pager&lt;/dt&gt;&lt;dd&gt;Overview product brief&lt;/dd&gt;&lt;dt&gt;Initiative, prioritisation, discovery, business case&lt;/dt&gt;&lt;dd&gt;Backlog initiative&lt;/dd&gt;&lt;dt&gt;Risk &amp;amp; control assessment&lt;/dt&gt;&lt;dd&gt;Risk register&lt;/dd&gt;&lt;dt&gt;Decision record&lt;/dt&gt;&lt;dd&gt;Decision log&lt;/dd&gt;&lt;dt&gt;Executive update&lt;/dt&gt;&lt;dd&gt;Executive report&lt;/dd&gt;&lt;dt&gt;Vendor evaluation&lt;/dt&gt;&lt;dd&gt;Vendor scorecard&lt;/dd&gt;&lt;dt&gt;Launch plan&lt;/dt&gt;&lt;dd&gt;Launch record&lt;/dd&gt;&lt;dt&gt;Post-implementation review&lt;/dt&gt;&lt;dd&gt;Review record&lt;/dd&gt;&lt;/dl&gt;
+                &lt;p&gt;Publishing an initiative template opens a final confirmation so you can supply required portfolio fields such as ID, owner, dates, dependencies, scores and lifecycle.&lt;/p&gt;
+              &lt;/div&gt;
+            &lt;/details&gt;
+            &lt;details class=&quot;reference-card&quot; data-help-item data-help-terms=&quot;methodologies tools product vision lean canvas okr opportunity assessment wsjf rice moscow continuous discovery assumption mapping cost benefit tco roi rcsa bowtie daci adr rag sirn raci after action benefits&quot;&gt;
+              &lt;summary&gt;Methodologies &amp;amp; decision tools&lt;/summary&gt;
+              &lt;div class=&quot;reference-content&quot;&gt;
+                &lt;h4&gt;Product and discovery&lt;/h4&gt;&lt;p&gt;&lt;strong&gt;Product Vision + Lean Product Canvas + OKRs&lt;/strong&gt; connect the future state and customer problem to measurable outcomes. &lt;strong&gt;Opportunity Assessment + Lean Business Case&lt;/strong&gt; test the problem, evidence, alternatives and dependencies. &lt;strong&gt;Continuous Discovery + Assumption Mapping&lt;/strong&gt; test value, usability, feasibility and viability before delivery.&lt;/p&gt;
+                &lt;h4&gt;Prioritisation and investment&lt;/h4&gt;&lt;p&gt;&lt;strong&gt;Adjusted WSJF, supported by RICE and MoSCoW&lt;/strong&gt; ranks economic value while preserving explicit mandatory obligations. &lt;strong&gt;Cost–Benefit Analysis + TCO + ROI&lt;/strong&gt; compare action, inaction, lifecycle cost and measurable benefit.&lt;/p&gt;
+                &lt;h4&gt;Risk, decisions and communication&lt;/h4&gt;&lt;p&gt;&lt;strong&gt;RCSA + 5×5 Risk Matrix + Bowtie&lt;/strong&gt; connect causes, controls, events and consequences. &lt;strong&gt;Architecture Decision Record + DACI&lt;/strong&gt; preserve rationale and ownership. &lt;strong&gt;RAG + SIRN&lt;/strong&gt; structure concise leadership updates around Situation, Impact, Recommendation and Next steps.&lt;/p&gt;
+                &lt;h4&gt;Suppliers, launch and learning&lt;/h4&gt;&lt;p&gt;&lt;strong&gt;Weighted Decision Matrix + TCO&lt;/strong&gt; compare vendors consistently. &lt;strong&gt;Go/No-Go Readiness + RACI&lt;/strong&gt; establish evidence gates and accountability. &lt;strong&gt;After-Action Review + Benefits Realisation&lt;/strong&gt; compare promised and actual outcomes and capture lessons.&lt;/p&gt;
+              &lt;/div&gt;
+            &lt;/details&gt;
+            &lt;details class=&quot;reference-card&quot; data-help-item data-help-terms=&quot;metrics formulas priority score risk reduction business value urgency strategic alignment confidence capacity effort dependency readiness progress vendor risk rating overview statistics&quot;&gt;
+              &lt;summary&gt;Metrics &amp;amp; formulas&lt;/summary&gt;
+              &lt;div class=&quot;reference-content&quot;&gt;
+                &lt;h4&gt;Priority score&lt;/h4&gt;
+                &lt;span class=&quot;formula&quot;&gt;Weighted value = (Risk reduction × 2) + (Business value × 2) + (Time criticality × 1.5) + (Strategic alignment × 1.5)&lt;/span&gt;
+                &lt;span class=&quot;formula&quot;&gt;Priority = Weighted value × (Confidence ÷ 5) × (Capacity ÷ 5) × Dependency readiness ÷ max(1, Effort)&lt;/span&gt;
+                &lt;p&gt;The displayed result is rounded to one decimal. Mandatory work ranks before scored work; it is then ordered by earliest deadline and override type.&lt;/p&gt;
+                &lt;h4&gt;Dependency readiness&lt;/h4&gt;&lt;p&gt;No dependencies or all completed = 100%; a missing ID = 25%; any blocked = 40%; any at risk = 65%; otherwise = 80%.&lt;/p&gt;
+                &lt;h4&gt;Risk, progress and vendors&lt;/h4&gt;&lt;p&gt;Risk rating = likelihood × impact: High ≥ 15, Medium ≥ 8, Low &amp;lt; 8. Metric attainment = current ÷ target, capped at 100%. Vendor combined assessment = rounded average of capability fit and support.&lt;/p&gt;
+                &lt;h4&gt;Overview cards&lt;/h4&gt;&lt;p&gt;Active initiatives count Active and Blocked lifecycle records. Portfolio progress is the effort-weighted average of their progress. High risks score at least 15. Urgent commitments are mandatory or have time criticality of 4–5. Themes count distinct active themes. Search and status filters also narrow these displayed figures.&lt;/p&gt;
+              &lt;/div&gt;
+            &lt;/details&gt;
+            &lt;details class=&quot;reference-card&quot; data-help-item data-help-terms=&quot;lifecycle delivery health draft planned active on track at risk blocked completed done archived rules conflict&quot;&gt;
+              &lt;summary&gt;Lifecycle &amp;amp; delivery-health rules&lt;/summary&gt;
+              &lt;div class=&quot;reference-content&quot;&gt;
+                &lt;dl class=&quot;definition-grid&quot;&gt;&lt;dt&gt;Draft&lt;/dt&gt;&lt;dd&gt;Delivery health must be Planned.&lt;/dd&gt;&lt;dt&gt;Active&lt;/dt&gt;&lt;dd&gt;Delivery health may be On track or At risk.&lt;/dd&gt;&lt;dt&gt;Blocked&lt;/dt&gt;&lt;dd&gt;Delivery health must be Blocked.&lt;/dd&gt;&lt;dt&gt;Completed&lt;/dt&gt;&lt;dd&gt;Delivery health must be Done; progress is set to 100%.&lt;/dd&gt;&lt;dt&gt;Archived&lt;/dt&gt;&lt;dd&gt;Preserves the record but removes it from active reporting.&lt;/dd&gt;&lt;/dl&gt;
+                &lt;p&gt;These pairings prevent contradictory reporting. Completed and archived records remain available for history but do not inflate the live portfolio.&lt;/p&gt;
+              &lt;/div&gt;
+            &lt;/details&gt;
+            &lt;details class=&quot;reference-card&quot; data-help-item data-help-terms=&quot;data sync offline cloudflare d1 encryption import export validation security presentation reporting backup&quot;&gt;
+              &lt;summary&gt;Data, sync, security &amp;amp; reporting&lt;/summary&gt;
+              &lt;div class=&quot;reference-content&quot;&gt;
+                &lt;p&gt;The app works offline with local persistence. When signed in, the versioned dataset synchronises to the encrypted Cloudflare D1 workspace. Strict validation protects imports, dates, scores, dependencies, lifecycle combinations and mandatory overrides.&lt;/p&gt;
+                &lt;p&gt;Export creates a portable backup; Import validates before replacing data. Presentation mode is read-only. The Guide and PM Coach run locally with transparent rules—no portfolio data is sent to an external AI service and there are no AI usage charges.&lt;/p&gt;
+              &lt;/div&gt;
+            &lt;/details&gt;
+          &lt;/div&gt;
+        &lt;/section&gt;
         &lt;section class=&quot;guide-section&quot; aria-labelledby=&quot;pm-coach-title&quot;&gt;
           &lt;div class=&quot;coach-card&quot;&gt;
             &lt;h3 id=&quot;pm-coach-title&quot;&gt;PM Coach&lt;/h3&gt;
@@ -1169,6 +1247,8 @@ html&gt;body{padding:0}&lt;/style&gt;
             &lt;div class=&quot;coach-prompts&quot;&gt;
               &lt;button type=&quot;button&quot; class=&quot;btn&quot; data-coach-prompt=&quot;focus&quot;&gt;What should I focus on this week?&lt;/button&gt;
               &lt;button type=&quot;button&quot; class=&quot;btn&quot; data-coach-prompt=&quot;priority&quot;&gt;Explain the priority ranking&lt;/button&gt;
+              &lt;button type=&quot;button&quot; class=&quot;btn&quot; data-coach-prompt=&quot;template&quot;&gt;Which template should I use?&lt;/button&gt;
+              &lt;button type=&quot;button&quot; class=&quot;btn&quot; data-coach-prompt=&quot;metrics&quot;&gt;How are metrics calculated?&lt;/button&gt;
               &lt;button type=&quot;button&quot; class=&quot;btn&quot; data-coach-prompt=&quot;report&quot;&gt;How do I prepare the update?&lt;/button&gt;
             &lt;/div&gt;
             &lt;form class=&quot;coach-form&quot; id=&quot;pm-coach-form&quot;&gt;
@@ -1866,6 +1946,12 @@ html&gt;body{padding:0}&lt;/style&gt;
         const top=active.slice(0,3).map((item,index)=&gt;`${index+1}. ${item.name} — ${priorityLabel(item)}`).join(&#x27;\n&#x27;);
         return `Mandatory obligations rank first. Other work balances risk reduction, value, urgency and strategic alignment, then adjusts for confidence, capacity, dependency readiness and effort.\n\nCurrent top priorities:\n${top||&#x27;No active priorities.&#x27;}`;
       }
+      if(question===&#x27;template&#x27;||/(template|method|methodology|tool|one-pager|one pager)/.test(question)){
+        return &#x27;Start with Product one-pager for a new product direction; Initiative brief for a decision-ready proposal; Discovery brief when assumptions need testing; Business case for investment approval; Prioritisation assessment for competing work; Risk, Decision, Vendor, Launch and Executive templates for their matching governance records. The searchable reference above explains every method and publication destination.&#x27;;
+      }
+      if(question===&#x27;metrics&#x27;||/(metric|formula|calculat|confidence|capacity|effort|readiness)/.test(question)){
+        return &#x27;Priority uses weighted risk reduction and business value (×2), plus time criticality and strategic alignment (×1.5), adjusted by confidence, capacity, dependency readiness and effort. Mandatory obligations rank first. Risk is likelihood × impact; portfolio progress is effort-weighted. Open “Metrics &amp; formulas” above for exact thresholds and every Overview card.&#x27;;
+      }
       if(question===&#x27;report&#x27;||/(report|executive|update|leadership)/.test(question)){
         return `Before the executive update: refresh progress and delivery health, review ${attention.length} active exception${attention.length===1?&#x27;&#x27;:&#x27;s&#x27;}, validate ${highRisks.length} high-rated risk${highRisks.length===1?&#x27;&#x27;:&#x27;s&#x27;}, check decisions requiring support, then open Executive report. Add commentary only for verified context that is not already recorded.`;
       }
@@ -1878,7 +1964,17 @@ html&gt;body{padding:0}&lt;/style&gt;
         const drafts=data.initiatives.filter(item=&gt;item.lifecycleStatus===&#x27;Draft&#x27;&amp;&amp;!item.archived);
         return `${drafts.length} draft initiative${drafts.length===1?&#x27; is&#x27;:&#x27;s are&#x27;} recorded. A draft should have a measurable outcome, owner, dates and evidence-based score before moving to Active / On track.`;
       }
-      return &#x27;I can help with priorities, risks, roadmap dependencies, initiative activation and the executive update. Try asking “What should I focus on this week?”&#x27;;
+      return &#x27;I can help with templates, methodologies, metrics, priorities, risks, roadmap dependencies, initiative activation and the executive update. Search the reference library above or try asking “What should I focus on this week?”&#x27;;
+    }
+    function filterHelpReference(){
+      const search=root.querySelector(&#x27;#pm-help-search&#x27;),status=root.querySelector(&#x27;#pm-help-results&#x27;);
+      const query=search.value.trim().toLowerCase();
+      let matches=0;
+      root.querySelectorAll(&#x27;[data-help-item]&#x27;).forEach(item=&gt;{
+        const match=!query||`${item.textContent} ${item.dataset.helpTerms||&#x27;&#x27;}`.toLowerCase().includes(query);
+        item.hidden=!match;if(match)matches+=1;
+      });
+      status.textContent=query?`${matches} reference topic${matches===1?&#x27;&#x27;:&#x27;s&#x27;} found`:`${matches} reference topics`;
     }
     function labelMobileTableCells(){
       root.querySelectorAll(&#x27;table&#x27;).forEach(table=&gt;{const labels=[...table.querySelectorAll(&#x27;thead th&#x27;)].map(th=&gt;th.textContent.trim());table.querySelectorAll(&#x27;tbody tr&#x27;).forEach(row=&gt;[...row.children].forEach((cell,index)=&gt;cell.dataset.label=labels[index]||&#x27;Details&#x27;))});
@@ -2385,8 +2481,8 @@ html&gt;body{padding:0}&lt;/style&gt;
     searchInput.oninput=()=&gt;{searchQuery=searchInput.value.trim().toLowerCase();render()};
     statusSelect.onchange=()=&gt;{statusFilter=statusSelect.value;render()};
     root.querySelector(&#x27;#pm-clear-filters&#x27;).onclick=()=&gt;{searchInput.value=&#x27;&#x27;;statusSelect.value=&#x27;all&#x27;;searchQuery=&#x27;&#x27;;statusFilter=&#x27;all&#x27;;render();searchInput.focus()};
-    const guideDialog=root.querySelector(&#x27;#pm-guide&#x27;),coachAnswer=root.querySelector(&#x27;#pm-coach-answer&#x27;),coachQuestion=root.querySelector(&#x27;#pm-coach-question&#x27;);
-    root.querySelector(&#x27;#pm-guide-open&#x27;).onclick=()=&gt;{renderGuide();guideDialog.showModal()};
+    const guideDialog=root.querySelector(&#x27;#pm-guide&#x27;),coachAnswer=root.querySelector(&#x27;#pm-coach-answer&#x27;),coachQuestion=root.querySelector(&#x27;#pm-coach-question&#x27;),helpSearch=root.querySelector(&#x27;#pm-help-search&#x27;);
+    root.querySelector(&#x27;#pm-guide-open&#x27;).onclick=()=&gt;{renderGuide();filterHelpReference();guideDialog.showModal()};
     root.querySelector(&#x27;#pm-guide-close&#x27;).onclick=()=&gt;guideDialog.close();
     guideDialog.addEventListener(&#x27;click&#x27;,event=&gt;{
       const viewButton=event.target.closest(&#x27;[data-guide-view]&#x27;);
@@ -2395,6 +2491,8 @@ html&gt;body{padding:0}&lt;/style&gt;
       const prompt=event.target.closest(&#x27;[data-coach-prompt]&#x27;);
       if(prompt){coachAnswer.textContent=coachResponse(prompt.dataset.coachPrompt)}
     });
+    helpSearch.oninput=filterHelpReference;
+    root.querySelector(&#x27;#pm-help-clear&#x27;).onclick=()=&gt;{helpSearch.value=&#x27;&#x27;;filterHelpReference();helpSearch.focus()};
     root.querySelector(&#x27;#pm-coach-form&#x27;).addEventListener(&#x27;submit&#x27;,event=&gt;{event.preventDefault();const question=coachQuestion.value.trim();if(!question){coachQuestion.focus();return}coachAnswer.textContent=coachResponse(question)});
     function updateNetworkStatus(){const online=navigator.onLine;const el=root.querySelector(&#x27;#pm-network-status&#x27;);el.dataset.online=String(online);el.textContent=online?&#x27;Online · offline-ready&#x27;:&#x27;Offline · local data available&#x27;}
     addEventListener(&#x27;online&#x27;,()=&gt;{updateNetworkStatus();initialiseAutomaticSync()});addEventListener(&#x27;offline&#x27;,updateNetworkStatus);updateNetworkStatus();

@@ -75,7 +75,7 @@ test('Safari authentication avoids service-worker redirect responses', async () 
   const serviceWorker = await read('service-worker.js');
   assert.match(worker, /githubLoginPage/);
   assert.match(worker, /navigationPage\('\/', 'Sign-in complete'/);
-  assert.match(serviceWorker, /pm-command-centre-v24/);
+  assert.match(serviceWorker, /pm-command-centre-v25/);
 });
 
 test('initiative lifecycle and delivery health stay compatible', async () => {
@@ -112,5 +112,10 @@ test('Guide Centre provides offline workflows and portfolio-aware coaching', asy
   assert.match(app, /What should I focus on this week/);
   assert.match(app, /Answers use transparent rules—no external AI or usage charges/);
   assert.match(app, /data-guide-action="new-initiative"/);
+  assert.match(app, /id="pm-help-search"/);
+  assert.match(app, /Methods &amp; metrics reference/);
+  assert.match(app, /Weighted value = \(Risk reduction × 2\)/);
+  assert.match(app, /function filterHelpReference/);
+  assert.match(app, /Opportunity Assessment \+ Lean Business Case/);
   assert.doesNotMatch(app, /\/api\/(?:ai|chat|coach)/);
 });

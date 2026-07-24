@@ -1,4 +1,4 @@
-const CACHE = 'pm-command-centre-v24';
+const CACHE = 'pm-command-centre-v25';
 const APP_SHELL = [
   './index.html',
   './manifest.webmanifest',
